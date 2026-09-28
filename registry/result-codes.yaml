@@ -1,0 +1,51 @@
+# Kody wyniku odpowiedzi. ŹRÓDŁO PRAWDY.
+# Odpowiednik tabeli w 04-interakcje.md §8.
+# Pole WYNIK ma 5 bitów, czyli 32 wartości.
+
+version: 1
+changed: 2026-09-11
+
+codes:
+  - id: 0x00
+    name: OK
+    description: done
+  - id: 0x01
+    name: UNSUPPORTED_ENDPOINT
+    description: the node has no such endpoint
+  - id: 0x02
+    name: UNSUPPORTED_ELEMENT
+    description: the type knows no such attribute or command
+  - id: 0x03
+    name: UNSUPPORTED_FEATURE
+    description: the element exists, but its feature is not declared
+  - id: 0x04
+    name: READ_ONLY
+    description: an attempt to write a read-only attribute
+  - id: 0x05
+    name: WRITE_ONLY
+    description: an attempt to read a write-only attribute
+  - id: 0x06
+    name: INVALID_VALUE
+    description: wrong length, or a value out of range
+  - id: 0x07
+    name: INVALID_STATE
+    description: the operation is impossible in the current state
+  - id: 0x08
+    name: BUSY
+    description: the node cannot serve the request just now
+    repeatable: true
+  - id: 0x09
+    name: FAILURE
+    description: a hardware or storage fault
+  - id: 0x0C
+    name: UNAVAILABLE
+    description: the hub does not have this value - no source, or the source is silent
+    note: dotyczy wyłącznie zapytań węzła
+  - id: 0x0B
+    name: SEGMENTED
+    description: the value does not fit in a frame; it arrives in segments
+    note: nie jest błędem, tylko zapowiedzią
+  - id: 0x0A
+    name: INSUFFICIENT_SPACE
+    description: no room in a table of limited capacity
+    introduced_by: types/0x0003-scenes.md

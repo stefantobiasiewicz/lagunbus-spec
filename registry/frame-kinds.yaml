@@ -1,0 +1,84 @@
+# Rodzaje wiadomości — pole RODZAJ identyfikatora ramki (4 bity).
+# ŹRÓDŁO PRAWDY. Odpowiednik tabeli w 05-mapowanie-can.md §2.
+#
+# Numer JEST priorytetem: w CAN wygrywa arbitraż ramka o niższym identyfikatorze,
+# a RODZAJ siedzi na najstarszych bitach. Kolejności nie wolno zmieniać bez
+# przemyślenia skutków dla arbitrażu.
+
+version: 1
+changed: 2026-09-11
+
+kinds:
+  - id: 0x0
+    name: ALARM
+    direction: węzeł →
+    address: nadawca
+    transactional: false
+  - id: 0x1
+    name: ZDARZENIE
+    direction: węzeł →
+    address: nadawca
+    transactional: false
+  - range: "0x2"
+    name: rezerwa wysoka
+    description: >
+      Zostawiona celowo na sterowanie z węzła wymagające wysokiego priorytetu.
+      Jedyne wolne miejsce POWYŻEJ raportu; wartości 0xD-0xE leżą poniżej.
+
+  - id: 0x3
+    name: KOMENDA
+    direction: hub → węzeł
+    address: odbiorca
+    transactional: true
+  - id: 0x4
+    name: KOMENDA_GRUPOWA
+    direction: hub → grupa
+    address: numer grupy
+    transactional: false
+  - id: 0x5
+    name: ZAPIS
+    direction: hub → węzeł
+    address: odbiorca
+    transactional: true
+  - id: 0x6
+    name: ODCZYT
+    direction: hub → węzeł
+    address: odbiorca
+    transactional: true
+  - id: 0x7
+    name: ODPOWIEDŹ
+    direction: węzeł → hub
+    address: nadawca
+    transactional: true
+  - id: 0x8
+    name: RAPORT
+    direction: węzeł →
+    address: nadawca
+    transactional: false
+  - id: 0x9
+    name: ODPOWIEDŹ_DŁUGA
+    direction: węzeł → hub
+    address: nadawca
+    transactional: false
+  - id: 0xA
+    name: ZAPIS_DŁUGI
+    direction: hub → węzeł
+    address: odbiorca
+    transactional: false
+  - id: 0xB
+    name: ZAPYTANIE
+    direction: węzeł → hub
+    address: nadawca
+    transactional: true
+  - id: 0xC
+    name: ODPOWIEDŹ_HUBA
+    direction: hub → węzeł
+    address: odbiorca
+    transactional: true
+  - range: "0xD–0xE"
+    name: rezerwa
+  - id: 0xF
+    name: PRZYŁĄCZANIE
+    direction: both
+    address: brak — własny układ identyfikatora
+    transactional: false

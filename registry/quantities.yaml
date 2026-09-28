@@ -1,0 +1,133 @@
+# Wielkości fizyczne, ich typy i skale. ŹRÓDŁO PRAWDY.
+# Odpowiednik tabeli w 02-typy-danych.md §3 oraz wyliczenia Quantity
+# w types/0x0030-sense.md §2.3 — to są te same dane w dwóch rolach.
+#
+# ZASADA: skala jest właściwością WIELKOŚCI, nie atrybutu. Każda temperatura
+# w całej specyfikacji jest i16 o skali 0,01 °C — bez wyjątków i bez negocjacji.
+# Zmiana skali istniejącej wielkości jest zmianą NIEZGODNĄ WSTECZ.
+
+version: 1
+changed: 2026-09-11
+
+quantities:
+  - quantity: 0x00
+    name: TEMPERATURE
+    type: i16
+    scale: 0.01
+    unit: "°C"
+    default_hysteresis: 20      # 0,20 °C
+    default_interval_s: 60
+  - quantity: 0x01
+    name: HUMIDITY
+    type: u16
+    scale: 0.01
+    unit: "%"
+    default_hysteresis: 100     # 1,00 %
+    default_interval_s: 60
+  - quantity: 0x02
+    name: ILLUMINANCE
+    type: u32
+    scale: 0.01
+    unit: lx
+    default_hysteresis: wzgledna_10_procent_min_50lx
+    default_interval_s: 60
+  - quantity: 0x03
+    name: CO2
+    type: u16
+    scale: 1
+    unit: ppm
+    default_hysteresis: 30
+    default_interval_s: 60
+  - quantity: 0x04
+    name: VOC
+    type: u16
+    scale: 1
+    unit: ppb
+    default_interval_s: 60
+  - quantity: 0x05
+    name: PM25
+    type: u16
+    scale: 0.1
+    unit: "µg/m³"
+    default_interval_s: 60
+  - quantity: 0x06
+    name: PRESSURE
+    type: u32
+    scale: 0.01
+    unit: hPa
+    default_hysteresis: 50      # 0,5 hPa
+    default_interval_s: 300
+  - quantity: 0x07
+    name: FLOW
+    type: u32
+    scale: 0.001
+    unit: L/min
+    default_interval_s: 60
+  - quantity: 0x08
+    name: SOIL_MOISTURE
+    type: u16
+    scale: 0.01
+    unit: "%"
+    default_interval_s: 60
+  - quantity: 0x09
+    name: VOLTAGE
+    type: u32
+    scale: 0.001
+    unit: V
+    default_interval_s: 60
+  - quantity: 0x0A
+    name: CURRENT
+    type: i32
+    scale: 0.001
+    unit: A
+    signed: "ze znakiem — instalacja z fotowoltaiką oddaje do sieci"
+    default_interval_s: 60
+  - quantity: 0x0B
+    name: POWER
+    type: i32
+    scale: 0.1
+    unit: W
+    signed: "ze znakiem — jak wyżej"
+    default_hysteresis: 50      # 5 W
+    default_interval_s: 30
+  - quantity: 0x0C
+    name: DISTANCE
+    type: u32
+    scale: 1
+    unit: mm
+    default_interval_s: 60
+
+# Wielkości kumulacyjne — NIE należą do typu Sense, obsłuży je Meter (0x0031).
+# Wielkości kumulacyjne — obsługuje je typ Meter (0x0031), nie Sense.
+# Kierunek jest w Meter ATRYBUTEM, nie osobnym endpointem.
+cumulative:
+  - quantity: 0x00
+    name: ENERGY
+    type: u32
+    scale: 1
+    unit: Wh
+    note: nigdy nie maleje poza FactoryReset
+  - quantity: 0x01
+    name: VOLUME
+    type: u32
+    scale: 1
+    unit: L
+    note: woda i gaz; rozróżnia je Purpose, nie Quantity
+
+# Wielkości bezwymiarowe — nie mają pola Quantity, są wbudowane w typy.
+dimensionless:
+  - name: Poziom
+    type: u16
+    range: [0, 1000]
+    unit: "‰"
+  - name: Pozycja
+    type: u16
+    range: [0, 1000]
+    unit: "‰"
+  - name: Kanał barwy
+    type: u8
+    range: [0, 255]
+  - name: Temperatura barwowa
+    type: u16
+    range: [1, 65534]
+    unit: mired

@@ -1,0 +1,5 @@
+.DS_Store
+
+# registry/check.py
+__pycache__/
+*.py[cod]

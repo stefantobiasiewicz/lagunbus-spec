@@ -1,0 +1,35 @@
+# Klasy węzłów. ŹRÓDŁO PRAWDY dla pola NodeClass w ramce ZGŁOSZENIE.
+#
+# ZAKRES TEGO PLIKU. NodeClass mówi WYŁĄCZNIE o pilności ruchu, jaki węzeł
+# generuje, i służy wyłącznie do wyboru bloku adresowego przy przyłączaniu.
+# Nie opisuje urządzenia — to robi deskryptor, odczytywany już spod adresu.
+#
+# NodeClass NIE JEST ATRYBUTEM. Żyje w jednej ramce i nie da się go odczytać;
+# gdyby był atrybutem, powstałby drugi opis zdolności węzła, mający jak
+# rozjechać się z deskryptorem (01-model-danych.md §3).
+
+version: 1
+changed: 2026-09-17
+
+classes:
+  - id: 0
+    name: UNSPECIFIED
+    block: "0x400–0x7FD"
+    description: >
+      Węzeł nie deklaruje klasy. Trafia do rezerwy i hub przesuwa go po enumeracji
+      (06-cykl-zycia-urzadzenia.md §4). Wartość zero jest tu celowo: wyzerowany bufor
+      nadawczy daje uczciwe „nie wiem", a nie ciche zajęcie bloku o wysokim priorytecie.
+  - id: 1
+    name: CONTROL
+    block: "0x001–0x0FF"
+    description: >
+      Ruch, na który ktoś musi zareagować: wejścia obsługiwane przez człowieka,
+      wyjścia sterujące, regulatory. Węzeł mieszany należy TUTAJ — deklaruje się
+      klasę najostrzejszego ruchu, jaki węzeł generuje.
+  - id: 2
+    name: SENSOR
+    block: "0x100–0x3FF"
+    description: pomiary i liczniki raportowane cyklicznie
+
+# Wartości 3–255 są rezerwą. Nowa klasa wymaga nowego bloku adresowego,
+# a tych jest dziś trzy (03-adresacja.md §2.3) — dlatego klas też jest trzy.

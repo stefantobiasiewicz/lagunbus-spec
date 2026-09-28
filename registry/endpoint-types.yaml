@@ -1,0 +1,140 @@
+# Rejestr typów endpointów LagunBus
+# ŹRÓDŁO PRAWDY dla identyfikatorów. Tabele w markdown mają się zgadzać z tym plikiem.
+#
+# stan:  opisany  — istnieje pełna specyfikacja w types/
+#        planowany — numer zarezerwowany, specyfikacji jeszcze nie ma
+#        wolny    — numer nieprzypisany
+
+version: 1
+changed: 2026-09-16
+
+blocks:
+  - range: "0x0000–0x000F"
+    name: systemowe
+    description: present in every node, or implied by a rule rather than by the device type
+  - range: "0x0010–0x001F"
+    name: wejścia
+    description: anything that is a source of information about a person or the world
+  - range: "0x0020–0x002F"
+    name: wyjścia
+    description: anything that is driven
+  - range: "0x0030–0x003F"
+    name: pomiary
+    description: quantities measured and counted
+  - range: "0x0040–0x004F"
+    name: regulacja
+    description: >
+      Typy prowadzące pętlę sterowania w samym węźle. Nie są ani wejściem, ani wyjściem —
+      wiążą jedno z drugim w obrębie kanału i działają bez huba.
+  - range: "0x0050–0x7FFF"
+    name: rezerwa
+    description: unassigned; new standard blocks are added at the end
+  - range: "0x8000–0xFFFE"
+    name: producenckie
+    description: >
+      Typy definiowane przez obcych autorów. Znaczą cokolwiek WYŁĄCZNIE w połączeniu
+      z VendorId węzła, który je deklaruje. Hub, który nie zna danej pary
+      (VendorId, TypeId), traktuje endpoint jako nieznany i go nie interpretuje —
+      ale reszta urządzenia działa normalnie.
+      Autor potrzebujący czegoś, czego nie ma w katalogu standardowym, definiuje typ
+      TUTAJ. Nie wolno dokładać atrybutów producenckich do typów standardowych:
+      Output u jednego autora i Output u drugiego muszą znaczyć to samo, bo na tym
+      stoi cała samoopisywalność.
+  - range: "0xFFFF"
+    name: zarezerwowany
+    description: do not use
+
+types:
+  - id: 0x0001
+    name: Device
+    status: described
+    revision: 1
+    file: types/0x0001-device.md
+    fixed_endpoint: 0
+    description: the node identity
+
+  - id: 0x0002
+    name: Diagnostics
+    status: described
+    revision: 1
+    file: types/0x0002-diagnostics.md
+    fixed_endpoint: 1
+    description: the health of the node and of the bus
+
+  - id: 0x0003
+    name: Scenes
+    status: described
+    revision: 1
+    file: types/0x0003-scenes.md
+    fixed_endpoint: 3
+    condition: węzeł ma co najmniej jeden endpoint typu Output
+    description: stored output states of the node
+
+  - id: 0x0004
+    name: Groups
+    status: described
+    revision: 1
+    file: types/0x0004-groups.md
+    fixed_endpoint: 2
+    description: the table of endpoint group memberships
+
+  - id: 0x0010
+    name: KeyInput
+    status: described
+    revision: 1
+    file: types/0x0010-key-input.md
+    description: a momentary key
+
+  - id: 0x0011
+    name: ValueInput
+    status: described
+    revision: 1
+    file: types/0x0011-value-input.md
+    description: an input with a value of its own - a key pair, an encoder, a slider
+
+  - id: 0x0012
+    name: Contact
+    status: described
+    revision: 1
+    file: types/0x0012-contact.md
+    description: a two-state input that carries state
+
+  - id: 0x0013
+    name: ToggleInput
+    status: described
+    revision: 1
+    file: types/0x0013-toggle-input.md
+    description: a two-state input whose state the node itself maintains; usually with a status LED
+
+  - id: 0x0020
+    name: Output
+    status: described
+    revision: 1
+    file: types/0x0020-output.md
+    description: a driven output
+
+  - id: 0x0021
+    name: Cover
+    status: planned
+    description: a blind, shutter or awning - position and slat angle
+
+  - id: 0x0030
+    name: Sense
+    status: described
+    revision: 1
+    file: types/0x0030-sense.md
+    description: an analogue measurement of a continuous quantity
+
+  - id: 0x0040
+    name: Thermostat
+    status: described
+    revision: 1
+    file: types/0x0040-thermostat.md
+    description: temperature control for one circuit; the first type with inputs
+
+  - id: 0x0031
+    name: Meter
+    status: described
+    revision: 1
+    file: types/0x0031-meter.md
+    description: a cumulative meter - energy, water, gas; the value never decreases

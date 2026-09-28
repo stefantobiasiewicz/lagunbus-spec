@@ -1,0 +1,55 @@
+# Atrybuty wspólne — obecne na każdym endpoincie funkcjonalnym niezależnie od typu.
+# ŹRÓDŁO PRAWDY. Odpowiednik tabeli w 01-model-danych.md §4.
+#
+# Zajmują górny zakres ID (0xF0–0xFF), żeby nigdy nie kolidowały z atrybutami typu,
+# który ma do dyspozycji 0x00–0xEF.
+
+version: 1
+changed: 2026-09-11
+
+attributes:
+  - id: 0xF0
+    name: TypeId
+    type: u16
+    access: RO
+  - id: 0xF1
+    name: TypeRevision
+    type: u8
+    access: RO
+  - id: 0xF2
+    name: Features
+    type: map16
+    access: RO
+  - id: 0xF3
+    name: Enabled
+    type: bool
+    access: RW,P
+  - id: 0xF5
+    name: Channel
+    type: u8
+    access: RO,P
+    description: kanał fizyczny; 0 = nie należy do pojedynczego kanału
+  - id: 0xF6
+    name: QueryEnabled
+    type: map16
+    access: RW,P
+    description: >
+      Bit na każde wejście endpointu; hub zapala te, które umie obsłużyć.
+      Numery bitów deklaruje typ, tak samo jak przy Features. Domyślnie 0.
+  - id: 0xF8
+    name: ReportInterval
+    type: u16
+    access: RW,P
+  - id: 0xF9
+    name: ReportMinGap
+    type: u16
+    access: RW,P
+  - id: 0xFA
+    name: ReportHysteresis
+    type: u16
+    access: RW,P
+
+free:
+  - "0xF4"        # zwolniony: przynależność do grup przeniesiona do typu 0x0004
+  - "0xF7"
+  - "0xFB–0xFF"

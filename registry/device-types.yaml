@@ -1,0 +1,56 @@
+# Rejestr modeli urządzeń. ŹRÓDŁO PRAWDY dla przydziału `DeviceType`.
+#
+# UWAGA NA ZAKRES TEGO PLIKU. Jest to rejestr TOŻSAMOŚCI, nie opisu.
+# Nie ma tu i nie będzie list endpointów: te mieszkają w urządzeniu i odczyt
+# z węzła jest rozstrzygający. Hub NIGDY nie pyta tego rejestru o to, co
+# urządzenie potrafi — pyta o to, czym urządzenie jest.
+#
+# Tożsamością modelu jest PARA (VendorId, DeviceType). DeviceType jest unikalny
+# w obrębie jednego VendorId, nie globalnie. Dzięki temu obcy autor może budować
+# urządzenia bez pytania kogokolwiek o przydział numeru — wystarczy mu własny
+# VendorId.
+
+version: 1
+changed: 2026-09-11
+
+vendor:
+  id: 0
+  name: konstrukcja własna
+  description: >
+    VendorId 0 jest przestrzenią autora instalacji. Urządzenia budowane samodzielnie,
+    nieprzeznaczone do rozpowszechniania, mogą jej używać bez żadnej koordynacji.
+    Kolizja numerów między dwiema takimi instalacjami nie ma znaczenia, bo nigdy
+    się nie spotkają.
+
+blocks:
+  - range: "0x0000"
+    name: nieokreślony
+    description: węzeł, który nie deklaruje typu
+  - range: "0x0100–0x01FF"
+    name: puszki podtynkowe
+    description: klawisze, panele, enkodery
+  - range: "0x0200–0x02FF"
+    name: szyna DIN
+    description: przekaźniki, ściemniacze, sterowniki rolet
+  - range: "0x0300–0x03FF"
+    name: czujniki
+    description: moduły pomiarowe
+  - range: "0x0400–0x04FF"
+    name: specjalne
+    description: bramki, urządzenia nietypowe
+  - range: "0x0500–0xFFFE"
+    name: rezerwa
+  - range: "0xFFFF"
+    name: zarezerwowany
+    description: do not use
+
+# Podział na bloki jest wyłącznie porządkowy. W odróżnieniu od bloków adresowych
+# (03-adresacja.md §2.3) NIE niesie znaczenia technicznego: DeviceType nie występuje
+# w identyfikatorze ramki i nie wpływa na arbitraż.
+
+models: []
+# Wzór pozycji:
+#   - id: 0x0102
+#     nazwa: Przycisk trzyklawiszowy z podświetleniem i termometrem
+#     wersja_sprzetu: 2
+#     dokumentacja: https://…

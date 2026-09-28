@@ -5,8 +5,8 @@ do wyboru, co odrzucono i z jakiego powodu. Uzasadnienie rozstrzygnięcia jest t
 przeżyje autora: bez niego następna osoba odkryje odrzucony wariant na nowo i uzna go za
 lepszy pomysł.
 
-Rzeczy jeszcze nierozstrzygnięte i sprzeczności znalezione przy implementacji prowadzi
-[`OTWARTE.md`](OTWARTE.md).
+Rzeczy jeszcze nierozstrzygnięte nie mają pliku w specyfikacji: sprzeczność znaleziona
+przy implementacji idzie od razu do decyzji autora ([`POJECIA.md`](POJECIA.md) §4).
 
 **Jak pisać nowy wpis.** Ręcznie, w tym pliku, w tym samym kształcie co pozostałe:
 co wybrano, co odrzucono, dlaczego, i — gdy trzeba — jaki to ma skutek. Wpis zastąpiony
@@ -44,7 +44,7 @@ i przenumerowania nie są decyzjami i tu nie trafiają.
 - **Odrzucono:** komunikację węzeł–węzeł (parowanie, tablicę reguł w mikrokontrolerze),
   także „na później".
 - **Dlaczego:** ramka nie opuszcza magistrali, na której powstała, więc parowanie działałoby
-  tylko w obrębie jednej linii — a wymagałoby tablicy reguł w każdym węźle i drugiej ścieżki
+  tylko w obrębie jednej magistrali — a wymagałoby tablicy reguł w każdym węźle i drugiej ścieżki
   sterowania do osobnego diagnozowania. Powiązania w hubie uzasadnia wyłącznie opóźnienie:
   kilka milisekund przez hub wobec dziesiątek albo setek przez system nadrzędny.
 - **Skutek:** endpoint 2 przestał być rezerwą pod tablicę powiązań w węźle (dziś ma na nim
@@ -69,8 +69,23 @@ i przenumerowania nie są decyzjami i tu nie trafiają.
   konfigurację ustawia się od nowa.
 - **Odrzucono (odłożono):** zachowanie ciągłości — rezerwowanie adresu i odtwarzanie
   ustawień z kopii.
-- **Dlaczego:** to osobny mechanizm z własnymi przypadkami brzegowymi; zapisany wśród
-  punktów otwartych, a nie wpychany w v1.
+- **Dlaczego:** to osobny mechanizm z własnymi przypadkami brzegowymi; odłożony świadomie,
+  a nie wpychany w v1.
+
+### Poza v1
+
+**Obowiązuje** · 2026-09-28 · przeniesione z likwidowanego `OTWARTE.md`
+
+Nie są to luki — są to rzeczy, których v1 **nie będzie** robić. Wymiana modułu — wpis wyżej;
+rozmowy między węzłami są rozstrzygnięte przeciw, nie odłożone (wyżej, „Urządzenia nie
+rozmawiają ze sobą").
+
+| Co | Dlaczego odłożone |
+|---|---|
+| Zabezpieczenie kryptograficzne magistrali | magistrala biegnie w ścianie; kto ma do niej dostęp, ma większe możliwości ([`06-cykl-zycia-urzadzenia.md`](06-cykl-zycia-urzadzenia.md) §2.1) |
+| Wzorzec „dwuklik i przytrzymaj" | pole w `HoldStart` zarezerwowane ([`types/0x0010-key-input.md`](types/0x0010-key-input.md) §5.4) |
+| Nastawa wejściowa w jednostkach fizycznych | ścienne pokrętło zadające 21,5 °C nie mieści się w [`ValueInput`](types/0x0011-value-input.md) §5.1, bo ten zna wyłącznie promile; wymaga pola `Quantity` jak w [`Sense`](types/0x0030-sense.md), czyli nowej cechy albo nowej rewizji |
+| Aktualizacja firmware przez magistralę | segmenty jej nie uniosą — 1536 B to nie jest obraz programu; wymaga własnego mechanizmu ([`05-mapowanie-can.md`](05-mapowanie-can.md) §6.9) |
 
 ---
 
@@ -198,7 +213,26 @@ i przenumerowania nie są decyzjami i tu nie trafiają.
 - **Dlaczego:** obecność `Scenes` jest **wyliczalna** z deskryptora, więc hub nadal niczego
   nie odpytuje. `Groups` w węźle bez wyjść deklaruje `GroupCapacity = 0` — obecność warunkowa
   kosztowałaby hub kolejną regułę, a oszczędziłaby kilkanaście bajtów.
-- **Nierozstrzygnięte:** czy endpointy systemowe mają atrybuty wspólne — [`OTWARTE.md`](OTWARTE.md) B1.
+
+### Endpointy systemowe mają atrybuty wspólne
+
+**Obowiązuje** · [`01`](01-model-danych.md) §4.1 · 2026-09-28
+
+- **Wybrano:** pełny zestaw `0xF0`–`0xFA` na **każdym** endpoincie, także systemowym.
+  Na systemowych `Channel` jest zawsze `0`, a `Enabled` zawsze `1` — zapis `0` dostaje
+  `INVALID_VALUE`.
+- **Odrzucono:** (a) zawężenie wyjątku do samego `Channel` bez ustalenia `Enabled` —
+  zostawiało wyłączalny `Device`; (b) własne atrybuty raportowania w typie `Diagnostics`,
+  spoza zakresu wspólnego — dwa numery w przestrzeni typu i drugi mechanizm tego samego;
+  (c) podział atrybutów wspólnych na „zawsze obecne" i „tylko funkcjonalne" — nowe
+  pojęcie w modelu dla jednego przypadku.
+- **Dlaczego:** `Diagnostics` ma domyślny `ReportInterval` i histerezę, a próg ciszy węzła
+  wylicza się z najkrótszego `ReportInterval` wśród jego endpointów. Panel klawiszowy
+  raportuje wyłącznie diagnostykę — bez atrybutów wspólnych na ep1 nie miałby progu,
+  a wykrywanie nieobecności straciłoby oparcie. Jednolity zestaw jest też tańszy
+  w implementacji niż wyjątek: hub zakładał go od początku.
+- **Skutek:** zdanie, że atrybuty wspólne ma „wyłącznie endpoint funkcjonalny", wypadło
+  z opisu widoku kanałów; endpointy systemowe hub odróżnia po numerze, nie po kanale.
 
 ---
 
@@ -210,13 +244,13 @@ i przenumerowania nie są decyzjami i tu nie trafiają.
 
 - **Wybrano:** adresacja **globalna** — jeden adres na całą instalację, niezależnie od
   magistrali.
-- **Odrzucono:** adresację lokalną dla magistrali (każda linia z własną pulą). Była
-  przyjęta na kilka godzin: pojemność rosła z liczbą magistral, dołożenie linii nie
-  wymagało uzgodnień. Cofnięta, bo adres przestawałby wskazywać węzeł bez numeru linii.
+- **Odrzucono:** adresację lokalną dla magistrali (każda magistrala z własną pulą). Była
+  przyjęta na kilka godzin: pojemność rosła z liczbą magistral, dołożenie magistrali nie
+  wymagało uzgodnień. Cofnięta, bo adres przestawałby wskazywać węzeł bez numeru magistrali.
 - **Dlaczego — prawdziwy powód:** sam adres wskazuje węzeł w całej instalacji, więc ani baza
-  huba, ani powiązania, ani dziennik nie muszą nieść numeru linii, a węzeł przełożony na inną
+  huba, ani powiązania, ani dziennik nie muszą nieść numeru magistrali, a węzeł przełożony na inną
   magistralę nie zmienia klucza, pod którym jest zapisany.
-- **Powód odrzucony po drodze:** „hub przepisuje ramkę między liniami bez tłumaczenia".
+- **Powód odrzucony po drodze:** „hub przepisuje ramkę między magistralami bez tłumaczenia".
   Nieprawdziwy — hub niczego nie przepisuje (niżej), więc nie mógł niczego uzasadniać.
 - **Skutek:** ten sam adres na dwóch magistralach **jest konfliktem**, a wykryć go może
   wyłącznie hub (§6).
@@ -366,7 +400,7 @@ i przenumerowania nie są decyzjami i tu nie trafiają.
 
 ### Węzeł z adresem, którego hub nie zna
 
-**Rozstrzygnięte, niewdrożone** · [`OTWARTE.md`](OTWARTE.md) B3 · 2026-09-25
+**Rozstrzygnięte, niewdrożone** · [`06`](06-cykl-zycia-urzadzenia.md) §2.1 · 2026-09-25, uzupełnione 2026-09-28
 
 - **Problem:** węzeł z adresem w pamięci trwałej nie bierze udziału w przyłączaniu,
   a przyłączanie jest jedyną drogą do instalacji. Po utracie bazy huba albo przy węźle
@@ -378,6 +412,10 @@ i przenumerowania nie są decyzjami i tu nie trafiają.
 - **Przy okazji zapisane:** hub ma **czytać** `ShortId` z węzła, nie wyliczać go z `Uid`.
   Wyliczanie zakłada, że węzeł liczy tak samo — nasz firmware nie liczył i nikt tego nie
   widział, dopóki nikt nie policzył dwa razy.
+- **Uzupełnione 2026-09-28:** hub nie musi `ShortId` odczytywać — węzeł z adresem
+  **zgłasza adres** przy starcie, z `ShortId` w ramce, na wzór J1939 Address Claim. To samo
+  zgłoszenie rozstrzyga konflikt dwóch węzłów pod jednym adresem na jednym kablu. Odczyt
+  zawodzi właśnie wtedy, bo odpowiedzą oba. Do spisania w rozdziałach 03, 05 i 06.
 
 ### Endpointy funkcjonalne numerowane od 4, bez przerw
 
@@ -646,7 +684,23 @@ i przenumerowania nie są decyzjami i tu nie trafiają.
 - **Powiązanie na atrybut wyzwala się przy zmianie wartości**, nie przy każdym raporcie —
   inaczej odświeżanie cykliczne generowałoby komendy w kółko.
 - **Budżet czasu jest wiążący.** Jedyne wymaganie czasowe wobec huba, bo projekt istnieje po
-  to, żeby światło zapalało się natychmiast. Czy liczba jest dobrze postawiona — [`OTWARTE.md`](OTWARTE.md) B2.
+  to, żeby światło zapalało się natychmiast. Liczba — wpis niżej.
+
+### Budżet huba: 50 ms, z progu odczuwalności
+
+**Obowiązuje** · [`07`](07-hub.md) §4.2 · 2026-09-28 · zastępuje „dopasowanie poniżej 1 ms"
+
+- **Wybrano:** od odebrania zdarzenia do przekazania komendy magistrali **najwyżej 50 ms**.
+  „Kilka ms" ze wstępu zostaje jako typowy wynik, nie wymaganie. Zakaz kolejkowania
+  i grupowania powiązań w czasie — bez zmian.
+- **Odrzucono:** dopasowanie poniżej 1 ms, rozpisane na trzy kroki po milisekundzie.
+- **Dlaczego:** milisekunda była wzięta z wyobrażenia o sprzęcie, nie z tego, co człowiek
+  zauważa. Zwłokę widać od około 100 ms, a `Click` przychodzi 80–150 ms po naciśnięciu —
+  wymaganie było sto razy ostrzejsze niż uzasadnienie w katalogu typów tego samego kontraktu.
+  Pierwsza implementacja huba mieści się w kilkudziesięciu mikrosekundach, ale zapas ma być
+  zapasem, nie wymaganiem.
+- **Skutek:** o zgodności rozstrzyga zakaz kolejkowania, a nie liczba — powiązanie przez
+  bazę danych łamie wymaganie, choćby zwykle mieściło się w czasie.
 
 ### Restart huba: nasłuchiwanie, nie odpytywanie
 
@@ -717,11 +771,14 @@ i przenumerowania nie są decyzjami i tu nie trafiają.
 
 ### Role dokumentów pomocniczych
 
-**Obowiązuje** · [`POJECIA.md`](POJECIA.md), [`OTWARTE.md`](OTWARTE.md), [`COMPLIANCE.md`](COMPLIANCE.md) · 2026-09-11 – 2026-09-28
+**Obowiązuje** · [`POJECIA.md`](POJECIA.md), [`COMPLIANCE.md`](COMPLIANCE.md) · 2026-09-11 – 2026-09-28
 
 - **Rozdzielone:** norma zamraża się, esej pisze się raz, rejestr rośnie co tydzień — więc
-  słownik i siła zobowiązań w `POJECIA.md`, punkty otwarte w jednym miejscu w `OTWARTE.md`,
-  status w nagłówku każdego rozdziału.
+  słownik i siła zobowiązań w `POJECIA.md`, status w nagłówku każdego rozdziału.
+- **Punktów otwartych nie prowadzi się w specyfikacji** (2026-09-28). `OTWARTE.md` zbierał
+  pozycje, które wisiały miesiącami, a rozdziały odsyłały do pozycji, których w nim już
+  nie było. Sprzeczność idzie od razu do decyzji autora — bug, zmiana, odłożenie — a to,
+  co odłożone, staje się zadaniem projektu. Rozdział opisuje tylko to, co ustalone.
 - **`COMPLIANCE.md` nie powiela tabel typów.** Kolumna konformancji przy każdym elemencie typu
   jest kompletną listą wymagań dla tego typu — przepisana dałaby drugą kopię, która by się
   rozjechała. Lista zawiera tylko zdania normatywne rozsiane po prozie. Numeracja jest stała:
@@ -731,8 +788,7 @@ i przenumerowania nie są decyzjami i tu nie trafiają.
   ale wypadł przy porządkowaniu dokumentacji (2026-09-28).
 - **Mniej plików, nie więcej** (2026-09-28): usunięte `ROADMAP.md`, `REVIEW.md`,
   `CHANGELOG.md`, `archiwum/` i `bug.md`. Plan pracy żyje w zadaniach projektu, historia
-  zmian w gicie, sprzeczności z implementacji w `OTWARTE.md`, a zasady, które z nich
-  zostały, w tym pliku.
+  zmian w gicie, a zasady, które z nich zostały, w tym pliku.
 
 ### Typ endpointu powstaje, gdy jest potrzebny
 
@@ -755,3 +811,12 @@ i przenumerowania nie są decyzjami i tu nie trafiają.
 - **Dlaczego:** generowany plik starzał się po cichu (raz był nieaktualny o 40 commitów),
   mieszał decyzje z porządkami i trzymał uzasadnienia w miejscu, które znika przy resecie
   historii. Uzasadnienie ma żyć w pliku.
+
+### „Magistrala", nie „linia"
+
+**Obowiązuje** · [`POJECIA.md`](POJECIA.md) · 2026-09-28
+
+- **Wybrano:** jedno słowo — **magistrala** — także tam, gdzie mowa o przebiegu kabla w domu.
+- **Odrzucono:** „linię" jako świadomy synonim.
+- **Dlaczego:** dwa słowa na jedną rzecz każą czytelnikowi zgadywać, czy chodzi o dwie
+  rzeczy. Kod huba i tak mówi `bus`, a konfiguracja `buses:` — synonim żył tylko w prozie.

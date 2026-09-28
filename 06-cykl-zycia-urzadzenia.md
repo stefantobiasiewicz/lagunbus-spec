@@ -7,7 +7,8 @@ hubem a węzłem; **powiązania sterujące** — czyli reguły łączące klawis
 są osobnym tematem i osobnym dokumentem.
 
 Uszkodzony moduł wymienia się przez **usunięcie starego i dodanie nowego**. Zachowanie
-ciągłości konfiguracji przy wymianie nie jest w tej wersji przewidziane (§8).
+ciągłości konfiguracji przy wymianie nie jest w tej wersji przewidziane
+([`DECYZJE.md`](DECYZJE.md) — „Wymiana urządzenia poza zakresem v1").
 
 ---
 
@@ -312,18 +313,3 @@ przyjmowania nie jest potrzebny.
 Jest to celowe. Reset fabryczny służy naprawie węzła, który zgłupiał, a nie usuwaniu go
 z instalacji; do usuwania służy §6. Po odzyskaniu adresu hub odtwarza konfigurację
 z kopii i urządzenie wraca do pracy bez udziału człowieka.
-
----
-
-## 8. Punkty otwarte tego rozdziału
-
-Prowadzi je [`OTWARTE.md`](OTWARTE.md) — tutaj tylko wskazanie, czego dotyczą:
-
-| Poz. | Czego dotyczy |
-|---|---|
-| **W4** | czas, po którym hub odpytuje milczący węzeł (§5) — minuta czy pięć |
-| **W5** | czy zastąpić to odpytywanie atrybutem raportowanym cyklicznie |
-
-**Wymiana uszkodzonego modułu z zachowaniem konfiguracji** nie jest luką, tylko rzeczą
-świadomie odłożoną poza v1. Dziś procedura jest prosta: usuń stary, dodaj nowy, skonfiguruj
-od nowa.

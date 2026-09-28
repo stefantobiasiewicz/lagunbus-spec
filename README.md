@@ -44,7 +44,6 @@ Wszystkie planowane rozdziały istnieją.
 | [`PRZYKLADY.md`](PRZYKLADY.md) | przykładowe ramki na magistrali — od konfiguracji po arbitraż |
 | [`COMPLIANCE.md`](COMPLIANCE.md) | **wymagania zgodności** — ponumerowane, do odhaczenia przed podłączeniem |
 | [`POJECIA.md`](POJECIA.md) | słownik, notacja tabel, siła zobowiązań |
-| [`OTWARTE.md`](OTWARTE.md) | punkty otwarte i sprzeczności znalezione przy implementacji |
 | [`DECYZJE.md`](DECYZJE.md) | rejestr decyzji — dlaczego tak, a nie inaczej; pisany ręcznie |
 
 ## Rejestr identyfikatorów

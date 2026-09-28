@@ -102,7 +102,7 @@ komendę do modułu wykonawczego.
 Nie jest to uproszczenie na start, tylko rozstrzygnięcie. Instalacja składa się z kilku
 magistral, a **ramka nie opuszcza tej, na której powstała** — jedynym urządzeniem
 widzącym całość jest hub. Dopuszczenie rozmów między węzłami dałoby mechanizm działający
-tylko w obrębie jednej linii, wymagający tablicy reguł w każdym mikrokontrolerze i drugiej
+tylko w obrębie jednej magistrali, wymagający tablicy reguł w każdym mikrokontrolerze i drugiej
 ścieżki sterowania, którą trzeba by diagnozować osobno. Za mało zysku, za dużo dwoistości.
 
 **Konsekwencja, którą trzeba przyjąć świadomie:** awaria huba zatrzymuje sterowanie.

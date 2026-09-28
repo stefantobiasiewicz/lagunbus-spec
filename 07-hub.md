@@ -154,22 +154,27 @@ nadrzędnego, który ma na to narzędzia i czas.
 
 ### 4.2 Budżet czasu
 
-[`00-wprowadzenie.md`](00-wprowadzenie.md) obiecuje **kilka milisekund** od naciśnięcia
-klawisza do przełączenia przekaźnika. Obietnica ta jest wiążąca dla huba:
+> **Od odebrania zdarzenia do przekazania komendy magistrali — najwyżej 50 ms.**
 
-| Krok | Czas |
-|---|---|
-| Odbiór ramki | < 1 ms |
-| Dopasowanie powiązania | **poniżej 1 ms** |
-| Nadanie komendy | < 1 ms plus arbitraż |
+| | Czas | Status |
+|---|---|---|
+| Typowo | **kilka ms** — tyle, ile pokazuje [`00-wprowadzenie.md`](00-wprowadzenie.md) | wynik, nie wymaganie |
+| Granica | **50 ms** na hub | wymaganie |
+
+Liczba bierze się z tego, co zauważa człowiek, a nie z tego, co potrafi sprzęt. Zwłokę
+reakcji widać gdzieś od stu milisekund, a `Click` przychodzi i tak 80–150 ms po naciśnięciu
+([`types/0x0010-key-input.md`](types/0x0010-key-input.md) §5.2). Pięćdziesiąt milisekund
+na hub zostawia drugą połowę na magistralę, arbitraż i węzeł wykonawczy. Granica ostrzejsza
+zmuszałaby każdą implementację do obrony zapasu, którego nikt nie potrzebuje.
 
 > **Hub nie może kolejkować ani grupować powiązań w czasie.** Nie wolno mu odkładać
 > dopasowania do następnego przebiegu pętli, buforować zdarzeń ani czekać na inne.
 
-Jest to jedyne miejsce, w którym specyfikacja stawia hubowi wymaganie czasowe — i stawia
-je, bo cały projekt istnieje po to, żeby światło zapalało się natychmiast. Powiązanie
-przechodzące przez bazę danych z zapytaniem na dysk **łamie tę obietnicę**, choćby działało
-poprawnie.
+To zdanie niesie treść niezależnie od liczby. Jest to jedyne miejsce, w którym specyfikacja
+stawia hubowi wymaganie czasowe — i stawia je, bo cały projekt istnieje po to, żeby światło
+zapalało się natychmiast. Powiązanie przechodzące przez bazę danych z zapytaniem na dysk
+**łamie to wymaganie**, choćby zwykle mieściło się w czasie: zwykle to nie zawsze, a karta
+SD potrafi zatrzymać zapis na setki milisekund.
 
 ---
 
@@ -247,23 +252,16 @@ Hub jest jeden logicznie, choć fizycznie ma kilka interfejsów
 ta wiedza istnieje. Węzeł nie zna numeru swojej magistrali i nie ma po co
 ([`03-adresacja.md`](03-adresacja.md) §7).
 
-**Nie powtarza ramek między magistralami.** Odbiera zdarzenie z jednej linii i nadaje
+**Nie powtarza ramek między magistralami.** Odbiera zdarzenie z jednej magistrali i nadaje
 **własną komendę** na drugiej ([`03-adresacja.md`](03-adresacja.md) §4.3).
 
-**Komendę grupową nadaje osobno na każdej linii**, na której są członkowie grupy. Grupa
-rozciągnięta na trzy magistrale to trzy ramki — ale nadal jedna na linię, więc oszczędność
+**Komendę grupową nadaje osobno na każdej magistrali**, na której są członkowie grupy. Grupa
+rozciągnięta na trzy magistrale to trzy ramki — ale nadal jedna na magistralę, więc oszczędność
 zostaje tam, gdzie ma znaczenie ([`03-adresacja.md`](03-adresacja.md) §3.1).
 
 ---
 
-## 7. Punkty otwarte tego rozdziału
-
-Prowadzi je [`OTWARTE.md`](OTWARTE.md) — tutaj tylko wskazanie, czego dotyczą:
-
-| Poz. | Czego dotyczy |
-|---|---|
-| **W4** | czas, po którym hub odpytuje milczący węzeł |
-| **W5** | czy zastąpić odpytywanie atrybutem raportowanym cyklicznie |
+## 7. Poza zakresem
 
 Poza zakresem tego rozdziału i całej specyfikacji pozostaje **adapter północny** — to, na
 co hub tłumaczy instalację na zewnątrz. Kandydaci są wymienieni

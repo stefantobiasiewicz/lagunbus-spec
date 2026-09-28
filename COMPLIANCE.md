@@ -143,7 +143,7 @@ reguła:
 | `LB-HUB-002` | `M` | Adresy niepowtarzalne w **całej instalacji**, także między magistralami | [`03`](03-adresacja.md) §2.1 |
 | `LB-HUB-003` | `M` | Hub **nie powtarza ramek** między magistralami; nadaje własne | [`03`](03-adresacja.md) §4.3 |
 | `LB-HUB-004` | `M` | Komenda grupowa nadawana osobno na każdej magistrali z członkami grupy | [`03`](03-adresacja.md) §3.1 |
-| `LB-HUB-005` | `M` | Dopasowanie powiązania **poniżej 1 ms**; bez kolejkowania i buforowania | [`07`](07-hub.md) §4.2 |
+| `LB-HUB-005` | `M` | Od odebrania zdarzenia do przekazania komendy magistrali **najwyżej 50 ms**; bez kolejkowania i buforowania | [`07`](07-hub.md) §4.2 |
 | `LB-HUB-006` | `M` | Skutek powiązania **nie wyzwala** kolejnego powiązania | [`07`](07-hub.md) §4.1 |
 | `LB-HUB-007` | `M` | Powiązanie na atrybut wyzwalane **przy zmianie wartości**, nie przy każdym raporcie | [`07`](07-hub.md) §3.1 |
 | `LB-HUB-008` | `M` | Brak powiązania **nie jest błędem** | [`07`](07-hub.md) §4 |
@@ -188,7 +188,7 @@ reguła:
 ## Czego ta lista nie sprawdza
 
 **Czasów i długości magistrali.** Prędkość i maksymalna długość odcinka nie są jeszcze
-ustalone ([`OTWARTE.md`](OTWARTE.md) W2), więc zgodność elektryczna nie jest tu opisana.
+ustalone, więc zgodność elektryczna nie jest tu opisana.
 
 **Zachowania adaptera północnego.** Jest poza zakresem całej specyfikacji.
 

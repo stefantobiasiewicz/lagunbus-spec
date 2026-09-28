@@ -48,16 +48,16 @@ ta wiedza nie jest potrzebna.
 Zysk jest jeden i zasadniczy: **sam adres wskazuje węzeł w całej instalacji**. Hub nie
 potrzebuje pary „magistrala + adres" ani w swojej bazie, ani w regułach, ani w dzienniku,
 a człowiek czytający log widzi `0x02A` i wie, o które urządzenie chodzi, bez dopytywania
-o linię.
+o magistralę.
 
 Nie chodzi natomiast o przekazywanie ramek — **hub ramek między magistralami nie przekazuje
 w ogóle** (§4.3). Adresacja lokalna dla magistrali nie wymagałaby więc tłumaczenia adresów
 w locie, tylko czegoś gorszego: każdy wpis w bazie huba i każda reguła musiałyby nieść
-numer linii, a węzeł przełożony na inną magistralę zmieniałby klucz, pod którym jest
+numer magistrali, a węzeł przełożony na inną magistralę zmieniałby klucz, pod którym jest
 zapisany. Przy puli globalnej **przełożenie nie zmienia niczego** (§5.3).
 
 Kosztem jest wspólny sufit **2045 węzłów na całą instalację**, niezależny od liczby
-poprowadzonych linii. Realny szacunek dla dużego domu jednorodzinnego to około stu
+poprowadzonych magistral. Realny szacunek dla dużego domu jednorodzinnego to około stu
 urządzeń, więc zapas jest dwudziestokrotny — sufit przestaje być czynnikiem
 projektowym.
 
@@ -147,7 +147,7 @@ endpoint nie jest ograniczona przez specyfikację — ogranicza ją pojemność 
 każdy węzeł deklaruje sam w `GroupCapacity`.
 
 Numery grup, tak jak adresy węzłów, **znaczą to samo w całej instalacji**. Grupa 7 to ta
-sama grupa na każdej linii.
+sama grupa na każdej magistrali.
 
 Numer grupy pełni **dwie role naraz**: jest adresem zbiorczym dla komend i zarazem
 zakresem sceny — scena jest kluczowana parą `(grupa, numer)`
@@ -156,7 +156,7 @@ adresem i nie pojawia się w żadnej ramce; służy wyłącznie jako zakres scen
 cały węzeł.
 
 Komenda skierowana do grupy dociera do każdego endpointu należącego do niej **na tej
-magistrali, na której została nadana**. Grupa rozciągnięta na kilka linii wymaga więc,
+magistrali, na której została nadana**. Grupa rozciągnięta na kilka magistral wymaga więc,
 by hub nadał komendę osobno na każdej z nich — ale z punktu widzenia magistrali nadal
 jest to jedna ramka i oszczędność zostaje tam, gdzie ma znaczenie.
 
@@ -194,13 +194,13 @@ urządzeniem widzącym obie jest hub.
 
 Jest to zresztą jeden z powodów, dla których **urządzenia nie rozmawiają ze sobą wcale**
 ([`00-wprowadzenie.md`](00-wprowadzenie.md) § Kierunek ruchu): mechanizm działający tylko
-w obrębie jednej linii byłby mechanizmem, którego nie da się polecić.
+w obrębie jednej magistrali byłby mechanizmem, którego nie da się polecić.
 
 Cały ruch sterujący przechodzi więc przez hub, a granica magistrali **nie jest granicą
-niczego, co widać z zewnątrz**. Klawisz na pierwszej linii steruje przekaźnikiem na
+niczego, co widać z zewnątrz**. Klawisz na pierwszej magistrali steruje przekaźnikiem na
 trzeciej dokładnie tak samo, jak sąsiadem z tej samej puszki.
 
-### 4.2 Jak dzielić instalację na linie
+### 4.2 Jak dzielić instalację na magistrale
 
 Skoro podział nie wpływa na to, co czym może sterować, decydują o nim trzy inne rzeczy:
 
@@ -211,33 +211,33 @@ Skoro podział nie wpływa na to, co czym może sterować, decydują o nim trzy 
 | Obciążenie magistrali | pomijalna przy tej skali ruchu ([`05-mapowanie-can.md`](05-mapowanie-can.md) §6) |
 
 **Domena awarii** zasługuje na uwagę, bo jest jedynym czynnikiem, o którym łatwo
-zapomnieć. Uszkodzenie linii wyłącza wszystko, co na niej siedzi — i warto, żeby to
+zapomnieć. Uszkodzenie magistrali wyłącza wszystko, co na niej siedzi — i warto, żeby to
 „wszystko" dało się opisać jednym zdaniem.
 
-> **Trzymaj na jednej linii urządzenia, które obsługują tę samą część domu.**
+> **Trzymaj na jednej magistrali urządzenia, które obsługują tę samą część domu.**
 
 Awaria daje wtedy komunikat zrozumiały dla mieszkańca: „piętro przestało działać". Przy
-podziale, w którym klawisze są na jednej linii, a przekaźniki na drugiej, ta sama awaria
+podziale, w którym klawisze są na jednej magistrali, a przekaźniki na drugiej, ta sama awaria
 daje objaw znacznie gorszy: **wszystkie klawisze w domu przestają działać, ale światła
 nadal reagują na aplikację** — co wygląda na awarię czegoś zupełnie innego.
 
-Ta sama reguła bywa uzasadniana potrzebą parowania urządzeń w obrębie linii. **U nas ten
+Ta sama reguła bywa uzasadniana potrzebą parowania urządzeń w obrębie magistrali. **U nas ten
 powód nie obowiązuje** — parowania bezpośredniego nie ma. Zostaje powód czytelności
 awarii, który jest słabszy, ale nadal prawdziwy.
 
 ### 4.3 Hub jest aktorem, nie repeaterem
 
-Hub **nie powtarza ramek między magistralami**. Odbiera zdarzenie z pierwszej linii,
+Hub **nie powtarza ramek między magistralami**. Odbiera zdarzenie z pierwszej magistrali,
 sprawdza swoje powiązania ([`07-hub.md`](07-hub.md) §3) i **nadaje własną komendę**
 na drugiej. Jest to inna ramka,
 w której hub jest nadawcą.
 
 Rozróżnienie ma znaczenie praktyczne: w podglądzie magistrali nigdy nie zobaczysz ramki,
-której nadawcą jest węzeł z innej linii. Wszystko, co przychodzi z zewnątrz, przychodzi
+której nadawcą jest węzeł z innej magistrali. Wszystko, co przychodzi z zewnątrz, przychodzi
 od huba i jest jako takie oznaczone.
 
 Opóźnienie takiego przeskoku to kilka milisekund — odbiór, dopasowanie powiązania,
-nadanie. Jest identyczne dla pary w obrębie jednej linii i dla pary rozrzuconej po dwóch,
+nadanie. Jest identyczne dla pary w obrębie jednej magistrali i dla pary rozrzuconej po dwóch,
 bo w obu przypadkach ścieżka prowadzi przez hub.
 
 ---

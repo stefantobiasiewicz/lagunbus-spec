@@ -475,21 +475,3 @@ naraz, wszystkie czujniki raportujące jednocześnie — nie zbliża się do wys
 Wynika stąd, że **prędkość magistrali nie jest ograniczeniem tego projektu**. Wybór 250
 kbit/s zamiast 500 kbit/s można podjąć wyłącznie ze względu na długość kabla i odporność
 na zakłócenia, bez oglądania się na przepustowość.
-
----
-
-## 8. Punkty otwarte tego rozdziału
-
-Prowadzi je [`OTWARTE.md`](OTWARTE.md) — tutaj tylko wskazanie, czego dotyczą:
-
-| Poz. | Czego dotyczy |
-|---|---|
-| **W2** | prędkość magistrali i maksymalna długość odcinka |
-| **W3** | ładunki rodzajów, których typy endpointów jeszcze nie powstały |
-
-Dwie pozycje, które wisiały tutaj wcześniej, zostały rozstrzygnięte w typie
-`Diagnostics`: zachowanie przy przepełnieniu kolejki nadawczej
-([`types/0x0002-diagnostics.md`](types/0x0002-diagnostics.md) §5.3) i postępowanie po
-odłączeniu od magistrali ([`types/0x0002-diagnostics.md`](types/0x0002-diagnostics.md)
-§5.2). Oba są zachowaniem węzła, nie własnością ramki, więc mieszkają przy liczniku,
-który je pokazuje.

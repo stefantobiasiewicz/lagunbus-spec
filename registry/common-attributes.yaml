@@ -1,4 +1,4 @@
-# Atrybuty wspólne — obecne na każdym endpoincie funkcjonalnym niezależnie od typu.
+# Atrybuty wspólne — obecne na każdym endpoincie, systemowym i funkcjonalnym, niezależnie od typu.
 # ŹRÓDŁO PRAWDY. Odpowiednik tabeli w 01-model-danych.md §4.
 #
 # Zajmują górny zakres ID (0xF0–0xFF), żeby nigdy nie kolidowały z atrybutami typu,

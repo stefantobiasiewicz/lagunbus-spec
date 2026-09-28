@@ -170,13 +170,8 @@ zapadły i obie były darmowe wtedy, a niemożliwe później: rezerwa w drabince
 
 ---
 
-## 8. Punkty otwarte tego rozdziału
+## 8. Przed zamrożeniem
 
-Prowadzi je [`OTWARTE.md`](OTWARTE.md).
-
-| Poz. | Czego dotyczy |
-|---|---|
-| **W11** | lista wymagań zgodności — musi deklarować, której wersji kontraktu dotyczy |
-
-Nierozstrzygnięte zostaje też, **kiedy** zamrozić v1. Rozsądnym warunkiem jest pierwsza
-działająca instalacja: dopóki nic nie działa, każda reguła jest hipotezą.
+Warunkiem zamrożenia v1 jest pierwsza działająca instalacja: dopóki nic nie działa, każda
+reguła jest hipotezą. Z zamrożeniem [`COMPLIANCE.md`](COMPLIANCE.md) zaczyna deklarować,
+której wersji kontraktu dotyczy.

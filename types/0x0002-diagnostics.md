@@ -220,14 +220,14 @@ Tabela dla człowieka stojącego przy instalacji, nie dla implementacji:
 | Objaw | Prawdopodobna przyczyna |
 |---|---|
 | `TxErrorCount` rośnie powoli na **jednym** węźle | zły styk, uszkodzona żyła, złe zakończenie odcinka |
-| `TxErrorCount` rośnie na **wszystkich** węzłach linii | brak albo nadmiar terminatora, za długi odcinek, zła prędkość |
+| `TxErrorCount` rośnie na **wszystkich** węzłach magistrali | brak albo nadmiar terminatora, za długi odcinek, zła prędkość |
 | Błędy narastają **o określonych porach** | zakłócenie od odbiornika dużej mocy: pompa, ściemniacz, indukcja |
 | `BusOffCount` rośnie, `TxErrorCount` zwykle zerowy | zakłócenie krótkie i silne; magistrala zdrowa między epizodami |
 | `RxOverruns` rosną tylko na jednym węźle | za wolna obsługa przerwań w firmwarze tego węzła |
 | `TxDropped` rosną | węzeł raportuje częściej, niż magistrala jest w stanie przyjąć |
-| `SupplyVoltage` spada przy załączeniu przekaźników | niewydolne zasilanie linii; sprawdź `LastResetReason` |
+| `SupplyVoltage` spada przy załączeniu przekaźników | niewydolne zasilanie magistrali; sprawdź `LastResetReason` |
 
-Zasada ogólna: **liczniki porównuje się między węzłami tej samej linii**, a nie z zerem.
+Zasada ogólna: **liczniki porównuje się między węzłami tej samej magistrali**, a nie z zerem.
 Instalacja, w której wszystkie węzły mają po kilkanaście błędów dziennie, jest zdrowa.
 Instalacja, w której jeden ma ich tysiąc, a reszta zero, ma dokładnie jeden problem
 i wiadomo, gdzie leży.

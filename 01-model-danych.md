@@ -300,8 +300,8 @@ przeszłości.
 
 ## 4. Atrybuty wspólne
 
-Każdy endpoint funkcjonalny ma je niezależnie od typu. Zajmują górny zakres ID,
-żeby nigdy nie kolidowały z atrybutami typu.
+Każdy endpoint — **systemowy i funkcjonalny** — ma je niezależnie od typu. Zajmują
+górny zakres ID, żeby nigdy nie kolidowały z atrybutami typu.
 
 | ID | Nazwa | Typ | Dostęp | Opis |
 |---|---|---|---|---|
@@ -322,6 +322,24 @@ specyfikacja.
 
 Dlatego odczyt `0xF0`–`0xF2` i `0xF5` z każdego endpointu po kolei odtwarza pełny
 deskryptor urządzenia — bez żadnego dodatkowego mechanizmu.
+
+### 4.1 Na endpointach systemowych
+
+Zestaw jest ten sam; dwa atrybuty mają na endpointach systemowych wartość ustaloną przez
+tę specyfikację:
+
+| Atrybut | Na endpoincie systemowym | Dlaczego |
+|---|---|---|
+| `Channel` | zawsze `0` | endpoint systemowy nie jest funkcją żadnego kanału (§5.3) |
+| `Enabled` | zawsze `1`; zapis `0` → `INVALID_VALUE` | wyłączony `Device` odciąłby hub od tożsamości i komend węzła, wyłączony `Diagnostics` — od wykrywania nieobecności; `Groups` i `Scenes` mówią „nie obsługuję" własnymi środkami (`GroupCapacity = 0`, brak ep3) |
+| `ReportInterval`, `ReportMinGap`, `ReportHysteresis` | działają jak na każdym endpoincie | na nich stoją domyślne ustawienia raportowania [`Diagnostics`](types/0x0002-diagnostics.md) §5.4 |
+| `QueryEnabled` | `0` | typy systemowe nie deklarują wejść |
+
+Raportowanie jest powodem, dla którego wyjątku tu nie ma. Próg ciszy węzła wylicza się
+z najkrótszego `ReportInterval` wśród jego endpointów
+([`06-cykl-zycia-urzadzenia.md`](06-cykl-zycia-urzadzenia.md) §5.1) — a typowy panel
+klawiszowy nie ma ani jednego atrybutu raportowanego poza diagnostyką. Bez
+`ReportInterval` na `Diagnostics` taki węzeł nie miałby progu wcale.
 
 ## 5. Kanał fizyczny
 
@@ -430,9 +448,10 @@ Węzeł 0x02A  ·  VendorId 0 / DeviceType 0x0205
 
 Trzy rzeczy, które z tego wynikają:
 
-**Endpointy systemowe są poza widokiem kanałów.** Atrybuty wspólne — a więc i `Channel` —
-ma **wyłącznie endpoint funkcjonalny** (§4). `Device` i `Diagnostics` nie mają kanału, bo
-nie są funkcjami urządzenia, tylko informacją o nim samym.
+**Endpointy systemowe są poza widokiem kanałów.** Mają `Channel = 0` jak każdy endpoint
+(§4.1), ale do poziomu urządzenia nie należą: hub rozpoznaje je **po numerze `0`–`3`**,
+a nie po kanale. `Device` i `Diagnostics` nie są funkcjami urządzenia, tylko informacją
+o nim samym.
 
 **Kanał `0` to poziom urządzenia.** Zbiera to, czego nie da się przypisać do pojedynczego
 kanału: czujnik otoczenia, pomiar sumaryczny, podświetlenie wspólne dla całego panelu.

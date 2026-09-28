@@ -17,7 +17,6 @@ samo co „musi".
 |---|---|
 | **Instalacja** | całość: wszystkie magistrale i wszystkie węzły jednego domu, zarządzane przez jeden hub |
 | **Magistrala** | jeden odcinek CAN: zasilanie plus para różnicowa, z własnym zakończeniem. Instalacja ma ich kilka |
-| **Linia** | to samo co magistrala; słowo używane tam, gdzie mowa o przebiegu kabla w domu |
 | **Węzeł** | jedno urządzenie fizyczne na magistrali, o jednym adresie |
 | **Hub** | urządzenie zarządzające całą instalacją; jedyne, które widzi wszystkie magistrale naraz |
 | **System nadrzędny** | to, czemu hub wystawia instalację na zewnątrz — Home Assistant lub podobny. Poza zakresem specyfikacji |
@@ -141,8 +140,10 @@ Trzy reguły redakcyjne obowiązujące w całej specyfikacji:
    ([`00-wprowadzenie.md`](00-wprowadzenie.md) § Warstwy).
 2. **Identyfikatory rozstrzyga [`registry/`](registry/).** Tabela w markdown, która nie
    zgadza się z rejestrem, jest błędna.
-3. **Rzeczy nierozstrzygnięte trafiają do [`OTWARTE.md`](OTWARTE.md)**, a nie do przypisu
-   w środku rozdziału. Rozdział opisuje to, co ustalone.
+3. **Rozdział opisuje wyłącznie to, co ustalone.** Bez przypisów „do rozstrzygnięcia"
+   i bez list punktów otwartych. Sprzeczność albo brak znaleziony przy implementacji
+   trafia od razu do autora specyfikacji, który decyduje, co z nim zrobić; odłożone
+   prowadzi się jako zadanie projektu, poza specyfikacją.
 3a. **Wymaganie testowalne trafia do [`COMPLIANCE.md`](COMPLIANCE.md)** z własnym numerem —
    ale tylko wtedy, gdy nie wynika wprost z kolumny `Konf.` w tabeli typu. Tabele są
    źródłem prawdy dla swoich typów i nie powiela się ich.

@@ -302,10 +302,34 @@ rozmawiają ze sobą").
   magistralach nigdy się nie usłyszą, więc samodzielne ustępowanie ich nie ratuje.
 - **Zapisane wprost w specyfikacji:** nie szukać tożsamości nadawcy w `Booted`, bo jej tam nie
   ma. Bez tego następna implementacja napisze tę samą martwą regułę — nasza to zrobiła.
-- **Nierozstrzygnięte:** dwa węzły pod jednym adresem na **jednym** kablu. Wykrycie na
-  magistrali jest symetryczne (warunek spełniają oba), a dwa identyczne węzły po zaniku
-  zasilania nadadzą identyczny `Booted` i nie wykryje ich nikt. Naprawa wymaga tożsamości
-  w ramce — `zadania/BUG-01.md` w repozytorium projektu.
+- **Dalej:** dwa węzły pod jednym adresem na **jednym** kablu — następny wpis.
+
+### Konflikt adresów: zapobieganie zamiast wykrywania
+
+**Obowiązuje** · [`03`](03-adresacja.md) §6 · 2026-09-29
+
+- **Problem:** konflikt na jednym kablu miały rozstrzygać węzły: kto usłyszy ruch spod
+  własnego adresu, zeruje go i przyłącza się od nowa, „ustępuje ten, kto wykrył później".
+  Warunek spełniają jednak **oba** węzły naraz — przy wspólnym powrocie zasilania ustępują
+  oba, przy przybyszu ustępuje zasiedziały, a dwa identyczne moduły nadają identyczne
+  `Booted`, które na CAN nakładają się bit w bit i nie wyglądają jak cudze. Żaden firmware
+  tej reguły nie implementował.
+- **Wybrano:** reguła wycofana; węzły konfliktu nie wykrywają. Zapobiega hub: **nie
+  przydziela adresu, który słyszy na magistrali**, i rozpoznaje węzeł spod nieznanego adresu
+  (wpis „Węzeł z adresem, którego hub nie zna"). Zapobiega instalator: **używany moduł przywraca się do ustawień
+  fabrycznych przed podłączeniem**.
+- **Odrzucono:** zgłoszenie adresu na wzór J1939 Address Claim — węzeł z adresem po każdym
+  starcie nadaje `ZGŁOSZENIE` z adresem w bajtach rezerwy, czeka 250 ms i broni adresu; spory
+  rozstrzyga niższy `ShortId`, a hub po starcie rozgłasza prośbę o zgłoszenia. Wykrywa
+  wszystko, także bez huba — ale dokłada w każdym węźle stan przed `Booted`, obronę z tabelą
+  rozstrzygania, `PRZYDZIAŁ` dla węzła z adresem i zmianę filtrów. Instalacja jest stała:
+  urządzenia dochodzą raz masowo, potem pojedynczo, a przełożenie używanego modułu jest
+  rzadkie. Koszt stały za zdarzenie raz na lata.
+- **Przyjęte ryzyko:** używany moduł z adresem **zajętym na tym samym kablu**, wpięty bez
+  resetu. Hub przypisze jego ruch znanemu węzłowi i niczego nie zauważy wprost; objawem są
+  zderzające się odpowiedzi (ten sam identyfikator, różna treść), czyli przekroczone czasy
+  transakcji i rosnące liczniki błędów przy jednym adresie. Gdyby zaczęło się to zdarzać,
+  odrzucony wariant opisuje `zadania/zrobione/BUG-01.md` w repozytorium projektu.
 
 ### Grupy: 2047 numerów i tablica na ep2
 
@@ -400,7 +424,7 @@ rozmawiają ze sobą").
 
 ### Węzeł z adresem, którego hub nie zna
 
-**Rozstrzygnięte, niewdrożone** · [`06`](06-cykl-zycia-urzadzenia.md) §2.1 · 2026-09-25, uzupełnione 2026-09-28
+**Obowiązuje** · [`06`](06-cykl-zycia-urzadzenia.md) §2.3 · 2026-09-25, wdrożone 2026-09-29
 
 - **Problem:** węzeł z adresem w pamięci trwałej nie bierze udziału w przyłączaniu,
   a przyłączanie jest jedyną drogą do instalacji. Po utracie bazy huba albo przy węźle
@@ -412,10 +436,14 @@ rozmawiają ze sobą").
 - **Przy okazji zapisane:** hub ma **czytać** `ShortId` z węzła, nie wyliczać go z `Uid`.
   Wyliczanie zakłada, że węzeł liczy tak samo — nasz firmware nie liczył i nikt tego nie
   widział, dopóki nikt nie policzył dwa razy.
-- **Uzupełnione 2026-09-28:** hub nie musi `ShortId` odczytywać — węzeł z adresem
-  **zgłasza adres** przy starcie, z `ShortId` w ramce, na wzór J1939 Address Claim. To samo
-  zgłoszenie rozstrzyga konflikt dwóch węzłów pod jednym adresem na jednym kablu. Odczyt
-  zawodzi właśnie wtedy, bo odpowiedzą oba. Do spisania w rozdziałach 03, 05 i 06.
+- **Wyzwalacz — każda ramka, nie `Booted`:** hub na Raspberry Pi wstaje po węzłach, więc ich
+  `Booted` zwykle przepada. Obowiązkowe raporty `Diagnostics` przychodzą najrzadziej co
+  300 s, więc każdy nieznany węzeł pokaże się w ciągu pięciu minut, bez odpytywania.
+- **Także przy włączonym trybie przyjmowania** węzeł z adresem czeka na człowieka: tryb
+  dotyczy węzłów bez adresu, a ten przyniósł konfigurację, o której hub nic nie wie.
+- **Odrzucono 2026-09-29:** zgłoszenie adresu przy starcie (wpis „Konflikt adresów:
+  zapobieganie zamiast wykrywania") — rozwiązywało
+  też ten przypadek, ale kosztem, który nie odpowiada rzadkości zdarzenia.
 
 ### Endpointy funkcjonalne numerowane od 4, bez przerw
 

@@ -257,6 +257,9 @@ zgłasza się jednocześnie, zdarza się **wyłącznie przy pierwszym uruchomien
 albo po masowym przywróceniu ustawień fabrycznych**. Zwykły powrót zasilania po awarii
 jej nie wywołuje.
 
+Węzeł z adresem, którego hub nie zna, trafia więc do instalacji inną drogą — hub rozpoznaje
+go po ruchu ([`06-cykl-zycia-urzadzenia.md`](06-cykl-zycia-urzadzenia.md) §2.3).
+
 ### 5.2 Ramki przyłączania mają własny format identyfikatora
 
 Są to **jedyne dwie ramki w całej specyfikacji, które nie niosą adresu węzła** — bo węzeł
@@ -351,24 +354,39 @@ odpowiedzi mieszają się, a raporty stanu przeczą sobie nawzajem. Przy adresac
 **konfliktem jest to także wtedy, gdy węzły siedzą na różnych magistralach** — nie
 przeszkadzają sobie na ramkach, ale hub nie ma jak ich rozróżnić.
 
-Konflikt nie powinien powstać, bo adresy nadaje wyłącznie hub. Powstaje jednak przy
-nieostrożnym odtworzeniu kopii bazy albo ręcznym ustawieniu adresu.
+Konflikt nie powinien powstać, bo adresy nadaje wyłącznie hub. Może jednak powstać na trzy
+sposoby: hub przydzieli adres, który ktoś już trzyma, bo jego baza jest niepełna (utracona,
+odtworzona ze starej kopii); wycofany węzeł, któremu nie dotarł `FactoryReset`, pracuje dalej
+pod adresem zwolnionym do puli; albo do magistrali trafi używany moduł z adresem nadanym
+gdzie indziej.
 
-**Wykrycie na magistrali.** Węzeł, który po starcie zobaczy ruch nadany spod własnego
-adresu, a którego sam nie wysłał, uznaje to za konflikt. Wtedy:
+**Zapobieganie leży po stronie huba i instalatora, nie węzła.** Węzły konfliktu nie
+wykrywają. Nie ma reguły, która pozwoliłaby dwóm węzłom rozstrzygnąć go między sobą bez
+tożsamości w ramce: warunek „słyszę ruch spod własnego adresu" spełniają oba naraz, a dwa
+identyczne moduły po wspólnym powrocie zasilania nadają identyczne ramki, które na CAN
+nakładają się bit w bit i nie wyglądają jak cudze
+([`DECYZJE.md`](DECYZJE.md) — „Konflikt adresów: zapobieganie zamiast wykrywania").
 
-1. przestaje nadawać,
-2. zeruje `Address` do `0x000`,
-3. wraca do procedury przyłączania.
+**Hub nie przydziela adresu, który słyszy na magistrali.** Adres, spod którego od startu
+huba przyszła jakakolwiek ramka węzła, jest zajęty — niezależnie od tego, co mówi baza.
+Zamyka to dwa pierwsze sposoby: każdy pracujący węzeł raportuje co najmniej `Diagnostics`
+([`06-cykl-zycia-urzadzenia.md`](06-cykl-zycia-urzadzenia.md) §5), więc jego adres jest
+słyszany najpóźniej po jednym okresie raportowania. Adres węzła odłączonego na stałe zostaje
+przez to zablokowany do restartu huba — przy dwóch tysiącach adresów to żaden koszt.
 
-Ustępuje więc ten, kto wykrył konflikt później. Jest to arbitralne, ale rozstrzygające —
-a rozstrzygnięcie jakiekolwiek jest lepsze niż dwa węzły uparcie nadające spod jednego
-adresu.
+**Hub rozpoznaje adres, którego nie zna.** Ramka węzła spod adresu nieobecnego w bazie
+huba prowadzi do odczytu tożsamości spod tego adresu i do stanu `OCZEKUJĄCY`
+([`06-cykl-zycia-urzadzenia.md`](06-cykl-zycia-urzadzenia.md) §2.3).
 
-**Wykrycie przez hub.** Ruch spod adresu, który hub przypisał węzłowi na **innej
-magistrali**, oznacza konflikt — a **tylko hub jest w stanie wykryć ten przypadek**, bo
-węzły na osobnych magistralach nigdy się nie usłyszą i wykrycie na magistrali ich nie
-uratuje.
+**Używany moduł przywraca się do ustawień fabrycznych przed podłączeniem.** To trzeci
+sposób i jedyny, którego hub nie wychwyci, gdy przyniesiony adres jest na tym kablu zajęty:
+ruch obu węzłów przychodzi wtedy spod jednego adresu i nic go nie rozróżnia. Objawem są
+zderzające się odpowiedzi — oba węzły odpowiadają tym samym identyfikatorem z różną treścią —
+czyli przekroczone czasy transakcji i rosnące liczniki błędów przy jednym adresie.
+
+**Konflikt między magistralami wykrywa hub.** Ruch spod adresu, który hub przypisał
+węzłowi na **innej magistrali**, oznacza konflikt — a **tylko hub jest w stanie wykryć ten
+przypadek**, bo węzły na osobnych magistralach nigdy się nie usłyszą.
 
 Rozpoznaje się to po **interfejsie, którym ramka przyszła**, i nic więcej nie jest do tego
 potrzebne: adres jest niepowtarzalny w całej instalacji (§2.1), więc ten sam adres na dwóch

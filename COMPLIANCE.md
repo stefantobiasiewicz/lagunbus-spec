@@ -67,7 +67,7 @@ reguła:
 | `LB-NODE-005` | `M` | `Address` w pamięci trwałej; po zaniku zasilania węzeł wraca pod tym samym adresem | [`03`](03-adresacja.md) §7 |
 | `LB-NODE-006` | `M` | Węzeł bez adresu zgłasza się **bez końca**, z rosnącą zwłoką wg tabeli | [`03`](03-adresacja.md) §5.6 |
 | `LB-NODE-007` | `M` | Węzeł bez adresu sygnalizuje to w sposób widoczny dla człowieka | [`03`](03-adresacja.md) §5.6 |
-| `LB-NODE-008` | `M` | Wykrycie ruchu spod własnego adresu → zerowanie adresu i powrót do przyłączania | [`03`](03-adresacja.md) §6 |
+| `LB-NODE-008` | — | ~~Wykrycie ruchu spod własnego adresu → zerowanie adresu i powrót do przyłączania~~ **wycofane 2026-09-29**: reguła symetryczna, rozstrzygała źle albo wcale; węzły konfliktu nie wykrywają | [`03`](03-adresacja.md) §6 |
 | `LB-NODE-009` | `M` | `ZGŁOSZENIE` niesie `NodeClass`; węzeł mieszany deklaruje klasę **najostrzejszego** ruchu, jaki generuje | [`05`](05-mapowanie-can.md) §4.1 |
 
 ### Kierunek ruchu
@@ -162,6 +162,9 @@ reguła:
 | `LB-HUB-032` | `M` | Adres dla nieznanego `ShortId` brany z **bloku wskazanego przez `NodeClass`**; `UNSPECIFIED` → rezerwa | [`03`](03-adresacja.md) §2.3 |
 | `LB-HUB-033` | `M` | Po enumeracji zgodność klasy z deskryptorem sprawdzona; rozjazd → przesunięcie zapisem `Device.Address` | [`06`](06-cykl-zycia-urzadzenia.md) §4.1 |
 | `LB-HUB-034` | `M` | `NodeClass` **nie jest** używany do interpretacji zdolności węzła — wyłącznie do wyboru bloku | [`05`](05-mapowanie-can.md) §4.1 |
+| `LB-HUB-035` | `M` | Adres słyszany na magistrali od startu huba **nie jest przydzielany**, niezależnie od bazy | [`03`](03-adresacja.md) §6 |
+| `LB-HUB-036` | `M` | Ramka węzła spod adresu nieznanego → odczyt `Device.Uid` i `Device.ShortId` spod tego adresu, **raz na adres**; oba nieznane → `OCZEKUJĄCY` | [`06`](06-cykl-zycia-urzadzenia.md) §2.3 |
+| `LB-HUB-037` | `M` | Węzeł z adresem nieznanym hubowi **nie jest przyjmowany samoczynnie**, także przy włączonym trybie przyjmowania | [`06`](06-cykl-zycia-urzadzenia.md) §2.3 |
 | `LB-HUB-040` | `M` | Próg ciszy = **2 × najkrótszy niezerowy `ReportInterval`** węzła; `300 s`, gdy raportowanie cykliczne wyłączone wszędzie | [`06`](06-cykl-zycia-urzadzenia.md) §5.1 |
 | `LB-HUB-041` | `M` | Endpointy wyłączone atrybutem `Enabled` **nie liczą się** do wyliczenia progu | [`06`](06-cykl-zycia-urzadzenia.md) §5.1 |
 | `LB-HUB-042` | `M` | Po przekroczeniu progu: odczyt `Device.Uptime`; **trzy nieudane próby co 10 s** → `NIEOBECNY` | [`06`](06-cykl-zycia-urzadzenia.md) §5.2 |

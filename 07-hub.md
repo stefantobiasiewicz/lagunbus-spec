@@ -200,6 +200,13 @@ Sto węzłów odpytanych naraz to kilkaset transakcji w kilka sekund; ta sama wi
 sama, za darmo, w ciągu minuty. Jedyne, co hub powinien odpytać od razu, to węzły, których
 stan jest potrzebny natychmiast do bezpieczeństwa.
 
+Nasłuchiwanie odbudowuje przy okazji to, czego baza nie wie. Ramka spod adresu, którego
+w bazie nie ma, prowadzi do odczytu tożsamości spod tego adresu i do stanu
+`OCZEKUJĄCY` ([`06-cykl-zycia-urzadzenia.md`](06-cykl-zycia-urzadzenia.md) §2.3), a każdy
+usłyszany adres przestaje być do przydzielenia
+([`03-adresacja.md`](03-adresacja.md) §6). Oba skutki biorą się z ramek, które i tak
+przychodzą — hub niczego dodatkowo nie odpytuje.
+
 ### 5.2 Czego nie wolno robić po restarcie
 
 > **Nie wolno odtwarzać zaległych zdarzeń.** Zdarzenia, które padły, gdy hub nie działał,

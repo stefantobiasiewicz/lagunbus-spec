@@ -33,7 +33,7 @@ Hub prowadzi stan **dla każdego `ShortId`**, jaki kiedykolwiek zobaczył:
 | Stan | Znaczenie |
 |---|---|
 | **NIEZNANY** | nigdy niewidziany |
-| **OCZEKUJĄCY** | zgłosił się, ale tryb przyjmowania jest wyłączony (§2.1) |
+| **OCZEKUJĄCY** | zgłosił się, ale tryb przyjmowania jest wyłączony (§2.1), albo pracuje pod adresem, którego hub nie zna (§2.3) |
 | **PRZYŁĄCZONY** | ma adres; model jeszcze nieodczytany |
 | **GOTOWY** | model odczytany, urządzenie użyteczne |
 | **NIEOBECNY** | znany i przyłączony, ale milczy (§5) |
@@ -92,6 +92,50 @@ włączeniu trybu zostanie przyjęty w ciągu najwyżej minuty.
 ```
 
 Kroki 1–6 dzieją się same. Dopiero 7 i 8 wymagają człowieka.
+
+### 2.3 Węzeł z adresem, którego hub nie zna
+
+Węzeł z adresem w pamięci trwałej nie bierze udziału w przyłączaniu
+([`03-adresacja.md`](03-adresacja.md) §5.1). Jeśli hub tego adresu nie zna — bo baza została
+utracona albo odtworzona ze starej kopii, bo węzeł był wycofany, a `FactoryReset` do niego
+nie dotarł, albo bo wpięto moduł używany gdzie indziej — przyłączanie go nie przyprowadzi.
+
+Hub rozpoznaje taki węzeł sam:
+
+```
+1.  ramka węzła spod adresu, którego nie ma w bazie huba
+        dowolna: raport, zdarzenie, Booted — nie tylko Booted,
+        bo hub zwykle wstaje po węzłach i ich Booted przepada
+
+2.  ODCZYT Device.Uid i Device.ShortId spod tego adresu      raz na adres
+
+3.  Uid albo ShortId znany hubowi pod innym adresem
+                       → sprzeczność bazy z magistralą, usterka dla człowieka
+    oba nieznane       → węzeł OCZEKUJĄCY, pod tym adresem
+
+4.  operator:
+        przyjmij                          → enumeracja pod obecnym adresem, GOTOWY
+        przywróć ustawienia fabryczne     → FactoryReset, węzeł wraca do przyłączania
+```
+
+Obowiązkowe raporty `Diagnostics` (§5) sprawiają, że hub zobaczy każdy taki węzeł w ciągu
+jednego okresu raportowania — bez odpytywania wszystkich po starcie
+([`07-hub.md`](07-hub.md) §5.1). Kosztem są dwa odczyty na nieznany adres.
+
+`ShortId` hub **odczytuje**, a nie wylicza z `Uid`: wyliczenie zakłada, że węzeł liczy go tak
+samo, a to jest właśnie ten rodzaj zgodności, której nikt nie sprawdza, dopóki się nie
+rozjedzie.
+
+**Nieznany węzeł nie wchodzi sam, także przy włączonym trybie przyjmowania.** Tryb dotyczy
+węzłów, które się zgłaszają, czyli węzłów bez adresu. Węzeł z cudzym adresem przyniósł
+konfigurację, o której hub nic nie wie, i decyzja o nim należy do człowieka. Przyjęcie
+pod adresem, który w bazie huba należy do innego urządzenia, nie jest możliwe — wtedy
+zostaje reset fabryczny.
+
+**Urządzenie używane przywraca się do ustawień fabrycznych przed podłączeniem.** Jest to
+zasada montażowa, nie mechanizm. Wychwycenie przez hub działa tylko wtedy, gdy adres
+przyniesiony przez moduł jest na tym kablu wolny; gdy jest zajęty, dwa węzły nadają spod
+jednego adresu i nie da się ich rozróżnić ([`03-adresacja.md`](03-adresacja.md) §6).
 
 ---
 
@@ -293,10 +337,10 @@ Krok 1 nie zawsze się powiedzie — moduł bywa usuwany właśnie dlatego, że 
 albo już zdemontowany. Wtedy hub pomija go i przechodzi dalej.
 
 Skutek jest taki, że **fizycznie podłączony węzeł może nadal pracować pod swoim adresem**,
-choć hub już go nie zna. Nie przeszkadza to nikomu do chwili, w której ten adres zostanie
-komuś przydzielony — i wtedy zadziała wykrywanie konfliktu. Dlatego stan `WYCOFANY`
-zostaje w bazie: hub wie, że ten `ShortId` może się jeszcze odezwać, i traktuje go jak
-nieznany, czyli wymagający trybu przyjmowania.
+choć hub już go nie zna. Adresu nie dostanie wtedy nikt inny, bo hub nie przydziela adresu,
+który słyszy ([`03-adresacja.md`](03-adresacja.md) §6), a sam węzeł wróci do operatora jako
+`OCZEKUJĄCY` (§2.3). Stan `WYCOFANY` zostaje w bazie: hub wie, że ten `ShortId` może się
+jeszcze zgłosić, i traktuje go jak nieznany, czyli wymagający trybu przyjmowania.
 
 ---
 

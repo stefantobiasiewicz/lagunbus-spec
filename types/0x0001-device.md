@@ -191,6 +191,12 @@ odrzuceniem komendy. Zabezpieczenie jest tu dlatego, że przypadkowe wyzerowanie
 w ścianie kosztuje wyjazd z drabiną — a pojedynczy przekręcony bit w identyfikatorze
 komendy nie powinien mieć takich skutków.
 
+Węzeł **potwierdza komendę jeszcze spod starego adresu** i dopiero potem się zeruje — tak
+samo jak przy zapisie `Address` ([`06-cykl-zycia-urzadzenia.md`](../06-cykl-zycia-urzadzenia.md)
+§4.2). Potwierdzenie spod `0x000` nie dotarłoby do nikogo, a nadawca nie wiedziałby, czy
+reset zaszedł. Po resecie węzeł jest w stanie **BEZ ADRESU** i zgłasza się jak nowe
+urządzenie.
+
 ---
 
 ## 4. Zdarzenia

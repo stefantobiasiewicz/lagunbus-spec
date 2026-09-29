@@ -664,7 +664,12 @@ rozmawiają ze sobą").
   Awaria czujnika daje wartość „brak", nie ciszę i nie zero.
 - **Odrzucono:** osobny typ na każdą wielkość (w Matter — dziewięć klastrów robiących to samo
   z inną jednostką).
-- **Nazwa `Quantity`:** do rozstrzygnięcia — `zadania/CR-02.md` w repozytorium projektu.
+- **Nazwa `Quantity`:** zostaje (2026-09-29). To termin z metrologii — w ISO 80000
+  *quantity* to temperatura, *unit* to °C — i odpowiada polskiej „wielkości fizycznej".
+  Rozważano `Measure`, `Measurand`, `PhysicalQuantity`, `DeviceClass` (Home Assistant);
+  żadna nie jest na tyle lepsza, żeby przepisywać kontrakt i huba, a na magistrali nazwa
+  i tak nie jedzie. `Unit` odpada: to inne pojęcie i nazwa zajęta w rejestrze przez
+  jednostkę. Ślad: `zadania/zrobione/CR-02.md` w katalogu projektu.
 
 ### Meter: kierunek jako cecha, licznik trwały, bez komend
 

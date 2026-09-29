@@ -1,6 +1,8 @@
 # Typ endpointu `0x0010` · KeyInput
 
-> **Stabilne.** Trzy tryby i zdarzenia przytrzymania rozstrzygnięte.
+> **Stabilne.** Trzy tryby i zdarzenia przytrzymania rozstrzygnięte; od 2026-09-29
+> wieloklik, przytrzymanie i tryb `RAW` są cechami, a strojenie należy do autora
+> urządzenia.
 
 **Rewizja 1** · klawisz chwilowy
 
@@ -15,13 +17,48 @@ Zamienia naciśnięcia na zdarzenia.
 **Łącznik bistabilny** — klasyczny wyłącznik, który zostaje w położeniu — **nie należy
 tutaj**. Ma stan, więc używa typu [`Contact`](0x0012-contact.md).
 
+**Jak czytać tabele.** Pełne definicje kolumn są w
+[`01-model-danych.md`](../01-model-danych.md) §3.1 i §8; w skrócie:
+
+| Kolumna | Wartość | Znaczy |
+|---|---|---|
+| **Dostęp** | `RO` · `RW` | tylko odczyt · odczyt i zapis z magistrali |
+| **Trw.** | `P` · `V` | przeżywa zanik zasilania · tylko w RAM |
+| **Rap.** | tak · nie | czy węzeł sam wysyła raport przy zmianie |
+| **Konf.** | `M` | obowiązkowy — każde urządzenie tego typu **musi** go mieć |
+| | `O` | opcjonalny — urządzenie **może** go mieć; jeśli ma, działa tak, jak opisano |
+| | `[HOLD]` | obowiązkowy wtedy i tylko wtedy, gdy urządzenie zadeklarowało cechę `HOLD` |
+| | `[MULTICLICK, RAW]` | obowiązkowy, gdy zadeklarowało **którąkolwiek** z tych cech |
+| | `O [HOLD]` | opcjonalny, ale wolno go mieć **tylko** z cechą `HOLD` |
+| **Zakres** | | dopuszczalne wartości; zapis spoza nich dostaje `INVALID_VALUE` |
+| **Domyśl.** | | wartość po resecie fabrycznym |
+
 ---
 
 ## 1. Cechy
 
-**Brak.** Wszystko, czym klawisze się różnią, jest konfiguracją zmienną w czasie pracy,
-a nie właściwością sprzętu. Klawisz membranowy i pole dotykowe różnią się czasem drgań
-styków, a to atrybut, nie cecha.
+| Bit | Cecha | Dokłada |
+|---|---|---|
+| — | *(zawsze)* | zdarzenie `Click(1)` |
+| 0 | `MULTICLICK` | tryb `MULTICLICK`: `Click(2…MaxClicks)`; atrybuty `MultiClickWindow`, `MaxClicks` |
+| 1 | `HOLD` | zdarzenia `HoldStart`, `HoldTick`, `HoldEnd`; atrybuty `HoldEnabled`, `HoldThreshold`, `HoldTickInterval` |
+| 2 | `RAW` | tryb `RAW`: zdarzenia `Down`, `Up` |
+| 3–15 | — | zarezerwowane, nadawaj `0` |
+
+Atrybut `EventMode` istnieje, gdy zadeklarowano `MULTICLICK` **lub** `RAW` — dopiero
+wtedy jest między czym przełączać. Endpoint bez tych cech pracuje zawsze w trybie `CLICK`.
+
+**Rdzeń nie ma ani jednego atrybutu obowiązkowego.** Dzwonek do drzwi — jedno zdarzenie
+na naciśnięcie — deklaruje cechy puste i implementuje dokładnie jedną rzecz: `Click(1)`
+przy zwolnieniu. Cechy mówią, **co zbudował autor urządzenia**: dzwonek nie umie
+wielokliku nie przez inny styk, tylko dlatego, że nikt go w nim nie zbudował, bo nikt
+nie kliknie w dzwonek trzy razy.
+
+**Strojenie należy do urządzenia.** Czasy działania klawisza — okno wielokliku, próg
+i odstęp przytrzymania — są atrybutami **opcjonalnymi**. Urządzenie, które ich nie
+wystawia, stosuje własne wartości, stałe i mieszczące się w zakresach z §2 (§2.4).
+Odbicie styku nie jest atrybutem w ogóle: to sprawa budowy wejścia, którą rozwiązuje
+autor urządzenia (§5.7).
 
 ---
 
@@ -41,28 +78,48 @@ tysięcy, warto mieć na oku. Zapis do pamięci trwałej co 64 naciśnięcia, ni
 
 | ID | Nazwa | Typ | Dostęp | Trw. | Rap. | Konf. | Zakres | Domyśl. |
 |---|---|---|---|---|---|---|---|---|
-| `0x10` | `DebounceTime` | `u16` | RW | P | nie | M | 5–100 ms | `15` |
-| `0x11` | `EventMode` | `enum8` | RW | P | nie | M | §2.3 | `0` — `CLICK` |
-| `0x12` | `MultiClickWindow` | `u16` | RW | P | nie | M | 150–800 ms | `350` |
-| `0x13` | `MaxClicks` | `u8` | RW | P | nie | M | 2–5 | `3` |
-| `0x14` | `HoldEnabled` | `bool` | RW | P | nie | M | — | `1` |
-| `0x15` | `HoldThreshold` | `u16` | RW | P | nie | M | 200–3000 ms | `500` |
-| `0x16` | `HoldTickInterval` | `u16` | RW | P | nie | M | 50–1000 ms | `200` |
-| `0x17` | `Invert` | `bool` | RW | P | nie | O | — | `0` |
+| `0x11` | `EventMode` | `enum8` | RW | P | nie | `[MULTICLICK, RAW]` | §2.3 | `0` — `CLICK` |
+| `0x12` | `MultiClickWindow` | `u16` | RW | P | nie | `O [MULTICLICK]` | 150–800 ms | `350` |
+| `0x13` | `MaxClicks` | `u8` | RW | P | nie | `O [MULTICLICK]` | 2–5 | `3` |
+| `0x14` | `HoldEnabled` | `bool` | RW | P | nie | `[HOLD]` | — | `1` |
+| `0x15` | `HoldThreshold` | `u16` | RW | P | nie | `O [HOLD]` | 200–3000 ms | `500` |
+| `0x16` | `HoldTickInterval` | `u16` | RW | P | nie | `O [HOLD]` | 50–1000 ms | `200` |
+
+`HoldEnabled` jest jedynym obowiązkowym atrybutem cechy `HOLD`, bo to jedyny, który
+opisuje **użycie** klawisza, a nie jego budowę: klawisz sceny na tym samym panelu co
+klawisz oświetlenia nie powinien ściemniać. Decyduje o tym hub, więc musi mieć czym.
 
 ### 2.3 `EventMode`
 
-| Wartość | Nazwa | Emituje | Kiedy | Opóźnienie reakcji |
-|---|---|---|---|---|
-| `0` | **`CLICK`** *(domyślny)* | `Click(1)` | po zwolnieniu | czas trzymania palca, typowo 80–150 ms |
-| `1` | `MULTICLICK` | `Click(1…MaxClicks)` | po zwolnieniu i oknie | j.w. + `MultiClickWindow`, czyli 350 ms |
-| `2` | `RAW` | `Down`, `Up(czas)` | przy wciśnięciu i zwolnieniu | `DebounceTime` — 15 ms |
+| Wartość | Nazwa | Wymaga cechy | Emituje | Kiedy | Opóźnienie reakcji |
+|---|---|---|---|---|---|
+| `0` | **`CLICK`** *(domyślny)* | — | `Click(1)` | po zwolnieniu | czas trzymania palca, typowo 80–150 ms |
+| `1` | `MULTICLICK` | `MULTICLICK` | `Click(1…MaxClicks)` | po zwolnieniu i oknie | j.w. + `MultiClickWindow`, czyli 350 ms |
+| `2` | `RAW` | `RAW` | `Down`, `Up(czas)` | przy wciśnięciu i zwolnieniu | odbicie styku, typowo kilkanaście ms |
+
+Zapis trybu, którego cechy endpoint nie zadeklarował, jest zapisem poza zakresem
+i dostaje `INVALID_VALUE`.
 
 Tryb ustawia się osobno dla każdego klawisza. Trzyklawiszowy panel może mieć dwa
 klawisze w trybie `CLICK` do świateł i jeden w `MULTICLICK` do scen.
 
 Zdarzenia przytrzymania (`HoldStart`, `HoldTick`, `HoldEnd`) są **niezależne od trybu** —
-włącza je `HoldEnabled` i działają we wszystkich trzech.
+wymagają cechy `HOLD`, włącza je `HoldEnabled` i działają we wszystkich trzech.
+
+### 2.4 Strojenie, którego urządzenie nie wystawia
+
+Atrybut czasu nieobecny w endpoincie nie znaczy, że czasu nie ma — znaczy, że ustala go
+autor urządzenia i hub nie może go zmienić. Obowiązują wtedy trzy zasady:
+
+1. Wartość stosowana przez urządzenie **mieści się w kolumnie „Zakres"** z §2.2. Zakres
+   jest wymaganiem wobec zachowania, nie wobec atrybutu: klawisz bez `MultiClickWindow`
+   nie może czekać na drugie kliknięcie dwie sekundy.
+2. Kolumna „Domyśl." jest dla takiego urządzenia **zaleceniem**, nie obowiązkiem.
+3. Wartość jest **stała w czasie pracy**. Czego nie da się ustawić z magistrali, tego
+   urządzenie nie zmienia samo.
+
+Hub nie musi znać tej wartości: zdarzenia, w których czas ma znaczenie (`Up`, `HoldTick`,
+`HoldEnd`), niosą go same.
 
 ---
 
@@ -74,14 +131,14 @@ włącza je `HoldEnabled` i działają we wszystkich trzech.
 
 ## 4. Zdarzenia
 
-| ID | Nazwa | Parametry | Priorytet | Tryby |
-|---|---|---|---|---|
-| `0x01` | `Down` | — | `INFO` | `RAW` |
-| `0x02` | `Up` | `duration: u16` [ms] | `INFO` | `RAW` |
-| `0x03` | `Click` | `count: u8` | `INFO` | `CLICK`, `MULTICLICK` |
-| `0x05` | `HoldStart` | — | `INFO` | wszystkie, gdy `HoldEnabled` |
-| `0x06` | `HoldTick` | `elapsed: u16` [ms] | `INFO` | wszystkie, gdy `HoldEnabled` |
-| `0x07` | `HoldEnd` | `elapsed: u16` [ms] | `INFO` | wszystkie, gdy `HoldEnabled` |
+| ID | Nazwa | Parametry | Priorytet | Konf. | Tryby |
+|---|---|---|---|---|---|
+| `0x01` | `Down` | — | `INFO` | `[RAW]` | `RAW` |
+| `0x02` | `Up` | `duration: u16` [ms] | `INFO` | `[RAW]` | `RAW` |
+| `0x03` | `Click` | `count: u8` | `INFO` | M | `CLICK`, `MULTICLICK` |
+| `0x05` | `HoldStart` | — | `INFO` | `[HOLD]` | wszystkie, gdy `HoldEnabled` |
+| `0x06` | `HoldTick` | `elapsed: u16` [ms] | `INFO` | `[HOLD]` | wszystkie, gdy `HoldEnabled` |
+| `0x07` | `HoldEnd` | `elapsed: u16` [ms] | `INFO` | `[HOLD]` | wszystkie, gdy `HoldEnabled` |
 
 ---
 
@@ -126,12 +183,12 @@ i reguła na `Down` (§5.5). To jest właśnie powód, dla którego ten tryb ist
 ### 5.3 Tryb `CLICK` — domyślny
 
 ```
-zwolniony ──wciśnięcie, po DebounceTime──► wciśnięty      (nic nie emituj)
+zwolniony ──wciśnięcie, po odbiciu styku──► wciśnięty    (nic nie emituj)
 
 wciśnięty ──zwolnienie──► zwolniony
                             emituj Click(1)
 
-wciśnięty ──po HoldThreshold──► trzymany                  (tylko gdy HoldEnabled)
+wciśnięty ──po HoldThreshold──► trzymany                  (tylko z HOLD i HoldEnabled)
                                   emituj HoldStart
                                   potem HoldTick(czas) co HoldTickInterval
 
@@ -142,9 +199,9 @@ trzymany  ──zwolnienie──► zwolniony
 Naciśnięcie zakończone zwolnieniem przed upływem `HoldThreshold` daje `Click(1)`.
 Naciśnięcie dłuższe przechodzi w przytrzymanie i **nie daje `Click` w ogóle**.
 
-Przy `HoldEnabled = 0` nie ma przejścia do stanu trzymanego, więc `Click(1)` powstaje
-przy zwolnieniu **niezależnie od czasu trzymania**. Klawisz przytrzymany pięć sekund
-wyśle `Click(1)` po pięciu sekundach.
+Bez cechy `HOLD` albo przy `HoldEnabled = 0` nie ma przejścia do stanu trzymanego, więc
+`Click(1)` powstaje przy zwolnieniu **niezależnie od czasu trzymania**. Klawisz
+przytrzymany pięć sekund wyśle `Click(1)` po pięciu sekundach.
 
 Typowe sterowanie ściemnialnym światłem wygląda więc tak: krótkie naciśnięcie przełącza
 (`Click` → `Toggle`), przytrzymanie reguluje jasność (`HoldTick` → `Step`). Dwie reguły,
@@ -153,7 +210,7 @@ zero nakładania się.
 ### 5.4 Tryb `MULTICLICK`
 
 ```
-zwolniony ──wciśnięcie, po DebounceTime──► wciśnięty     (nic nie emituj)
+zwolniony ──wciśnięcie, po odbiciu styku──► wciśnięty    (nic nie emituj)
 
 wciśnięty ──zwolnienie──► oczekiwanie
                             licznik ← licznik + 1
@@ -179,20 +236,22 @@ Po osiągnięciu `MaxClicks` klawisz **nie czeka** na upływ okna — emituje `C
 Bez tego pięciokrotne kliknięcie przy `MaxClicks = 3` byłoby nierozpoznawalne, a tak daje
 `Click(3)` i zaczyna liczyć od nowa.
 
-Przytrzymanie **anuluje** rozpoczętą sekwencję. Wzorzec „dwuklik i przytrzymaj" nie jest
-w tej rewizji obsługiwany; gdyby był potrzebny, `HoldStart` dostanie parametr z liczbą
-poprzedzających kliknięć — pole jest na to zarezerwowane.
+Przytrzymanie **anuluje** rozpoczętą sekwencję — w chwili `HoldStart`, nie dopiero przy
+zwolnieniu; kliknięcia sprzed przytrzymania nie wypływają później jako spóźniony `Click`.
+Wzorzec „dwuklik i przytrzymaj" nie jest w tej rewizji obsługiwany; gdyby był potrzebny,
+`HoldStart` dostanie parametr z liczbą poprzedzających kliknięć — pole jest na to
+zarezerwowane.
 
 ### 5.5 Tryb `RAW`
 
 ```
-zwolniony ──wciśnięcie, po DebounceTime──► wciśnięty
-                                             emituj Down
+zwolniony ──wciśnięcie, po odbiciu styku──► wciśnięty
+                                               emituj Down
 
 wciśnięty ──zwolnienie──► zwolniony
                             emituj Up(czas trzymania)
 
-wciśnięty ──po HoldThreshold──► trzymany
+wciśnięty ──po HoldThreshold──► trzymany                  (tylko z HOLD i HoldEnabled)
                                   emituj HoldStart, potem HoldTick
 
 trzymany  ──zwolnienie──► zwolniony
@@ -204,13 +263,18 @@ temu reguła na `Up` nie odpala się po przytrzymaniu, a obie niosą czas trzyma
 
 Tryb `RAW` ma dwie właściwości, których nie ma żaden inny:
 
-- **`Down` przychodzi po `DebounceTime`**, czyli po 15 ms i zawsze po tym samym czasie.
+- **`Down` przychodzi zaraz po odbiciu styku** — typowo po kilkunastu ms i zawsze po tym
+  samym czasie.
   To jedyna droga do reakcji szybszej niż czas trzymania palca.
 - **Widać samo zwolnienie.** `Up` niesie czas trzymania i pozwala reagować na puszczenie,
   czego `Click` nie umożliwia.
 
 Ceną jest dwukrotnie większy ruch na magistrali — dwa zdarzenia na naciśnięcie zamiast
 jednego. Przy pojedynczym klawiszu bez znaczenia, przy panelu z ośmioma warto wiedzieć.
+
+`Down` i `Up` należą **wyłącznie** do tego trybu. W `CLICK` i `MULTICLICK` naciśnięcie
+nie emituje niczego, dopóki nie zakończy się kliknięciem albo nie przejdzie
+w przytrzymanie.
 
 ### 5.6 Przytrzymanie
 
@@ -223,16 +287,21 @@ nasyca się na `MinLevel`, więc przytrzymanie nigdy nie zgasi lampy
 
 Przy `HoldTickInterval = 200 ms` przytrzymanie przez pięć sekund to 25 ramek. Klawisz
 trzymany bardzo długo generuje ruch bez końca, więc **po 60 sekundach trzymania węzeł
-przestaje wysyłać `HoldTick`** i czeka na zwolnienie. Zablokowany mechanicznie klawisz —
-zaklinowany, zalany, przyciśnięty meblem — nie ma prawa zająć magistrali.
+przestaje wysyłać `HoldTick`** i czeka na zwolnienie; `HoldEnd` przychodzi przy nim
+normalnie. Zablokowany mechanicznie klawisz — zaklinowany, zalany, przyciśnięty meblem —
+nie ma prawa zająć magistrali.
 
-### 5.7 Drgania styków i inwersja
+### 5.7 Drgania styków i polaryzacja wejścia
 
-`DebounceTime` liczy się od **pierwszej** zmiany poziomu; kolejne zmiany w tym oknie są
-ignorowane. Zdarzenie powstaje na końcu okna, jeśli poziom się utrzymał.
+Odfiltrowanie drgań styku jest **sprawą budowy urządzenia** i typ nie ma na nie atrybutu.
+Sposób i czas wybiera autor: klawisz mechaniczny drga kilka milisekund, pole dotykowe
+może nie drgać wcale, a filtr sprzętowy może zrobić całą robotę. Typ wymaga tylko tego,
+żeby jedno naciśnięcie palcem było **jednym** naciśnięciem — drganie nie może dać dwóch
+kliknięć ani dwóch `Down`.
 
-`Invert = 1` dla klawiszy zwierających do zasilania zamiast do masy. Dotyczy wyłącznie
-odczytu wejścia — zdarzenia zawsze opisują **palec na klawiszu**, nie poziom elektryczny.
+Czy klawisz zwiera do masy, czy do zasilania, jest **sprawą budowy urządzenia** i nie ma
+atrybutu: nie zmienia się w czasie pracy i hub nie ma powodu tego wiedzieć. Zdarzenia
+zawsze opisują **palec na klawiszu**, nie poziom elektryczny.
 
 ### 5.8 Zdarzenia zgubione
 
@@ -249,15 +318,19 @@ naciśnięciu jest gorsze niż niezapalenie go wcale.
 
 ## 6. Konfiguracje typowe
 
-| Zastosowanie | `EventMode` | `Hold` | Uwagi |
-|---|---|---|---|
-| Klawisz oświetlenia | `CLICK` | `1` | `Click` przełącza, przytrzymanie ściemnia |
-| Klawisz sceny | `MULTICLICK` | `0` | `Click(1)`, `Click(2)`, `Click(3)` |
-| Klawisz „wychodzę z domu" | `MULTICLICK` | `1` | dwuklik gasi wszystko, przytrzymanie uzbraja |
-| Dzwonek do drzwi | `CLICK` | `0` | jedno zdarzenie na naciśnięcie |
-| Pole dotykowe | `CLICK` | `1` | `DebounceTime` = 30 ms |
-| Sterowanie bramą „trzymaj aby jechać" | `RAW` | `0` | brama jedzie między `Down` a `Up` |
-| Klawisz wymagający natychmiastowej reakcji | `RAW` | `0` | reguła na `Down`, stałe 15 ms |
+| Zastosowanie | Cechy | `EventMode` | `HoldEnabled` | Uwagi |
+|---|---|---|---|---|
+| Dzwonek do drzwi | — | — | — | jedno zdarzenie na naciśnięcie, zero atrybutów |
+| Klawisz oświetlenia | `HOLD` | — | `1` | `Click` przełącza, przytrzymanie ściemnia |
+| Klawisz sceny | `MULTICLICK` | `MULTICLICK` | — | `Click(1)`, `Click(2)`, `Click(3)` |
+| Klawisz „wychodzę z domu" | `MULTICLICK`, `HOLD` | `MULTICLICK` | `1` | dwuklik gasi wszystko, przytrzymanie uzbraja |
+| Pole dotykowe | `HOLD` | — | `1` | odbicie ustala autor urządzenia, np. stałe 30 ms |
+| Sterowanie bramą „trzymaj aby jechać" | `RAW` | `RAW` | — | brama jedzie między `Down` a `Up` |
+| Klawisz wymagający natychmiastowej reakcji | `RAW` | `RAW` | — | reguła na `Down`, stały czas zaraz po odbiciu styku |
+| Panel uniwersalny | `MULTICLICK`, `HOLD`, `RAW` | wg klawisza | wg klawisza | hub przełącza tryb i przytrzymanie bez wymiany urządzenia |
+
+Myślnik w kolumnie `EventMode` albo `HoldEnabled` znaczy, że urządzenie **nie ma** tego
+atrybutu, bo nie zadeklarowało cechy, która go wymaga.
 
 ---
 

@@ -20,6 +20,8 @@ huba — a to działa tylko wtedy, gdy autor ma numer telefonu do autora huba.
 | `M` | obowiązkowe — bez tego implementacja jest niezgodna |
 | `O` | opcjonalne — wolno nie mieć, ale jeśli jest, musi działać tak |
 | `[CECHA]` | obowiązkowe wtedy i tylko wtedy, gdy cecha jest zadeklarowana |
+| `[CECHA, CECHA]` | obowiązkowe, gdy zadeklarowana jest **którakolwiek** z wymienionych |
+| `O [CECHA]` | opcjonalne, ale dopuszczalne tylko przy zadeklarowanej cesze |
 
 Numeracja jest **stała**: raz nadany numer nie zmienia znaczenia i nie jest używany
 ponownie. Wymaganie wycofane zostaje na liście z adnotacją.
@@ -35,7 +37,8 @@ reguła:
 
 > **`LB-TYPE-001` `M`** — Endpoint deklarujący typ implementuje **wszystkie** jego elementy
 > oznaczone `M` oraz wszystkie oznaczone `[CECHA]` dla cech, które zadeklarował. Brak
-> choćby jednego oznacza, że tego typu **nie wolno deklarować**.
+> choćby jednego oznacza, że tego typu **nie wolno deklarować**. Elementu oznaczonego
+> `O [CECHA]` nie wolno mieć bez tej cechy.
 
 ---
 
@@ -157,6 +160,7 @@ reguła:
 | `LB-HUB-023` | `M` | Spadek wartości licznika `Meter` wykryty; różnica ujemna **nie jest liczona** | [`types/Meter`](types/0x0031-meter.md) §5.2 |
 | `LB-HUB-024` | `M` | Wobec węzła używane wyłącznie elementy mieszczące się w jego `ProtocolVersion` i `TypeRevision` | [`08`](08-wersjonowanie.md) §5 |
 | `LB-HUB-025` | `M` | Węzeł o innym `major` **nie jest interpretowany**; zgłaszany operatorowi | [`08`](08-wersjonowanie.md) §2.1 |
+| `LB-HUB-026` | `M` | Hub **nie konfiguruje** elementów spoza cech zadeklarowanych przez endpoint; taka konfiguracja zgłaszana operatorowi | [`01`](01-model-danych.md) §2.1 |
 | `LB-HUB-030` | `M` | Tryb przyjmowania nowych urządzeń wygasa samoczynnie po 15 minutach | [`06`](06-cykl-zycia-urzadzenia.md) §2.1 |
 | `LB-HUB-031` | `M` | `ShortId` znany hubowi dostaje adres **zawsze**, niezależnie od trybu przyjmowania | [`06`](06-cykl-zycia-urzadzenia.md) §2.1 |
 | `LB-HUB-032` | `M` | Adres dla nieznanego `ShortId` brany z **bloku wskazanego przez `NodeClass`**; `UNSPECIFIED` → rezerwa | [`03`](03-adresacja.md) §2.3 |
@@ -179,6 +183,10 @@ reguła:
 | `LB-OUT-001` | `[LEVEL]` | `Level` jest jedynym stanem prawdziwym; `OnOff = (Level > 0)` | [`types/Output`](types/0x0020-output.md) §5.1 |
 | `LB-OUT-002` | `[LEVEL]` | `Step` nasyca się na `MinLevel`/`MaxLevel`, **nigdy nie przechodzi przez zero** | [`types/Output`](types/0x0020-output.md) §5.2 |
 | `LB-OUT-003` | `[LEVEL]` | `Level` **nie jest raportowany w trakcie przejścia** — tylko na początku i końcu | [`types/Output`](types/0x0020-output.md) §5.3 |
+| `LB-KEY-001` | `M` | `Down`/`Up` wyłącznie w trybie `RAW`; w `CLICK` i `MULTICLICK` naciśnięcie nie emituje niczego przed kliknięciem albo przytrzymaniem | [`types/KeyInput`](types/0x0010-key-input.md) §5.5 |
+| `LB-KEY-002` | `M` | Czas nieobecny jako atrybut stosowany **stały i w zakresie z tabeli typu** | [`types/KeyInput`](types/0x0010-key-input.md) §2.4 |
+| `LB-KEY-003` | `[HOLD]` | Zwolnienie po przytrzymaniu to **wyłącznie** `HoldEnd` — bez `Click` i bez `Up` | [`types/KeyInput`](types/0x0010-key-input.md) §5.5 |
+| `LB-KEY-004` | `[HOLD]` | `HoldTick` ustaje po 60 s trzymania; `HoldEnd` przy zwolnieniu przychodzi normalnie | [`types/KeyInput`](types/0x0010-key-input.md) §5.6 |
 | `LB-SCN-001` | `M` | `SceneCapacity` ≥ 8; pojemność liczona w **parach** `(grupa, numer)` | [`types/Scenes`](types/0x0003-scenes.md) §3 |
 | `LB-MTR-001` | `M` | Licznik **nigdy nie maleje** poza `FactoryReset` | [`types/Meter`](types/0x0031-meter.md) §5.2 |
 | `LB-MTR-002` | `M` | Zapis licznika do pamięci trwałej nie częściej niż raz na 10 minut | [`types/Meter`](types/0x0031-meter.md) §5.4 |

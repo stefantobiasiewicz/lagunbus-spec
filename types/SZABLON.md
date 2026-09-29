@@ -13,6 +13,22 @@ Jeśli typ obejmuje szeroką rodzinę urządzeń — powiedz jaką i dlaczego je
 **Bez porównań z innymi protokołami**: te należą do osobnego dokumentu
 ([`../POJECIA.md`](../POJECIA.md) §4).
 
+**Jak czytać tabele.** Pełne definicje kolumn są w
+[`01-model-danych.md`](../01-model-danych.md) §3.1 i §8; w skrócie:
+
+| Kolumna | Wartość | Znaczy |
+|---|---|---|
+| **Dostęp** | `RO` · `RW` · `WO` | tylko odczyt · odczyt i zapis · tylko zapis — z magistrali |
+| **Trw.** | `P` · `V` | przeżywa zanik zasilania · tylko w RAM |
+| **Rap.** | tak · nie | czy węzeł sam wysyła raport przy zmianie |
+| **Konf.** | `M` | obowiązkowy — każde urządzenie tego typu **musi** go mieć |
+| | `O` | opcjonalny — urządzenie **może** go mieć; jeśli ma, działa tak, jak opisano |
+| | `[CECHA]` | obowiązkowy wtedy i tylko wtedy, gdy urządzenie zadeklarowało tę cechę (§1) |
+| | `[CECHA, CECHA]` | obowiązkowy, gdy zadeklarowało **którąkolwiek** z wymienionych |
+| | `O [CECHA]` | opcjonalny, ale wolno go mieć **tylko** z tą cechą |
+| **Zakres** | | dopuszczalne wartości; zapis spoza nich dostaje `INVALID_VALUE` |
+| **Domyśl.** | | wartość po resecie fabrycznym |
+
 ---
 
 ## 1. Cechy
@@ -25,8 +41,14 @@ Gdy typ ma cechy:
 | 0 | `NAZWA` | co dokłada |
 | 1–15 | — | zarezerwowane, nadawaj `0` |
 
-Gdy nie ma — **Brak.** plus jedno zdanie, *dlaczego* nie ma. Najczęstszy powód: to, czym
-urządzenia się różnią, jest konfiguracją zmienną w czasie pracy, a nie właściwością sprzętu.
+Gdy nie ma — **Brak.** plus jedno zdanie, *dlaczego* nie ma. Zanim to napiszesz, sprawdź
+najprostsze urządzenie tego typu: czy naprawdę potrzebuje wszystkiego, co typ obowiązkowo
+każe mu mieć? Jeśli nie — to, czego nie potrzebuje, jest cechą. Tak `KeyInput` przestał
+wymagać wielokliku od dzwonka.
+
+Strojenie wynikające z **budowy** urządzenia (drgania styku, polaryzacja wejścia) nie jest
+atrybutem — rozwiązuje je autor urządzenia. Atrybutem jest to, co opisuje **użycie**
+i o czym ma decydować hub.
 
 ---
 

@@ -48,7 +48,7 @@ z nich bywa pusty:
 | Typ | Atrybuty | Komendy | Zdarzenia |
 |---|---|---|---|
 | [`Output`](types/0x0020-output.md) — sterowane wyjście | 17 | 9 | **0** |
-| [`KeyInput`](types/0x0010-key-input.md) — klawisz | 9 | **0** | 6 |
+| [`KeyInput`](types/0x0010-key-input.md) — klawisz | 7 | **0** | 6 |
 
 Wyjście ma stan i przyjmuje polecenia, więc nie ma o czym powiadamiać. Klawisz niczego nie
 przyjmuje i nie ma stanu wartego odczytania — mówi wyłącznie o faktach.
@@ -155,13 +155,17 @@ Przekaźnik deklaruje cechy puste — zostaje mu sam rdzeń. Ściemniacz deklaru
 Taśma RGBW deklaruje `LEVEL | COLOR_RGB`. Wszystkie trzy są tego samego typu i wszystkie
 trzy odpowiadają na `Toggle`.
 
-Cechy są **właściwością sprzętu, nie ustawieniem**: urządzenie deklaruje je raz,
-w deskryptorze (`Features`, `0xF2`), i nie zmieniają się w czasie pracy. Ściemniacz nie
-przestaje umieć ściemniać.
+Cechy są **właściwością urządzenia, nie ustawieniem**: mówią, co zbudował jego autor —
+sprzętem albo oprogramowaniem. Urządzenie deklaruje je raz, w deskryptorze (`Features`,
+`0xF2`), i nie zmieniają się w czasie pracy. Ściemniacz nie przestaje umieć ściemniać,
+a dzwonek, w którym nikt nie zbudował wielokliku, nie deklaruje go, choć jego styk by go
+uniósł ([`types/0x0010-key-input.md`](types/0x0010-key-input.md) §1).
 
 **Odwoływanie się do elementu spoza zadeklarowanych cech jest błędem** i zwraca
 `UNSUPPORTED_FEATURE` ([`04-interakcje.md`](04-interakcje.md) §9). Element wtedy istnieje
-w typie — po prostu to urządzenie go nie ma.
+w typie — po prostu to urządzenie go nie ma. Hub zna cechy z enumeracji, więc **nie
+konfiguruje elementów spoza nich**: ustawienie takiego elementu w konfiguracji jest
+błędem zgłaszanym operatorowi, a nie zapisem, który węzeł ma odrzucić.
 
 ### 2.2 Rozróżnialność endpointów
 
@@ -248,11 +252,11 @@ Dlatego zdarzenia mają wyższy priorytet na magistrali niż raporty stanu.
 | **Trwałość** | `V` ulotny (RAM) · `P` trwały (EEPROM, przeżywa restart) |
 | **Raportowany** | czy podlega automatycznemu raportowaniu (§6) |
 | **Konformancja** | `M` obowiązkowy · `O` opcjonalny · `[CECHA]` zależny od cechy |
-| **Zakres** | dopuszczalne wartości; zapis poza zakresem → `CONSTRAINT_ERROR` |
+| **Zakres** | dopuszczalne wartości; zapis poza zakresem → `INVALID_VALUE` |
 | **Domyślna** | wartość po `FactoryReset` |
 
 Atrybuty konfiguracyjne (`RW`, `P`) mieszkają w tym samym typie co funkcja, której
-dotyczą — czas debounce jest atrybutem typu `KeyInput`, nie osobnym mechanizmem
+dotyczą — próg przytrzymania jest atrybutem typu `KeyInput`, nie osobnym mechanizmem
 konfiguracji. Dzięki temu istnieje jeden sposób czytania i zapisywania czegokolwiek.
 
 ### 3.2 Komenda
@@ -570,6 +574,8 @@ Notacja używana w tabelach całej specyfikacji:
 | `M` | obowiązkowy — implementacja **musi** go mieć |
 | `O` | opcjonalny — **może** go mieć |
 | `[LEVEL]` | obowiązkowy wtedy i tylko wtedy, gdy zadeklarowano cechę `LEVEL` |
+| `[MULTICLICK, RAW]` | obowiązkowy wtedy i tylko wtedy, gdy zadeklarowano **którąkolwiek** z wymienionych cech |
+| `O [HOLD]` | opcjonalny, ale **wolno go mieć** tylko przy zadeklarowanej cesze `HOLD`; bez niej odwołanie daje `UNSUPPORTED_FEATURE` |
 | `!` | zabroniony w tym kontekście |
 
 Urządzenie, które deklaruje typ, musi zaimplementować **wszystkie** jego atrybuty

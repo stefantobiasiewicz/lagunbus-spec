@@ -639,6 +639,43 @@ rozmawiają ze sobą").
   i natychmiastowa jest w trybie `RAW` przez powiązanie na `Down` — to uzasadnia jego istnienie.
 - **Nazwa:** `Key` → `KeyInput` (2026-09-16). Przyrostek odróżnia wejścia obsługiwane przez
   człowieka od `Contact`, który obserwuje świat.
+- **Dalej:** które z trzech trybów i przytrzymanie urządzenie w ogóle ma — następny wpis.
+
+### KeyInput: cechy zamiast „każdy klawisz umie wszystko"; strojenie należy do urządzenia
+
+**Obowiązuje** · [`types/0x0010-key-input.md`](types/0x0010-key-input.md) §1 · 2026-09-29
+
+- **Problem:** typ miał siedem atrybutów obowiązkowych i trwałych, a sekcję cech pustą.
+  Dzwonek do drzwi, któremu wystarcza `Click`, musiał przechowywać, walidować i obsługiwać
+  odczyt i zapis okna wielokliku i progu przytrzymania, których nigdy nie użyje; panel
+  trzyklawiszowy — 21 wartości w pamięci nieulotnej. Zasada „wszystko, czym klawisze się
+  różnią, jest konfiguracją" była słuszna dla różnic sprzętowych, ale obciążenie brało się
+  z czegoś innego: z tego, **co autor urządzenia zbudował**.
+- **Wybrano:** kierunek „jak najwięcej implementacji urządzenia". Rdzeń to samo
+  `Click(1)`, **zero atrybutów obowiązkowych**. Trzy cechy: `MULTICLICK`, `HOLD`, `RAW` —
+  ten sam mechanizm, którym `Output` odróżnia przekaźnik od ściemniacza. `EventMode`
+  obowiązkowy przy `MULTICLICK` lub `RAW`. Czasy działania (okno, próg, odstęp)
+  **opcjonalne**: urządzenie, które ich nie wystawia, stosuje własne, stałe, w zakresach
+  typu. `Invert` i `DebounceTime` **wypadły** — polaryzacja wejścia i odfiltrowanie drgań
+  styku to sprawa budowy, o którą martwi się autor urządzenia, nie hub; typ wymaga tylko,
+  żeby jedno naciśnięcie było jednym naciśnięciem. Hub **konfiguruje tylko to, co endpoint
+  zadeklarował** (`LB-HUB-026`).
+- **`HoldEnabled` zostaje** jako jedyny obowiązkowy atrybut `HOLD`. Rozważane było
+  wyłączanie przez `HoldThreshold = 0`, ale przy progu opcjonalnym hub nie miałby czym
+  wyłączyć przytrzymania — a to jest decyzja o **użyciu** klawisza (klawisz sceny obok
+  klawisza oświetlenia), więc należy do huba.
+- **Odrzucono:** (a) zostawić jak jest — dzwonek płaci za wieloklik, a biblioteka węzła
+  staje się jedyną dopuszczalną implementacją; (b) odchudzić bez cech (wyciąć `HoldEnabled`
+  i `MaxClicks`) — 7 → 5, ale tryby nadal obowiązkowe dla wszystkich; (c) dwie cechy
+  z `RAW` w rdzeniu — dzwonek nie potrzebuje też `Down`/`Up`.
+- **Rewizja zostaje 1** — v1 nie było wydane, kontrakt dopiero się ustala.
+- **Przy okazji zapisane wprost:** `Down`/`Up` należą wyłącznie do `RAW`; kliknięcia sprzed
+  przytrzymania kasuje `HoldStart`. Oba wynikały z diagramów, ale biblioteka węzła i tak
+  robiła inaczej.
+- **Świadomie nie opisane:** przypadki brzegowe wejścia — np. klawisz wciśnięty już przy
+  starcie węzła. To sprawa implementacji urządzenia, nie kontraktu; specyfikacja mówi, co
+  znaczą zdarzenia, a nie jak urządzenie radzi sobie z każdym stanem styku.
+- **Ślad:** `zadania/CR-01.md` w katalogu projektu.
 
 ### Wejścia: Contact, ToggleInput, ValueInput
 

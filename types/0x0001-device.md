@@ -9,6 +9,22 @@ Siedzi zawsze na **endpoincie 0** i jest jedynym typem obecnym w każdym węźle
 wyjątku. Odpowiada na pytanie „czym jesteś" — zanim hub dowie się czegokolwiek o funkcjach
 urządzenia, musi umieć odczytać ten typ.
 
+**Jak czytać tabele.** Pełne definicje kolumn są w
+[`01-model-danych.md`](../01-model-danych.md) §3.1 i §8; w skrócie:
+
+| Kolumna | Wartość | Znaczy |
+|---|---|---|
+| **Dostęp** | `RO` · `RW` · `WO` | tylko odczyt · odczyt i zapis · tylko zapis — z magistrali |
+| **Trw.** | `P` · `V` | przeżywa zanik zasilania · tylko w RAM |
+| **Rap.** | tak · nie | czy węzeł sam wysyła raport przy zmianie |
+| **Konf.** | `M` | obowiązkowy — każde urządzenie tego typu **musi** go mieć |
+| | `O` | opcjonalny — urządzenie **może** go mieć; jeśli ma, działa tak, jak opisano |
+| | `[CECHA]` | obowiązkowy wtedy i tylko wtedy, gdy urządzenie zadeklarowało tę cechę (§1) |
+| | `[CECHA, CECHA]` | obowiązkowy, gdy zadeklarowało **którąkolwiek** z wymienionych |
+| | `O [CECHA]` | opcjonalny, ale wolno go mieć **tylko** z tą cechą |
+| **Zakres** | | dopuszczalne wartości; zapis spoza nich dostaje `INVALID_VALUE` |
+| **Domyśl.** | | wartość po resecie fabrycznym |
+
 ---
 
 ## 1. Cechy

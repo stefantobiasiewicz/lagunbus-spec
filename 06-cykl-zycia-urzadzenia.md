@@ -37,7 +37,7 @@ Hub prowadzi stan **dla każdego `ShortId`**, jaki kiedykolwiek zobaczył:
 | **PRZYŁĄCZONY** | ma adres; model jeszcze nieodczytany |
 | **GOTOWY** | model odczytany, urządzenie użyteczne |
 | **NIEOBECNY** | znany i przyłączony, ale milczy (§5) |
-| **WYCOFANY** | usunięty przez operatora; adres zwolniony (§7) |
+| **ZABLOKOWANY** | operator kazał go nie obsługiwać; hub go zna i trzyma jego adres (§8) |
 
 ---
 
@@ -56,6 +56,7 @@ w niej najważniejsze:
 Znane urządzenie dostaje swój adres **zawsze i bez pytania**. Dzięki temu wymiana
 bezpiecznika, przywrócenie ustawień fabrycznych czy odłączenie modułu na czas remontu
 nie wymagają żadnej ceremonii — instalacja wstaje sama.
+Jedynym wyjątkiem jest urządzenie, które operator zablokował (§8).
 
 Tryb chroni wyłącznie przed tym, żeby **nieznane** urządzenie samo weszło do instalacji.
 Nie jest to zabezpieczenie przed napastnikiem — magistrala biegnie w ścianie i kto ma do
@@ -322,25 +323,42 @@ i są w każdym węźle. Czwarty byłby drugim tętnem obok pierwszego.
 
 ## 6. Usunięcie z instalacji
 
-Usunięcie jest **operacją po stronie huba** — węzeł nie zna takiego pojęcia.
+Usunięcie jest **operacją po stronie huba** — węzeł nie zna takiego pojęcia. Hub
+**zapomina** urządzenie: nie zostaje po nim żaden stan, także pod jego `ShortId`. Wraca
+tylko przez tryb przyjmowania, jak każde nieznane.
+
+Operator wybiera jeden z dwóch trybów.
+
+### 6.1 Usunięcie zwykłe
 
 ```
-1.  hub wysyła FactoryReset, o ile węzeł odpowiada
+1.  hub wysyła FactoryReset i czeka na odpowiedź
         (Device, komenda 0x02, argument 0x4C41474E)
 
-2.  hub zwalnia adres do puli
-
-3.  hub oznacza ShortId jako WYCOFANY
+2.  węzeł potwierdził:  hub zwalnia adres do puli i zapomina ShortId
+    węzeł milczy albo odmawia:  nic się nie zmienia, operator dostaje błąd
 ```
 
-Krok 1 nie zawsze się powiedzie — moduł bywa usuwany właśnie dlatego, że jest uszkodzony
-albo już zdemontowany. Wtedy hub pomija go i przechodzi dalej.
+Potwierdzenie jest warunkiem, bo tylko ono mówi, że węzeł naprawdę stracił adres. Po
+nim adres jest wolny także na magistrali — hub może go przydzielić od razu, choćby temu
+samemu urządzeniu przyjętemu ponownie.
+
+### 6.2 Usunięcie wymuszone
+
+```
+1.  hub wysyła FactoryReset i nie czeka na odpowiedź
+
+2.  hub zapomina ShortId
+```
+
+Do usuwania modułu, który już nie odpowie — uszkodzonego albo zdemontowanego, a wciąż
+widniejącego w hubie.
 
 Skutek jest taki, że **fizycznie podłączony węzeł może nadal pracować pod swoim adresem**,
-choć hub już go nie zna. Adresu nie dostanie wtedy nikt inny, bo hub nie przydziela adresu,
-który słyszy ([`03-adresacja.md`](03-adresacja.md) §6), a sam węzeł wróci do operatora jako
-`OCZEKUJĄCY` (§2.3). Stan `WYCOFANY` zostaje w bazie: hub wie, że ten `ShortId` może się
-jeszcze zgłosić, i traktuje go jak nieznany, czyli wymagający trybu przyjmowania.
+choć hub już go nie zna — gdy reset do niego nie dotarł. Adresu nie dostanie wtedy nikt
+inny, bo hub nie przydziela adresu, który słyszy ([`03-adresacja.md`](03-adresacja.md) §6),
+a sam węzeł wróci do operatora jako `OCZEKUJĄCY` (§2.3). Jeżeli potwierdzenie resetu
+przyjdzie mimo wszystko, hub traktuje adres jak po usunięciu zwykłym.
 
 ---
 
@@ -357,3 +375,29 @@ przyjmowania nie jest potrzebny.
 Jest to celowe. Reset fabryczny służy naprawie węzła, który zgłupiał, a nie usuwaniu go
 z instalacji; do usuwania służy §6. Po odzyskaniu adresu hub odtwarza konfigurację
 z kopii i urządzenie wraca do pracy bez udziału człowieka.
+
+---
+
+## 8. Zablokowanie
+
+Operator może kazać hubowi **nie obsługiwać** urządzenia, które fizycznie jest
+w instalacji — modułu testowego, uszkodzonego, który zaśmieca magistralę zdarzeniami,
+urządzenia czekającego na naprawę. Zablokowanie, tak jak usunięcie, jest operacją po
+stronie huba: węzeł o nim nie wie i niczego od huba nie dostaje.
+
+Hub rozpoznaje zablokowane urządzenie po `Uid` i trzyma blokadę w swojej konfiguracji,
+więc przeżywa ona restart huba. Wobec węzła `ZABLOKOWANY`:
+
+| | |
+|---|---|
+| przyłączanie | hub **nie przydziela** mu adresu, także przy włączonym trybie przyjmowania |
+| enumeracja, uzgadnianie | nie zachodzą |
+| zdarzenia i raporty | nie wyzwalają powiązań; żadne powiązanie nie ma go za cel |
+| adres | pozostaje zajęty — węzeł na nim pracuje |
+| ruch od huba | żadnego, poza odczytem tożsamości potrzebnym, by go rozpoznać (§2.3) |
+
+Węzeł, który zgłasza się bez adresu, podaje tylko `ShortId`; hub rozpozna w nim urządzenie
+zablokowane dopiero po odczycie `Uid`, czyli gdy węzeł już ma adres.
+
+Odblokowany węzeł z adresem przechodzi enumerację i staje się `GOTOWY`; bez adresu
+przyłącza się zwykłą drogą (§2).

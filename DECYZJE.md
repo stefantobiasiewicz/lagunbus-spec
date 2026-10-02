@@ -487,6 +487,33 @@ rozmawiają ze sobą").
   pokrętło dublowałoby to samo i prędzej czy później zaczęłoby mu przeczyć. Odstęp 10 s daje
   restartującemu się węzłowi czas na powrót.
 
+### Usunięcie: zapomnienie w dwóch trybach; zablokowanie osobno
+
+**Obowiązuje** · [`06`](06-cykl-zycia-urzadzenia.md) §6, §8 · 2026-10-02 (zastępuje stan `WYCOFANY` z 2026-09-11)
+
+- **Problem:** stan `WYCOFANY` mieszał dwie rzeczy. Usunięcie miało zostawić w bazie ślad
+  „ten `ShortId` może się zgłosić", ale hub i tak traktował go jak nieznany — ślad był
+  notatką bez skutków. Implementacja huba pokazała, że skasowany rekord zachowuje się
+  identycznie, także dla węzła, który resetu nie dostał: jego adres chroni reguła adresu
+  słyszanego, a sam węzeł wraca jako `OCZEKUJĄCY`. Brakowało za to sposobu, by urządzenie
+  **zostało** w instalacji i nie było obsługiwane.
+- **Wybrano:** usunięcie **zapomina** urządzenie całkowicie i ma dwa tryby, jak w
+  zigbee2mqtt — **zwykły**, w którym dopiero potwierdzenie `FactoryReset` cokolwiek usuwa,
+  i **wymuszony**, w którym hub wysyła reset i nie czeka. Osobno **zablokowanie**: hub zna
+  urządzenie po `Uid`, nie przydziela mu adresu, nie konfiguruje go i ignoruje jego
+  zdarzenia; blokada leży w konfiguracji huba.
+- **Dlaczego zwykły czeka:** bez potwierdzenia hub nie wie, czy węzeł stracił adres.
+  Usunięcie „na ślepo" jako jedyna droga zostawiałoby po każdym usunięciu adres
+  zablokowany do restartu huba i węzeł, który za chwilę wróci jako `OCZEKUJĄCY`.
+- **Dlaczego jest wymuszony:** moduł zdemontowany albo martwy nigdy nie potwierdzi, a musi
+  dać się usunąć.
+- **Dlaczego blokada po `Uid`, nie po adresie:** adres zmienia się przy ponownym przyjęciu,
+  a `Uid` nigdy. Cena: węzeł zgłaszający się bez adresu podaje tylko `ShortId`, więc hub
+  rozpozna blokadę dopiero po odczycie tożsamości.
+- **Odrzucono:** „wyciszenie" jako nazwa — sugeruje, że węzeł milknie, a hub nie ma czym
+  go uciszyć; węzeł nadaje dalej, to hub przestaje słuchać.
+- **Ślad:** `zadania/zrobione/FEAT-04.md` w katalogu projektu.
+
 ### Reset fabryczny wymaga argumentu zabezpieczającego
 
 **Obowiązuje** · [`types/0x0001-device.md`](types/0x0001-device.md) · 2026-09-09
@@ -675,7 +702,7 @@ rozmawiają ze sobą").
 - **Świadomie nie opisane:** przypadki brzegowe wejścia — np. klawisz wciśnięty już przy
   starcie węzła. To sprawa implementacji urządzenia, nie kontraktu; specyfikacja mówi, co
   znaczą zdarzenia, a nie jak urządzenie radzi sobie z każdym stanem styku.
-- **Ślad:** `zadania/CR-01.md` w katalogu projektu.
+- **Ślad:** `zadania/zrobione/CR-01.md` w katalogu projektu.
 
 ### Wejścia: Contact, ToggleInput, ValueInput
 

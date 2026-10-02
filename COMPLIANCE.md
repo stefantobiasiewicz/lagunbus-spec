@@ -173,6 +173,11 @@ reguła:
 | `LB-HUB-041` | `M` | Endpointy wyłączone atrybutem `Enabled` **nie liczą się** do wyliczenia progu | [`06`](06-cykl-zycia-urzadzenia.md) §5.1 |
 | `LB-HUB-042` | `M` | Po przekroczeniu progu: odczyt `Device.Uptime`; **trzy nieudane próby co 10 s** → `NIEOBECNY` | [`06`](06-cykl-zycia-urzadzenia.md) §5.2 |
 | `LB-HUB-043` | `M` | Spadek `Uptime` względem poprzedniego odczytu rozpoznany jako **przeoczony restart** | [`06`](06-cykl-zycia-urzadzenia.md) §5.2 |
+| `LB-HUB-044` | `M` | Usunięcie zwykłe: hub zapomina węzeł **dopiero po potwierdzeniu** `FactoryReset`; bez potwierdzenia nic się nie zmienia | [`06`](06-cykl-zycia-urzadzenia.md) §6.1 |
+| `LB-HUB-045` | `M` | Po usunięciu `ShortId` traktowany jak nieznany — wraca **tylko** przez tryb przyjmowania | [`06`](06-cykl-zycia-urzadzenia.md) §6 |
+| `LB-HUB-046` | `M` | Węzeł zablokowany **nie dostaje adresu** przy przyłączaniu, także przy włączonym trybie przyjmowania | [`06`](06-cykl-zycia-urzadzenia.md) §8 |
+| `LB-HUB-047` | `M` | Zdarzenia i raporty węzła zablokowanego **nie wyzwalają powiązań**; żadne powiązanie nie ma go za cel | [`06`](06-cykl-zycia-urzadzenia.md) §8 |
+| `LB-HUB-048` | `M` | Blokada przeżywa restart huba | [`06`](06-cykl-zycia-urzadzenia.md) §8 |
 
 ---
 

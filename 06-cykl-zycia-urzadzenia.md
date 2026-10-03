@@ -134,7 +134,8 @@ pod adresem, który w bazie huba należy do innego urządzenia, nie jest możliw
 zostaje reset fabryczny.
 
 **Urządzenie używane przywraca się do ustawień fabrycznych przed podłączeniem.** Jest to
-zasada montażowa, nie mechanizm. Wychwycenie przez hub działa tylko wtedy, gdy adres
+zasada montażowa, a jej mechanizmem jest przycisk serwisowy, który ma każde urządzenie
+([`types/0x0001-device.md`](types/0x0001-device.md) §5.4). Wychwycenie przez hub działa tylko wtedy, gdy adres
 przyniesiony przez moduł jest na tym kablu wolny; gdy jest zajęty, dwa węzły nadają spod
 jednego adresu i nie da się ich rozróżnić ([`03-adresacja.md`](03-adresacja.md) §6).
 

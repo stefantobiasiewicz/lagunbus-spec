@@ -523,6 +523,28 @@ rozmawiają ze sobą").
   służy naprawie węzła, a nie usuwaniu go z instalacji.
 - **Dlaczego:** przypadkowe wyzerowanie węzła w ścianie kosztuje wyjazd z drabiną.
 
+### Każde urządzenie ma przycisk serwisowy i diodę stanu
+
+**Obowiązuje** · [`types/0x0001-device.md`](types/0x0001-device.md) · 2026-10-03
+
+- **Wybrano:** przycisk serwisowy (lokalny reset fabryczny, zabezpieczony przed
+  przypadkowym użyciem) i dioda stanu (reset, identyfikacja, usterka magistrali, brak
+  adresu, praca — przy kilku naraz wyższy w tej kolejności) są **obowiązkowe** dla
+  każdego urządzenia, bez wyjątku dla urządzeń bez miejsca.
+- **Dlaczego przycisk:** reset przed podłączeniem był zasadą bez mechanizmu. Jedyną drogą
+  był `FactoryReset` z huba, czyli moduł już na magistrali — a gdy przyniesiony adres jest
+  zajęty, dwa węzły nadają spod jednego i nie da się ich rozróżnić.
+- **Dlaczego dioda i dlaczego kolejność w specyfikacji:** `Identify` bez czego widocznego
+  nie odpowiada na pytanie „który to moduł"; montażysta przy rozdzielnicy nie wie, czy
+  moduł czeka na adres, czy ma usterkę. Jedna kolejność sprawia, że wszystkie urządzenia,
+  także cudze, pokazują w tej samej sytuacji to samo.
+- **Odrzucono:** czas przytrzymania w specyfikacji (5 s to wytyczna projektu, nie wymóg —
+  zabezpieczenie należy do urządzenia); wzory mrugania i kolory w specyfikacji; wyjątek
+  dla urządzeń bez miejsca (pad testowy, reset sekwencją zasilania — ten drugi łatwo
+  wywołać migającym zasilaniem); stan „dostał adres" (przydział i `Booted` zachodzą
+  naraz) i „brak huba" (węzeł nie zna huba; sam na kablu i tak przechodzi w `PASSIVE`).
+- **Ślad:** `zadania/CR-05.md` w katalogu projektu.
+
 ---
 
 ## 5. Interakcje i ramka

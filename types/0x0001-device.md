@@ -187,7 +187,9 @@ sprzętu; wymagane jest tylko, żeby **dało się to zauważyć i żeby ustało 
 To jedyny sposób, by odpowiedzieć na pytanie „która z tych czterdziestu identycznych
 puszek to węzeł `0x2A`". Bez tego serwis instalacji polega na zgadywaniu.
 
-Węzeł, który nie ma czym zasygnalizować, i tak musi komendę przyjąć i potwierdzić.
+Sygnalizuje **dioda stanu**, którą ma każde urządzenie (§5.4): przez czas `duration`
+pokazuje stan identyfikacji, inny od wszystkich pozostałych. Urządzenie może sygnalizować
+dodatkowo czymkolwiek innym, co ma — dźwiękiem, wyświetlaczem.
 
 ### 3.2 `Reboot`
 
@@ -273,6 +275,43 @@ spod starego adresu, a wszystko po nim spod nowego. Nadawca musi być na to przy
 
 Nowy adres trafia do pamięci trwałej przed potwierdzeniem, więc restart w trakcie operacji
 nie zostawia węzła w stanie nieokreślonym — jest albo pod starym, albo pod nowym.
+
+### 5.4 Przycisk serwisowy i dioda stanu
+
+Każde urządzenie ma **przycisk serwisowy** i **diodę stanu**, bez wyjątków. Oba są dostępne
+i widoczne przy zamontowanym urządzeniu i oba są niezależne od jego funkcji: klawisz
+łącznika ściennego nie jest przyciskiem serwisowym, a podświetlenie klawiszy czy dioda
+stanu przekaźnika nie są diodą stanu.
+
+**Przycisk serwisowy** wykonuje reset fabryczny o tym samym skutku co `FactoryReset`
+(§3.3), bez udziału huba. Jest zabezpieczony przed przypadkowym użyciem — jak, należy do
+urządzenia: czas przytrzymania, reset dopiero po puszczeniu, cokolwiek, co nie zadziała od
+przypadkowego dotknięcia ani od przycisku zaciśniętego w obudowie.
+
+Przycisk jest mechanizmem zasady montażowej z cyklu życia: urządzenie używane zeruje się
+**przed** podłączeniem, więc nie wnosi na magistralę adresu, który może być na niej zajęty
+([`06-cykl-zycia-urzadzenia.md`](../06-cykl-zycia-urzadzenia.md) §2.3). Hub o resecie
+z przycisku nie wie; węzeł wraca do stanu **BEZ ADRESU** i zgłasza się, tak jak po
+`FactoryReset`.
+
+**Dioda stanu** pokazuje, co dzieje się z węzłem, tak żeby człowiek stojący obok rozróżnił
+co najmniej:
+
+| stan | kiedy |
+|---|---|
+| reset | reset fabryczny albo `Reboot` przyjęty, restart za chwilę |
+| identyfikacja | trwa `Identify` (§3.1) |
+| usterka magistrali | kontroler w stanie `PASSIVE` albo `BUS_OFF` ([`types/0x0002-diagnostics.md`](0x0002-diagnostics.md) §2.4) |
+| bez adresu | węzeł nie ma adresu i się zgłasza |
+| praca | węzeł ma adres i wysłał `Booted` |
+
+Gdy zachodzi kilka naraz — węzeł bez adresu na martwej magistrali — dioda pokazuje stan
+**wyżej w tabeli**. Ta kolejność jest częścią wymagania: dzięki niej wszystkie urządzenia
+pokazują w tej samej sytuacji to samo. Kolory i wzory mrugania należą do urządzenia;
+wymagane jest tylko, żeby każdy z tych stanów dało się odróżnić od pozostałych.
+
+Stanu „brak huba" tabela nie ma: węzeł nie zna adresu huba. Węzeł sam na kablu nie dostaje
+potwierdzeń odbioru i przechodzi w `PASSIVE`, więc pokazuje usterkę magistrali.
 
 ---
 

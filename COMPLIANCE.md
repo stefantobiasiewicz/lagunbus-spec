@@ -124,8 +124,10 @@ reguła:
 | `LB-NODE-052` | `M` | Powrót z odłączenia od magistrali **automatyczny**; restart ani ingerencja człowieka niedozwolone | [`types/Diagnostics`](types/0x0002-diagnostics.md) §5.2 |
 | `LB-NODE-053` | `M` | Po powrocie z odłączenia **nie** emitować `Booted` — nie było restartu | [`types/Diagnostics`](types/0x0002-diagnostics.md) §5.2 |
 | `LB-NODE-054` | `M` | Liczniki błędów odczytywane z kontrolera CAN, nie liczone w oprogramowaniu | [`types/Diagnostics`](types/0x0002-diagnostics.md) §5.1 |
-| `LB-NODE-055` | `M` | `Identify` przyjmowana i potwierdzana także przez węzeł, który nie ma czym sygnalizować | [`types/Device`](types/0x0001-device.md) §3.1 |
+| `LB-NODE-055` | `M` | `Identify` przyjmowana, potwierdzana i widoczna na diodzie stanu przez `duration`; `duration = 0` przerywa | [`types/Device`](types/0x0001-device.md) §3.1 |
 | `LB-NODE-056` | `M` | `FactoryReset` bez argumentu `0x4C41474E` **odrzucana** | [`types/Device`](types/0x0001-device.md) §3.3 |
+| `LB-NODE-057` | `M` | Przycisk serwisowy: reset fabryczny o skutku `FactoryReset`, zabezpieczony przed przypadkowym użyciem | [`types/Device`](types/0x0001-device.md) §5.4 |
+| `LB-NODE-058` | `M` | Dioda stanu rozróżnia reset, identyfikację, usterkę magistrali, brak adresu i pracę; przy kilku naraz — stan wyższy w kolejności | [`types/Device`](types/0x0001-device.md) §5.4 |
 
 ### Zgodność w przód
 

@@ -543,7 +543,7 @@ rozmawiają ze sobą").
   dla urządzeń bez miejsca (pad testowy, reset sekwencją zasilania — ten drugi łatwo
   wywołać migającym zasilaniem); stan „dostał adres" (przydział i `Booted` zachodzą
   naraz) i „brak huba" (węzeł nie zna huba; sam na kablu i tak przechodzi w `PASSIVE`).
-- **Ślad:** `zadania/CR-05.md` w katalogu projektu.
+- **Ślad:** `zadania/zrobione/CR-05.md` w katalogu projektu.
 
 ---
 

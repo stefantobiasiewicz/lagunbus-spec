@@ -454,7 +454,7 @@ rozmawiają ze sobą").
 - **Problem:** hub po restarcie bez adresów w bazie stawiał każdy swój węzeł jako
   `OCZEKUJĄCY` — także ten, który miał w konfiguracji nazwę, pomieszczenie i powiązania.
   Operator musiał przyjąć od nowa całą instalację, a do tego czasu żadne powiązanie
-  z takim celem nie działało (zadania/BUG-05).
+  z takim celem nie działało (zadania/zrobione/BUG-05).
 - **Wybrano:** `Uid` w konfiguracji huba (niezablokowany) → enumeracja pod obecnym
   adresem, `GOTOWY`, bez operatora. Zablokowany → `ZABLOKOWANY`. Poza konfiguracją — jak
   dotąd, `OCZEKUJĄCY`.

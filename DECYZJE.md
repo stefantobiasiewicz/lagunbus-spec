@@ -444,6 +444,30 @@ rozmawiają ze sobą").
 - **Odrzucono 2026-09-29:** zgłoszenie adresu przy starcie (wpis „Konflikt adresów:
   zapobieganie zamiast wykrywania") — rozwiązywało
   też ten przypadek, ale kosztem, który nie odpowiada rzadkości zdarzenia.
+- **Zawężone 2026-10-09:** „nieznany" nie obejmuje już węzła, którego `Uid` hub ma
+  w konfiguracji — następny wpis.
+
+### Węzeł z adresem, którego `Uid` hub ma w konfiguracji, wchodzi sam
+
+**Obowiązuje** · [`06`](06-cykl-zycia-urzadzenia.md) §2.3, [`07`](07-hub.md) §5 · 2026-10-09
+
+- **Problem:** hub po restarcie bez adresów w bazie stawiał każdy swój węzeł jako
+  `OCZEKUJĄCY` — także ten, który miał w konfiguracji nazwę, pomieszczenie i powiązania.
+  Operator musiał przyjąć od nowa całą instalację, a do tego czasu żadne powiązanie
+  z takim celem nie działało (zadania/BUG-05).
+- **Wybrano:** `Uid` w konfiguracji huba (niezablokowany) → enumeracja pod obecnym
+  adresem, `GOTOWY`, bez operatora. Zablokowany → `ZABLOKOWANY`. Poza konfiguracją — jak
+  dotąd, `OCZEKUJĄCY`.
+- **Dlaczego:** wpis w konfiguracji **jest** decyzją operatora, podjętą wcześniej.
+  Reguła „decyduje człowiek" chroni przed modułem przyniesionym z innej instalacji;
+  takiego `Uid` w konfiguracji nie ma, więc ochrona zostaje nietknięta.
+- **Odrzucono:** rozpoznawanie po `ShortId` wyliczonym z `Uid` z konfiguracji, żeby
+  objąć też węzły bez adresu — wyliczanie jest właśnie tym, czego hub ma nie robić
+  (poprzedni wpis). Węzeł bez adresu wraca przez tryb przyjmowania.
+- **Przy okazji zapisane:** baza huba musi trzymać adres i `ShortId` każdego
+  przyłączonego węzła — inaczej restart huba wygląda dla instalacji jak utrata bazy.
+  Specyfikacja nie mówi, w jakiej postaci; hub referencyjny trzyma je w pliku konfiguracji
+  przy wpisie węzła (`hub/KONFIGURACJA.md`).
 
 ### Endpointy funkcjonalne numerowane od 4, bez przerw
 

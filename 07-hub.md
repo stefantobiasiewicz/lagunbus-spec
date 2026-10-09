@@ -190,6 +190,12 @@ bo od niej zależy, czy instalacja zachowa się sensownie:
 4.  po jednym ReportInterval masz pełny obraz stanu
 ```
 
+**Baza huba trzyma adres każdego przyłączonego węzła** (i jego `ShortId`). Bez niego hub
+po restarcie nie ma jak zwrócić się do węzła, który milczy, ani wykonać powiązania, którego
+jest celem — a adres węzła akurat wyłączonego mógłby oddać komuś innemu
+([`03-adresacja.md`](03-adresacja.md) §6). Krok 3 dotyczy tego, czego baza nie wie, nie
+wszystkiego. W jakiej postaci hub to trzyma, jest jego sprawą.
+
 ### 5.1 Odzyskiwanie przez nasłuchiwanie, nie odpytywanie
 
 Hub **nie odpytuje wszystkich węzłów po starcie**. Czeka jeden okres odświeżania
@@ -201,8 +207,9 @@ sama, za darmo, w ciągu minuty. Jedyne, co hub powinien odpytać od razu, to w�
 stan jest potrzebny natychmiast do bezpieczeństwa.
 
 Nasłuchiwanie odbudowuje przy okazji to, czego baza nie wie. Ramka spod adresu, którego
-w bazie nie ma, prowadzi do odczytu tożsamości spod tego adresu i do stanu
-`OCZEKUJĄCY` ([`06-cykl-zycia-urzadzenia.md`](06-cykl-zycia-urzadzenia.md) §2.3), a każdy
+w bazie nie ma, prowadzi do odczytu tożsamości spod tego adresu — i do enumeracji, gdy
+`Uid` jest w konfiguracji huba, albo do stanu `OCZEKUJĄCY`, gdy nie jest
+([`06-cykl-zycia-urzadzenia.md`](06-cykl-zycia-urzadzenia.md) §2.3), a każdy
 usłyszany adres przestaje być do przydzielenia
 ([`03-adresacja.md`](03-adresacja.md) §6). Oba skutki biorą się z ramek, które i tak
 przychodzą — hub niczego dodatkowo nie odpytuje.

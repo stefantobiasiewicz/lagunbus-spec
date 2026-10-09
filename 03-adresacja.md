@@ -375,7 +375,8 @@ słyszany najpóźniej po jednym okresie raportowania. Adres węzła odłączone
 przez to zablokowany do restartu huba — przy dwóch tysiącach adresów to żaden koszt.
 
 **Hub rozpoznaje adres, którego nie zna.** Ramka węzła spod adresu nieobecnego w bazie
-huba prowadzi do odczytu tożsamości spod tego adresu i do stanu `OCZEKUJĄCY`
+huba prowadzi do odczytu tożsamości spod tego adresu i do stanu `OCZEKUJĄCY` — albo do
+enumeracji, gdy `Uid` jest w konfiguracji huba
 ([`06-cykl-zycia-urzadzenia.md`](06-cykl-zycia-urzadzenia.md) §2.3).
 
 **Używany moduł przywraca się do ustawień fabrycznych przed podłączeniem.** To trzeci

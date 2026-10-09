@@ -170,7 +170,9 @@ reguła:
 | `LB-HUB-034` | `M` | `NodeClass` **nie jest** używany do interpretacji zdolności węzła — wyłącznie do wyboru bloku | [`05`](05-mapowanie-can.md) §4.1 |
 | `LB-HUB-035` | `M` | Adres słyszany na magistrali od startu huba **nie jest przydzielany**, niezależnie od bazy | [`03`](03-adresacja.md) §6 |
 | `LB-HUB-036` | `M` | Ramka węzła spod adresu nieznanego → odczyt `Device.Uid` i `Device.ShortId` spod tego adresu, **raz na adres**; oba nieznane → `OCZEKUJĄCY` | [`06`](06-cykl-zycia-urzadzenia.md) §2.3 |
-| `LB-HUB-037` | `M` | Węzeł z adresem nieznanym hubowi **nie jest przyjmowany samoczynnie**, także przy włączonym trybie przyjmowania | [`06`](06-cykl-zycia-urzadzenia.md) §2.3 |
+| `LB-HUB-037` | `M` | Węzeł z adresem nieznanym hubowi, którego `Uid` **nie ma w konfiguracji huba**, **nie jest przyjmowany samoczynnie**, także przy włączonym trybie przyjmowania | [`06`](06-cykl-zycia-urzadzenia.md) §2.3 |
+| `LB-HUB-038` | `M` | Węzeł z adresem nieznanym hubowi, którego `Uid` jest w konfiguracji huba i nie jest zablokowany → enumeracja pod obecnym adresem, **bez decyzji operatora** | [`06`](06-cykl-zycia-urzadzenia.md) §2.3 |
+| `LB-HUB-039` | `M` | Adres i `ShortId` każdego przyłączonego węzła **przeżywają restart huba** | [`07`](07-hub.md) §5 |
 | `LB-HUB-040` | `M` | Próg ciszy = **2 × najkrótszy niezerowy `ReportInterval`** węzła; `300 s`, gdy raportowanie cykliczne wyłączone wszędzie | [`06`](06-cykl-zycia-urzadzenia.md) §5.1 |
 | `LB-HUB-041` | `M` | Endpointy wyłączone atrybutem `Enabled` **nie liczą się** do wyliczenia progu | [`06`](06-cykl-zycia-urzadzenia.md) §5.1 |
 | `LB-HUB-042` | `M` | Po przekroczeniu progu: odczyt `Device.Uptime`; **trzy nieudane próby co 10 s** → `NIEOBECNY` | [`06`](06-cykl-zycia-urzadzenia.md) §5.2 |

@@ -112,9 +112,13 @@ Hub rozpoznaje taki węzeł sam:
 
 3.  Uid albo ShortId znany hubowi pod innym adresem
                        → sprzeczność bazy z magistralą, usterka dla człowieka
+    Uid w konfiguracji huba, niezablokowany
+                       → enumeracja pod obecnym adresem, GOTOWY      bez operatora
+    Uid w konfiguracji huba, zablokowany
+                       → ZABLOKOWANY (§8)
     oba nieznane       → węzeł OCZEKUJĄCY, pod tym adresem
 
-4.  operator:
+4.  operator, dla OCZEKUJĄCEGO:
         przyjmij                          → enumeracja pod obecnym adresem, GOTOWY
         przywróć ustawienia fabryczne     → FactoryReset, węzeł wraca do przyłączania
 ```
@@ -129,7 +133,19 @@ rozjedzie.
 
 **Nieznany węzeł nie wchodzi sam, także przy włączonym trybie przyjmowania.** Tryb dotyczy
 węzłów, które się zgłaszają, czyli węzłów bez adresu. Węzeł z cudzym adresem przyniósł
-konfigurację, o której hub nic nie wie, i decyzja o nim należy do człowieka. Przyjęcie
+konfigurację, o której hub nic nie wie, i decyzja o nim należy do człowieka.
+
+**Węzeł, którego `Uid` hub ma w swojej konfiguracji, nie jest nieznany.** Wpis w
+konfiguracji — nazwa, pomieszczenie, powiązania, choćby samo `Uid` — to decyzja operatora
+podjęta wcześniej; pytanie go drugi raz niczego nie chroni. Taki węzeł przechodzi
+enumerację pod adresem, spod którego nadaje, i staje się `GOTOWY`. Zdarza się to, gdy
+konfiguracja huba wie mniej niż magistrala: odtworzona ze starej kopii, sprzed
+przyłączenia węzła albo uruchomiona od nowa z tymi samymi wpisami. Węzeł zablokowany
+zostaje `ZABLOKOWANY` (§8).
+
+Działa to tylko dla węzła **z adresem**. Węzeł bez adresu zgłasza się samym `ShortId`,
+a `ShortId` hub czyta, nie wylicza (wyżej) — więc z konfiguracji go nie rozpozna, dopóki
+nie zna jego `ShortId`. Taki węzeł wraca przez tryb przyjmowania. Przyjęcie
 pod adresem, który w bazie huba należy do innego urządzenia, nie jest możliwe — wtedy
 zostaje reset fabryczny.
 

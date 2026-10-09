@@ -73,12 +73,16 @@ Każde żądanie niesie **identyfikator transakcji** (`Tid`). Odpowiedź powtarz
 `Tid`, dzięki czemu nadawca kojarzy ją z właściwym żądaniem, nawet gdy odpowiedzi
 przyjdą w innej kolejności niż pytania.
 
-`Tid` musi być **niepowtarzalny wśród żądań nierozstrzygniętych** wysłanych do jednego
-węzła — i dodatkowo **nie wolno go użyć ponownie wobec tego samego węzła, dopóki nie minie
-okno deduplikacji** (§2.2). Poza tym może się dowolnie zawijać; nie jest licznikiem
-globalnym ani znacznikiem czasu.
+`Tid` liczy się **osobno dla każdego klucza**: węzła, endpointu i elementu (atrybutu albo
+komendy) — tego samego, którym węzeł rozpoznaje powtórzenie (§2.2). Odpowiedź niesie
+endpoint i element w identyfikatorze ramki, więc nadawca kojarzy ją po kluczu razem
+z `Tid`, a dwa żądania do różnych elementów nie mogą się pomylić, choćby miały ten sam numer.
 
-Ma **trzy bity**, czyli osiem transakcji nierozstrzygniętych naraz wobec jednego węzła;
+W obrębie klucza `Tid` musi być **niepowtarzalny wśród żądań nierozstrzygniętych**
+i dodatkowo **nie wolno go użyć ponownie, dopóki nie minie okno deduplikacji** (§2.2).
+Poza tym może się dowolnie zawijać; nie jest licznikiem globalnym ani znacznikiem czasu.
+
+Ma **trzy bity**, czyli osiem transakcji nierozstrzygniętych naraz wobec jednego elementu;
 w praktyce jest jedna. Jedzie w pierwszym bajcie ładunku, nie w identyfikatorze ramki,
 i w odpowiedzi dzieli ten bajt z kodem wyniku
 ([`05-mapowanie-can.md`](05-mapowanie-can.md) §5.1).
@@ -121,7 +125,7 @@ Rachunek po poprawce wygląda tak:
 | | |
 |---|---|
 | Okno deduplikacji | 300 ms |
-| Ile `Tid` do dyspozycji | 8 |
+| Ile `Tid` do dyspozycji na klucz | 8 |
 | Najszybsze udokumentowane użycie | `Step` co 50 ms → **6 komend w oknie** |
 | Zapas | 2 numery |
 
@@ -142,12 +146,21 @@ rozdziałach i ktoś złamałby go, nie zauważając. Dotyczy to zwłaszcza dwó
 minimum 50 ms, więc mieści się z zapasem) i każdego przyszłego typu regulacji, który
 powtarzałby komendę częściej.
 
-Bufor musi pomieścić **osiem wpisów**, czyli tyle, ile jest wartości `Tid`. Mniejszy
-wyrzucałby komendę wciąż mieszczącą się w oknie — a wtedy jej powtórzenie wykonałoby się
-drugi raz, czyli zdarzyłoby się dokładnie to, przed czym broni cały ten mechanizm.
+Bufor musi pomieścić **każdą komendę wykonaną w ostatnich 300 ms**. Wpis wyrzucony, gdy
+komenda wciąż mieści się w oknie, oznacza, że jej powtórzenie wykona się drugi raz — czyli
+zdarzy się dokładnie to, przed czym broni cały ten mechanizm.
+
+Liczby wartości `Tid` nie da się tu użyć jako górnej granicy. Skoro budżet `Tid` nie jest
+dzielony w obrębie węzła, w oknie może przyjść do jednego węzła więcej niż osiem różnych
+komend: moduł ośmiu wyjść, któremu klawisz wyłącza wszystkie kanały, dostaje osiem komend
+naraz, a drugi klawisz naciśnięty zaraz potem — kolejne.
+
+> **Bufor ma co najmniej osiem wpisów**; rozsądnie — **dwa na każdy endpoint przyjmujący
+> komendy**, czyli dwie pełne serie „wszystko naraz" w jednym oknie.
 
 Jest to jedyne miejsce w całej specyfikacji, w którym węzeł ma obowiązek pamiętać cokolwiek
-o przeszłości. Osiem wpisów po kilka bajtów — koszt pomijalny nawet w najmniejszym węźle.
+o przeszłości. Wpis to `Tid`, endpoint, numer komendy i chwila wykonania — kilka bajtów,
+więc nawet szesnaście wpisów kosztuje najmniejszy węzeł pomijalnie mało.
 
 ---
 

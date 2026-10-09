@@ -87,7 +87,7 @@ reguła:
 |---|---|---|---|
 | `LB-NODE-020` | `M` | Odpowiedź powtarza `Tid` z żądania | [`04`](04-interakcje.md) §2 |
 | `LB-NODE-021` | `M` | Obsługa **co najmniej jednego** żądania naraz; zajęty odpowiada `BUSY` | [`04`](04-interakcje.md) §10 |
-| `LB-NODE-022` | `M` | Bufor deduplikacji **ośmiu wpisów**, okno **300 ms** | [`04`](04-interakcje.md) §2.2 |
+| `LB-NODE-022` | `M` | Bufor deduplikacji **co najmniej ośmiu wpisów**, mieszczący każdą komendę z okna **300 ms** | [`04`](04-interakcje.md) §2.2 |
 | `LB-NODE-023` | `M` | Klucz deduplikacji: `Tid` **razem z** endpointem i numerem komendy | [`04`](04-interakcje.md) §2.2 |
 | `LB-NODE-024` | `M` | Komenda o powtórzonym kluczu **nie jest wykonywana ponownie**; odsyłany zapamiętany wynik | [`04`](04-interakcje.md) §2.2 |
 | `LB-NODE-025` | `M` | Żądania obsługiwane **w kolejności odbioru**, bez zmiany kolejności i łączenia | [`04`](04-interakcje.md) §10 |
@@ -158,7 +158,7 @@ reguła:
 | `LB-HUB-013` | `M` | Konfiguracja przepisywana **od huba do węzła**, nigdy w drugą stronę | [`07`](07-hub.md) §5.3 |
 | `LB-HUB-020` | `M` | `ZAPYTANIE`: odpowiedź **natychmiast** z własnego modelu; źródła zewnętrzne odpytywane w tle | [`04`](04-interakcje.md) §8.2 |
 | `LB-HUB-021` | `M` | `QueryEnabled` zapisywane przy zmianie **mapowania**, nie przy zmianie dostępności źródła | [`04`](04-interakcje.md) §8.6 |
-| `LB-HUB-022` | `M` | Ten sam `Tid` nie używany ponownie wobec węzła przed upływem okna deduplikacji | [`04`](04-interakcje.md) §2 |
+| `LB-HUB-022` | `M` | Ten sam `Tid` nie używany ponownie wobec tego samego klucza (węzeł, endpoint, element) przed upływem okna deduplikacji | [`04`](04-interakcje.md) §2 |
 | `LB-HUB-023` | `M` | Spadek wartości licznika `Meter` wykryty; różnica ujemna **nie jest liczona** | [`types/Meter`](types/0x0031-meter.md) §5.2 |
 | `LB-HUB-024` | `M` | Wobec węzła używane wyłącznie elementy mieszczące się w jego `ProtocolVersion` i `TypeRevision` | [`08`](08-wersjonowanie.md) §5 |
 | `LB-HUB-025` | `M` | Węzeł o innym `major` **nie jest interpretowany**; zgłaszany operatorowi | [`08`](08-wersjonowanie.md) §2.1 |

@@ -565,18 +565,35 @@ rozmawiają ze sobą").
 
 ### Tid, deduplikacja i limit powtarzania
 
-**Obowiązuje** · [`04`](04-interakcje.md) §2.2 · 2026-09-09, naprawione 2026-09-15
+**Obowiązuje** · [`04`](04-interakcje.md) §2.2 · 2026-09-09, naprawione 2026-09-15 i 2026-10-09
 
 - **Wybrano:** powtórzenie z tym samym `Tid` nie wykonuje komendy drugi raz — węzeł odsyła
   zapamiętany wynik. Klucz deduplikacji to `Tid` **razem z endpointem i numerem komendy**,
-  okno 300 ms, bufor 8 wpisów. Tej samej komendy do tego samego endpointu nie wolno wysłać
-  częściej niż osiem razy na 300 ms. `Tid` zostaje na trzech bitach.
+  okno 300 ms, bufor **co najmniej** 8 wpisów, mieszczący każdą komendę z okna (rozsądnie dwa
+  na endpoint przyjmujący komendy). `Tid` liczy się osobno dla każdego klucza i nie wraca
+  w obrębie klucza przed upływem okna. Tej samej komendy do tego samego endpointu nie wolno
+  wysłać częściej niż osiem razy na 300 ms. `Tid` zostaje na trzech bitach.
 - **Odrzucono:** klucz po samym `Tid` z oknem 2 s i buforem 4.
 - **Dlaczego:** ściemnianie przytrzymaniem wysyła `Step` co 200 ms — dziesięć komend na dwie
   sekundy przy ośmiu wartościach `Tid`. Dziewiąta kolidowała z pierwszą i była po cichu
   połykana: **ściemnianie zatrzymywało się po 1,6 s**. Okno 300 ms to dokładnie budżet trzech
   prób po 100 ms. Bufor czterech wyrzucałby komendę wciąż mieszczącą się w oknie. Poszerzenie
   `Tid` zabrałoby miejsce kodom wyniku albo zepchnęło najciaśniejszą odpowiedź poza ramkę.
+- **Poprawione 2026-10-09 (`zadania/zrobione/BUG-02`):** rozdział o transakcjach zakazywał ponownego
+  użycia `Tid` wobec **całego węzła**, a rozdział o deduplikacji mówił, że budżet ośmiu `Tid`
+  nie jest dzielony w obrębie węzła. Hub robił to drugie (licznik na adres, endpoint
+  i element), a bufor ośmiu wpisów uzasadniano pierwszym („tyle, ile wartości `Tid`"). Przy
+  liczeniu na klucz w oknie może przyjść więcej niż osiem różnych komend — moduł ośmiu
+  wyjść wyłączany jednym klawiszem dostaje osiem naraz — i dziewiąta wypychała z bufora
+  komendę wciąż w oknie, której powtórzenie wykonałoby się drugi raz. Zostało liczenie na
+  klucz: liczenie na węzeł dzieliłoby osiem numerów między **wszystkie** transakcje węzła,
+  także odczyty, i dławiło odczyt całego urządzenia.
+- **Odrzucono przy tym szerszy `Tid`.** Jedyne miejsce to bajt nagłówka: cztery bity `Tid`
+  i cztery na wynik dają szesnaście numerów, ale z dziewiętnastu wolnych kodów wyniku
+  zostają trzy, a format zmienia się u wszystkich naraz; drugi bajt nagłówka nie wchodzi,
+  bo najciaśniejsza odpowiedź zajmuje osiem z ośmiu bajtów. I nie pomaga — miejsca w buforze
+  brakuje przez liczbę różnych kluczy w oknie, nie przez szerokość numeru. Wrócić do tego,
+  gdy jakiś typ będzie musiał powtarzać tę samą komendę częściej niż osiem razy na 300 ms.
 
 ### Komenda jest transakcją i ma odpowiedź
 

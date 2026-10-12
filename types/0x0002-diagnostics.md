@@ -107,12 +107,19 @@ obrony przed zakłóceniami.
 
 | ID | Nazwa | Typ | Dostęp | Trw. | Rap. | Konf. | Zakres | Domyśl. |
 |---|---|---|---|---|---|---|---|---|
-| `0x20` | `ErrorThreshold` | `u16` | RW | P | nie | M | 16–255 | `96` |
+| `0x20` | `ErrorThreshold` | `u16` | RW | P | nie | O | 16–255 | `96` |
 
 Próg, po którego przekroczeniu węzeł emituje `BusDegraded` (§4). Wartość domyślna `96`
 jest progiem ostrzegawczym przyjętym w kontrolerach CAN — na tyle wysoko, żeby nie reagować
 na pojedyncze zakłócenie, i na tyle nisko, żeby zostało zapasu do `127`, gdzie zaczyna się
 `PASSIVE`.
+
+Próg jest **opcjonalny**, bo zależy od budowy: od kontrolera i od tego, jak autor
+urządzenia ocenia jego tolerancję na zakłócenia. Urządzenie, które go nie wystawia,
+stosuje własny, stały próg z zakresu 16–255
+([`../01-model-danych.md`](../01-model-danych.md) §8.1). Porównywalności między węzłami
+to nie psuje — porównuje się liczniki, a te są wszędzie te same; próg rozstrzyga tylko,
+kiedy węzeł sam zawoła.
 
 ---
 

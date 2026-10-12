@@ -82,7 +82,7 @@ w pokoju, na innym węźle. Bez huba te dwie rzeczy nie mają jak się spotkać.
 | `0x14` | `Mode` | `enum8` | RW | P | M | §2.5 | `0` — `OFF` |
 | `0x15` | `MinRunTime` | `u16` [s] | RW | P | O | 0–3600 | `0` |
 | `0x16` | `MinIdleTime` | `u16` [s] | RW | P | O | 0–3600 | `0` |
-| `0x17` | `SourceTimeout` | `u16` [s] | RW | P | M | 60–3600 | `600` |
+| `0x17` | `SourceTimeout` | `u16` [s] | RW | P | O | 60–3600 | `600` |
 | `0x18` | `WeatherSlope` | `u16` | RW | P | `[WEATHER]` | 0–2000 | `0` |
 
 Wszystkie temperatury w setnych stopnia, jak wszędzie
@@ -208,6 +208,10 @@ w pokoju mierzy lepiej niż termometr w rozdzielaczu obok gorącej rury.
 regulator wraca na czujnik lokalny, a jeśli go nie ma — przechodzi w `NONE`. Przeterminowanie
 jest tu obowiązkowe: wartość sprzed godziny jest gorsza niż jej brak, bo wygląda tak samo
 jak świeża.
+
+`SourceTimeout` jest **opcjonalny**. Regulator bez wejść zdalnych nie ma czego
+przeterminowywać, a regulator z nimi, który go nie wystawia, stosuje własny, stały czas
+z zakresu 60–3600 s ([`../01-model-danych.md`](../01-model-danych.md) §8.1).
 
 Źródło lokalne to endpoint [`Sense`](0x0030-sense.md) z `Quantity = TEMPERATURE` **na tym
 samym kanale** ([`../01-model-danych.md`](../01-model-danych.md) §5). Kanał jest tu jedynym

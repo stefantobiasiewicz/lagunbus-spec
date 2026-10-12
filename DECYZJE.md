@@ -767,6 +767,47 @@ rozmawiają ze sobą").
   znaczą zdarzenia, a nie jak urządzenie radzi sobie z każdym stanem styku.
 - **Ślad:** `zadania/zrobione/CR-01.md` w katalogu projektu.
 
+### Ustawienie należy do tego, kto zna wartość: budowa, instalacja, użycie
+
+**Obowiązuje** · [`01-model-danych.md`](01-model-danych.md) §8.1 i typy `0x0002`, `0x0011`, `0x0012`, `0x0013`, `0x0020`, `0x0030`, `0x0031`, `0x0040` · 2026-10-13
+
+- **Problem:** po zmianie `KeyInput` pozostałe typy nadal kazały każdemu urządzeniu
+  wystawiać na magistralę strojenie, które jego autor zna lepiej niż hub: odbicie styku
+  w `ValueInput`, `ToggleInput` i `Contact`, cztery atrybuty przytrzymania w enkoderze,
+  który nie ma czego przytrzymać, próg diagnostyki, histerezę progów czujnika. Do tego
+  `Output.Invert` mieszał dwie rzeczy: polaryzację przekaźnika na płytce i styk, do
+  którego instalator podłączył odbiornik — i pozwalał hubowi odwrócić przekaźnik zapisem.
+- **Wybrano:** pytanie „kto zna właściwą wartość" z trzema odpowiedziami. **Budowa**
+  (autor zbudował też to, czego wartość dotyczy) → bez atrybutu albo `O`. **Instalacja**
+  (co podłączono do zacisków) → `O`; moduł z zaciskami powinien ją wystawić, urządzenie
+  z czujnikiem wbudowanym ustala ją samo. **Użycie** → `M` albo `[CECHA]`, ustawia hub.
+  Ustawienie nieobecne jest stałe i w zakresie typu (`LB-TYPE-002`) — reguła `KeyInput`
+  stała się ogólna.
+- **Skutki:** `ValueInput` opisuje wartość, nie palec: przytrzymanie wypadło z typu
+  całkowicie (cztery atrybuty), `StepSize` jest opcjonalny, obowiązkowe zostały `Value`,
+  `MinValue`, `MaxValue` — z ośmiu obowiązkowych ustawień zostały dwa. Potencjometr
+  jest wejściem bezwzględnym: zapis z huba przyjmuje, a następny ruch gałki ustawia
+  wartość z położenia. *Korekta tego samego dnia:* najpierw przytrzymanie
+  zostało cechą `HOLD` z `HoldEnabled` jak w `KeyInput` — odrzucone, bo w `KeyInput`
+  przytrzymanie jest zdarzeniem dla huba, a tu tylko sposobem dochodzenia do liczby;
+  kto chce przytrzymania jako komunikatu, deklaruje obok `KeyInput`. Odrzucona też
+  cecha „wejście bezwzględne" z odmową zapisu — hub nie miałby z niej pożytku.
+  `DebounceTime` wypadł z `ValueInput` i `ToggleInput`; w `Contact` `DebounceTime`
+  i `Invert` są opcjonalne; `Output` nie ma atrybutu polaryzacji płytki, a `Invert` znaczy
+  tylko „odbiornik na styku rozwiernym"; opcjonalne stały się `Diagnostics.ErrorThreshold`,
+  `Sense.ThresholdHysteresis`, `Meter.ExportedOffset` (dotąd obowiązkowy przy cesze, choć
+  bliźniaczy `ImportedOffset` był opcjonalny), `Thermostat.SourceTimeout` (dotąd
+  obowiązkowy także bez wejścia zdalnego). `Device` bez zmian.
+- **Odrzucono:** dwie kategorie, jak w `KeyInput` (budowa / użycie). Kontaktron
+  i odbiornik na przekaźniku pokazały, że część wartości zna wyłącznie instalator:
+  autor modułu z zaciskami nie wie, czy dostanie kontaktron zwierny, czy rozwierny.
+  Wyrzucenie `Contact.Invert` z typu jak w klawiszu odebrałoby instalatorowi jedyne
+  miejsce, gdzie to ustawia.
+- **Świadomie poza zakresem:** atrybuty wspólne (raportowanie, `Enabled`, `QueryEnabled`)
+  — to zmiana modelu danych, nie typu. `Scenes` i `Groups` nie były przeglądane.
+- **Rewizje zostają 1** — v1 nie było wydane.
+- **Ślad:** `zadania/CR-04.md` w katalogu projektu.
+
 ### Wejścia: Contact, ToggleInput, ValueInput
 
 **Obowiązuje** · [`types/0x0012-contact.md`](types/0x0012-contact.md), [`types/0x0013-toggle-input.md`](types/0x0013-toggle-input.md), [`types/0x0011-value-input.md`](types/0x0011-value-input.md) · 2026-09-09, 2026-09-16

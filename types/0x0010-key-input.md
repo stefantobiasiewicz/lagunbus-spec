@@ -109,7 +109,8 @@ wymagają cechy `HOLD`, włącza je `HoldEnabled` i działają we wszystkich trz
 ### 2.4 Strojenie, którego urządzenie nie wystawia
 
 Atrybut czasu nieobecny w endpoincie nie znaczy, że czasu nie ma — znaczy, że ustala go
-autor urządzenia i hub nie może go zmienić. Obowiązują wtedy trzy zasady:
+autor urządzenia i hub nie może go zmienić. Obowiązują wtedy trzy zasady — te same dla
+każdego typu ([`../01-model-danych.md`](../01-model-danych.md) §8.1):
 
 1. Wartość stosowana przez urządzenie **mieści się w kolumnie „Zakres"** z §2.2. Zakres
    jest wymaganiem wobec zachowania, nie wobec atrybutu: klawisz bez `MultiClickWindow`

@@ -225,10 +225,24 @@ Typowe zastosowanie: wentylator łazienkowy, oświetlenie garderoby, podlewanie.
 
 ### 5.6 Inwersja
 
-`Invert = 1` odwraca poziom logiczny na wyjściu fizycznym. Dotyczy wyłącznie sterowania
-sprzętem — atrybuty `OnOff` i `Level` zawsze opisują **stan odbiornika**, nigdy stan
-pinu. Przekaźnik normalnie zamknięty z `Invert = 1` przy `OnOff = 1` ma cewkę bez
-napięcia i obwód zwarty.
+Atrybuty `OnOff` i `Level` zawsze opisują **stan odbiornika**, nigdy stan pinu ani cewki.
+Między jednym a drugim stoją dwie różne rzeczy i typ traktuje je różnie:
+
+| | czym jest | kto ją zna | w typie |
+|---|---|---|---|
+| **polaryzacja sterowania** | czy przekaźnik płytki załącza się wysokim, czy niskim stanem pinu | autor urządzenia — zbudował płytkę | **nie ma atrybutu** |
+| **styk odbiornika** | czy instalator podłączył odbiornik do styku zwiernego, czy rozwiernego | instalator | `Invert`, opcjonalny |
+
+Polaryzacja sterowania nie zmienia się w czasie pracy i hub nie ma powodu jej znać;
+gdyby była zapisywalna z magistrali, jeden zły zapis odwracałby przekaźnik, a z zewnątrz
+wyglądałoby to jak zwykły błąd konfiguracji
+([`../01-model-danych.md`](../01-model-danych.md) §8.1).
+
+`Invert = 1` znaczy, że odbiornik pracuje na **styku rozwiernym**: przy `OnOff = 1` cewka
+jest bez napięcia, a obwód odbiornika zwarty. Instalator wybiera tak wtedy, gdy odbiornik
+ma działać także przy martwym węźle — oświetlenie awaryjne, zawór, który ma zostać
+otwarty. Moduł z dostępnym stykiem rozwiernym **powinien** wystawiać `Invert`; urządzenie
+z jednym stykiem albo bez przekaźnika — nie ma czego wystawiać.
 
 ### 5.7 Stan początkowy
 

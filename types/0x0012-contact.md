@@ -1,6 +1,7 @@
 # Typ endpointu `0x0012` · Contact
 
-> **Stabilne.** Rewizja 1 zamknięta.
+> **Stabilne.** Rewizja 1 zamknięta. Od 2026-10-13 odbicie i polaryzacja są opcjonalne —
+> wystawia je moduł, do którego instalator podłącza czujnik.
 
 **Rewizja 1** · wejście dwustanowe ze stanem
 
@@ -39,6 +40,13 @@ Po przestawieniu zostaje w położeniu, więc niesie stan.
 **Brak.** Wszystkie warianty zastosowania obsługuje atrybut `Purpose` (§2.3), który nie
 zmienia zachowania typu, a jedynie znaczenie jego stanu.
 
+**Odbicie i polaryzacja są opcjonalne, bo zależą od tego, co jest podłączone.** Urządzenie
+z czujnikiem wbudowanym — czujka zalania z własnymi elektrodami, kontaktron w obudowie —
+zna je z budowy i ustala samo. Moduł z zaciskami nie wie, czy instalator przykręci
+kontaktron zwierny czy rozwierny, ani czy krańcówka bramy drga dwie sekundy; taki moduł
+**powinien** wystawiać `DebounceTime` i `Invert`, bo wartość zna dopiero instalator
+([`../01-model-danych.md`](../01-model-danych.md) §8.1).
+
 ---
 
 ## 2. Atrybuty
@@ -54,8 +62,8 @@ zmienia zachowania typu, a jedynie znaczenie jego stanu.
 
 | ID | Nazwa | Typ | Dostęp | Trw. | Rap. | Konf. | Zakres | Domyśl. |
 |---|---|---|---|---|---|---|---|---|
-| `0x10` | `DebounceTime` | `u16` | RW | P | nie | M | 5–10000 ms | `50` |
-| `0x11` | `Invert` | `bool` | RW | P | nie | M | — | `0` |
+| `0x10` | `DebounceTime` | `u16` | RW | P | nie | O | 5–10000 ms | `50` |
+| `0x11` | `Invert` | `bool` | RW | P | nie | O | — | `0` |
 | `0x12` | `Purpose` | `enum8` | RW | P | nie | M | §2.3 | `0` |
 | `0x13` | `HoldTime` | `u16` | RW | P | nie | O | 0–65534 s | `0` |
 
@@ -124,23 +132,27 @@ Wejście, w którym ten sam bit jest decyzją człowieka, to
 ### 5.1 Stan czynny
 
 `State = 1` znaczy **stan czynny**, nie „napięcie wysokie". Czym jest stan czynny, mówi
-`Purpose`; jak odwzorować go na poziom elektryczny, mówi `Invert`.
+`Purpose`; jak odwzorować go na poziom elektryczny, mówi `Invert` — albo budowa urządzenia.
 
 Rozdzielenie tych trzech rzeczy jest celowe. Kontaktron drzwiowy bywa zwierny albo
 rozwierny, zależnie od modelu i od tego, jak go ktoś przykręcił — ale `State = 1` ma
 zawsze znaczyć „drzwi otwarte", niezależnie od tego, co się dzieje na wejściu. Instalator
 ustawia `Invert` raz i nikt więcej nie musi o tym pamiętać.
 
+Urządzenie bez atrybutu `Invert` odwzorowuje poziom na stan czynny samo — wie, jak
+zbudowało wejście, i `State = 1` znaczy u niego to samo co u każdego innego.
+
 Czujki bezpieczeństwa mają **stan czynny odpowiadający zagrożeniu**: `State = 1` to dym,
 zalanie albo gaz. Nigdy odwrotnie, choćby fizyczne wyjście czujki działało w drugą stronę.
 
 ### 5.2 Drgania styków
 
-`DebounceTime` liczy się od **pierwszej** zmiany poziomu; kolejne zmiany w tym oknie są
+Czas odbicia — z atrybutu `DebounceTime` albo ustalony przez urządzenie, które go nie
+wystawia — liczy się od **pierwszej** zmiany poziomu; kolejne zmiany w tym oknie są
 ignorowane, a stan uznaje się za ustalony na końcu okna.
 
-Zakres jest znacznie szerszy niż w typie `KeyInput` — do dziesięciu sekund. Powód jest
-praktyczny: kontaktron w bramie garażowej albo pływak w studzience potrafi drgać całymi
+Zakres sięga dziesięciu sekund — znacznie dalej niż drgania klawisza, które trwają
+milisekundy. Powód jest praktyczny: kontaktron w bramie garażowej albo pływak w studzience potrafi drgać całymi
 sekundami przy każdym poruszeniu. Filtrowanie tego w węźle jest o wiele tańsze niż
 przesyłanie kilkudziesięciu zmian na magistralę.
 

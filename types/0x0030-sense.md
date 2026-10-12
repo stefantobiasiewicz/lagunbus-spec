@@ -71,7 +71,7 @@ znajduje się w [`02-typy-danych.md`](../02-typy-danych.md) §3. Dla `TEMPERATUR
 | `0x10` | `Offset` | `i16` | RW | P | nie | O | `0` |
 | `0x11` | `ThresholdLow` | `⟨Q⟩` | RW | P | nie | `[THRESHOLD]` | brak |
 | `0x12` | `ThresholdHigh` | `⟨Q⟩` | RW | P | nie | `[THRESHOLD]` | brak |
-| `0x13` | `ThresholdHysteresis` | `u16` | RW | P | nie | `[THRESHOLD]` | §5.4 |
+| `0x13` | `ThresholdHysteresis` | `u16` | RW | P | nie | `O [THRESHOLD]` | §5.4 |
 
 Ustawienia raportowania — okres, minimalny odstęp i histereza — są **atrybutami wspólnymi**
 `0xF8`–`0xFA` i ten typ ich nie powiela
@@ -197,6 +197,12 @@ i emituje `Threshold` **przy każdym przejściu między nimi** — nie przy każ
 `ThresholdHysteresis` zapobiega drganiu na granicy. Bez niej temperatura oscylująca wokół
 progu generowałaby zdarzenie po zdarzeniu; z nią wyjście ze strefy wymaga przekroczenia
 progu z zapasem.
+
+Histereza progów jest **opcjonalna**, choć same progi są obowiązkowe w cesze. Progi opisują
+użycie — przy jakiej temperaturze ktoś chce wiedzieć o mrozie — i ustawia je hub.
+Histereza chroni przed szumem czujnika, a ten zna autor urządzenia: urządzenie, które jej
+nie wystawia, stosuje własną, stałą wartość
+([`../01-model-danych.md`](../01-model-danych.md) §8.1).
 
 Próg pozostawiony bez wartości („brak") jest nieaktywny — można używać samego górnego
 albo samego dolnego.

@@ -32,13 +32,17 @@ ponownie. Wymaganie wycofane zostaje na liście z adnotacją.
 w swojej specyfikacji kolumnę `Konf.` przy każdym atrybucie, komendzie i zdarzeniu — i to
 jest lista wymagań dla tego typu, kompletna i aktualna.
 
-Powtarzanie jej tutaj byłoby drugą kopią, która by się rozjechała. Zamiast tego obowiązuje
-reguła:
+Powtarzanie jej tutaj byłoby drugą kopią, która by się rozjechała. Zamiast tego obowiązują
+reguły:
 
 > **`LB-TYPE-001` `M`** — Endpoint deklarujący typ implementuje **wszystkie** jego elementy
 > oznaczone `M` oraz wszystkie oznaczone `[CECHA]` dla cech, które zadeklarował. Brak
 > choćby jednego oznacza, że tego typu **nie wolno deklarować**. Elementu oznaczonego
 > `O [CECHA]` nie wolno mieć bez tej cechy.
+>
+> **`LB-TYPE-002` `M`** — Ustawienie opcjonalne, którego endpoint nie wystawia, urządzenie
+> stosuje **stałe w czasie pracy i w zakresie z tabeli typu**
+> ([`01-model-danych.md`](01-model-danych.md) §8.1).
 
 ---
 
@@ -193,14 +197,13 @@ reguła:
 | `LB-OUT-002` | `[LEVEL]` | `Step` nasyca się na `MinLevel`/`MaxLevel`, **nigdy nie przechodzi przez zero** | [`types/Output`](types/0x0020-output.md) §5.2 |
 | `LB-OUT-003` | `[LEVEL]` | `Level` **nie jest raportowany w trakcie przejścia** — tylko na początku i końcu | [`types/Output`](types/0x0020-output.md) §5.3 |
 | `LB-KEY-001` | `M` | `Down`/`Up` wyłącznie w trybie `RAW`; w `CLICK` i `MULTICLICK` naciśnięcie nie emituje niczego przed kliknięciem albo przytrzymaniem | [`types/KeyInput`](types/0x0010-key-input.md) §5.5 |
-| `LB-KEY-002` | `M` | Czas nieobecny jako atrybut stosowany **stały i w zakresie z tabeli typu** | [`types/KeyInput`](types/0x0010-key-input.md) §2.4 |
 | `LB-KEY-003` | `[HOLD]` | Zwolnienie po przytrzymaniu to **wyłącznie** `HoldEnd` — bez `Click` i bez `Up` | [`types/KeyInput`](types/0x0010-key-input.md) §5.5 |
 | `LB-KEY-004` | `[HOLD]` | `HoldTick` ustaje po 60 s trzymania; `HoldEnd` przy zwolnieniu przychodzi normalnie | [`types/KeyInput`](types/0x0010-key-input.md) §5.6 |
 | `LB-SCN-001` | `M` | `SceneCapacity` ≥ 8; pojemność liczona w **parach** `(grupa, numer)` | [`types/Scenes`](types/0x0003-scenes.md) §3 |
 | `LB-MTR-001` | `M` | Licznik **nigdy nie maleje** poza `FactoryReset` | [`types/Meter`](types/0x0031-meter.md) §5.2 |
 | `LB-MTR-002` | `M` | Zapis licznika do pamięci trwałej nie częściej niż raz na 10 minut | [`types/Meter`](types/0x0031-meter.md) §5.4 |
 | `LB-THR-001` | `M` | Bez temperatury regulator **wyłącza wyjście** i nie reguluje | [`types/Thermostat`](types/0x0040-thermostat.md) §5.3 |
-| `LB-THR-002` | `M` | `RemoteTemperature` starsza niż `SourceTimeout` traktowana jak **brak** | [`types/Thermostat`](types/0x0040-thermostat.md) §5.2 |
+| `LB-THR-002` | `M` | `RemoteTemperature` starsza niż `SourceTimeout` (albo czas ustalony przez urządzenie) traktowana jak **brak** | [`types/Thermostat`](types/0x0040-thermostat.md) §5.2 |
 | `LB-THR-003` | `M` | Regulator **nie adresuje** wyjścia na innym węźle | [`types/Thermostat`](types/0x0040-thermostat.md) §5.4 |
 
 ---

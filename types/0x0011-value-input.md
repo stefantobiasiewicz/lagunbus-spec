@@ -1,7 +1,8 @@
 # Typ endpointu `0x0011` · ValueInput
 
-> **Szkic.** Zakres, krok i zachowanie przy przytrzymaniu rozstrzygnięte. Typ czeka na
-> pierwsze zbudowane urządzenie.
+> **Szkic.** Zakres i krok rozstrzygnięte; od 2026-10-13 typ opisuje wartość, a nie palec —
+> jak urządzenie dochodzi do liczby (krok, przytrzymanie, położenie gałki), należy do jego
+> autora. Typ czeka na pierwsze zbudowane urządzenie.
 
 **Rewizja 1** · wejście z własną wartością
 
@@ -41,9 +42,20 @@ i suwak. Rezerwacja znika, bo opisywała jedno wykonanie zamiast całej rodziny.
 
 ## 1. Cechy
 
-**Brak.** Wszystko, czym te urządzenia się różnią — zakres, wielkość kroku, zawijanie,
-obecność przytrzymania — jest konfiguracją zmienną w czasie pracy. Enkoder i para klawiszy
-różnią się czasem drgań styków, a to atrybut, nie cecha.
+**Brak.** Typ opisuje **wartość**, a nie to, jak palec do niej dochodzi. Potencjometr,
+enkoder i para klawiszy różnią się wyłącznie budową, a hub widzi od każdego to samo:
+liczbę, jej zakres i zdarzenie przy zmianie.
+
+**Przytrzymanie nie jest częścią typu.** Para klawiszy, która przy przytrzymaniu przewija
+wartość, robi to tak, jak ją zbudował autor — to sposób dochodzenia do liczby, a nie
+wiadomość dla huba. Inaczej niż w [`KeyInput`](0x0010-key-input.md), gdzie przytrzymanie
+jest zdarzeniem i hub decyduje, co z nim zrobić. Kto chce, żeby przytrzymanie znaczyło coś
+innego niż szybszą zmianę wartości, deklaruje obok endpoint `KeyInput` na tym samym kanale
+(§6).
+
+Zakres zostaje obowiązkowy, bo opisuje **użycie**: to samo pokrętło steruje raz jasnością
+od zera, raz świetlówką od minimum technicznego. Krok jest opcjonalny, bo potencjometr go
+nie ma (§5.3).
 
 ---
 
@@ -65,17 +77,19 @@ z telefonu (§5.5).
 |---|---|---|---|---|---|---|---|---|
 | `0x10` | `MinValue` | `u16` | RW | P | nie | M | 0–1000 ‰ | `0` |
 | `0x11` | `MaxValue` | `u16` | RW | P | nie | M | 0–1000 ‰ | `1000` |
-| `0x12` | `StepSize` | `u16` | RW | P | nie | M | 1–1000 ‰ | `50` |
-| `0x13` | `HoldEnabled` | `bool` | RW | P | nie | M | — | `1` |
-| `0x14` | `HoldStepSize` | `u16` | RW | P | nie | M | 1–1000 ‰ | `50` |
-| `0x15` | `HoldThreshold` | `u16` | RW | P | nie | M | 200–3000 ms | `500` |
-| `0x16` | `HoldTickInterval` | `u16` | RW | P | nie | M | 50–1000 ms | `200` |
-| `0x17` | `DebounceTime` | `u16` | RW | P | nie | M | 5–100 ms | `15` |
+| `0x12` | `StepSize` | `u16` | RW | P | nie | O | 1–1000 ‰ | `50` |
 | `0x18` | `Wrap` | `bool` | RW | P | nie | O | — | `0` |
 
 `MinValue` większe od `MaxValue` jest błędem konfiguracji — zapis, który by do tego
 doprowadził, kończy się `INVALID_VALUE`
 ([`../04-interakcje.md`](../04-interakcje.md) §9).
+
+`StepSize` jest zmianą wartości na **jedno działanie** — kliknięcie, impuls enkodera.
+Urządzenie, które go nie wystawia, stosuje własny, stały krok z zakresu 1–1000 ‰
+([`../01-model-danych.md`](../01-model-danych.md) §8.1); potencjometr nie ma kroku wcale.
+
+`Wrap` jest opcjonalny, bo zawijanie ma sens tylko przy enkoderze bez ograniczników
+(§5.2); urządzenie, które go nie wystawia, nasyca się na granicach.
 
 ---
 
@@ -148,53 +162,47 @@ a te w tej rewizji nie istnieją.
 
 ### 5.2 Krok, nasycenie i zawijanie
 
-Pojedyncze kliknięcie zmienia `Value` o `StepSize`, przytrzymanie — o `HoldStepSize`
-na takt.
+Dotyczy wejść **względnych** — enkodera i klawiszy, które zmieniają wartość o krok.
+Pojedyncze działanie zmienia `Value` o krok.
 
 Przy `Wrap = 0` wartość **nasyca się** na `MinValue` i `MaxValue`: dalsze naciskanie nic
 nie zmienia i **nie emituje zdarzeń**, bo nie ma czego ogłaszać. Jest to zachowanie
 domyślne, bo odpowiada temu, czego człowiek się spodziewa po suwaku.
 
 Przy `Wrap = 1` wartość przeskakuje z `MaxValue` na `MinValue` i odwrotnie. Zawijanie ma
-sens dla enkodera bez ograniczników — dla pary klawiszy jest pułapką, bo przytrzymanie
+sens dla enkodera bez ograniczników — dla pary klawiszy jest pułapką, bo przewijanie
 przy maksimum nagle gasi światło.
 
 Krok, który wyprowadziłby wartość poza zakres, **dochodzi do granicy**, a nie jest
 odrzucany: z `990` przy `StepSize = 50` robi się `1000`, nie `990`.
 
-### 5.3 Przytrzymanie
+### 5.3 Jak urządzenie dochodzi do wartości
 
-```
-spoczynek ──wciśnięcie klawisza, po DebounceTime──► wciśnięty
-                                                      Value ← Value ± StepSize
-                                                      emituj Changed
+Należy do autora urządzenia. Typ stawia tylko wymagania wobec **wartości**:
 
-wciśnięty ──po HoldThreshold──► trzymany              (tylko gdy HoldEnabled)
-                                  co HoldTickInterval:
-                                    Value ← Value ± HoldStepSize
-                                    emituj Changed
+| Wykonanie | Skąd bierze się `Value` |
+|---|---|
+| enkoder | impuls zmienia wartość o krok |
+| para klawiszy | kliknięcie zmienia wartość o krok; czy i jak przytrzymanie przewija wartość, decyduje autor |
+| potencjometr, suwak | **wejście bezwzględne**: wartość wynika z położenia, przeliczonego na `MinValue`–`MaxValue` |
 
-trzymany  ──zwolnienie──► spoczynek                   (nic nie emituj)
-wciśnięty ──zwolnienie──► spoczynek                   (nic nie emituj)
-```
+Wymagania wspólne:
 
-**Krok następuje przy wciśnięciu, nie przy zwolnieniu** — i to jest różnica wobec
-[`KeyInput`](0x0010-key-input.md) §5.2, która wymaga uzasadnienia, bo tam rozstrzygnięto
-odwrotnie.
+- **Jedno działanie człowieka to jedna zmiana.** Drganie styku nie może dać dwóch kroków,
+  a szum przetwornika potencjometru — strumienia zmian, gdy nikt gałki nie dotyka.
+  Jak to osiągnąć (odbicie styku, martwa strefa, filtr), jest sprawą budowy (§5.8).
+- **Każda zmiana `Value` wywołana przez człowieka emituje `Changed`**, od razu — bez
+  czekania na zwolnienie klawisza. Zdarzenie niesie wartość bezwzględną, więc nie ma
+  czego rozstrzygać po zwolnieniu, a czekanie kosztowałoby opóźnienie, nie kupując
+  niczego. Inaczej niż w [`KeyInput`](0x0010-key-input.md) §5.2, gdzie od zwolnienia
+  zależy, które zdarzenie wysłać.
+- **Wartość nie zmienia się bez końca od jednego trzymanego klawisza.** Urządzenie, które
+  przewija wartość przy przytrzymaniu, po 60 sekundach trzymania przestaje ją zmieniać
+  i czeka na zwolnienie — ten sam bezpiecznik co w [`KeyInput`](0x0010-key-input.md) §5.6.
+  Zaklinowany klawisz przy `Wrap = 1` nie ma prawa zająć magistrali.
 
-Powód jest w tym, że tutaj zdarzenie niesie **wartość bezwzględną**. Klawisz musi czekać
-na zwolnienie, żeby wiedzieć, czy naciśnięcie było kliknięciem, czy początkiem
-przytrzymania — a od tego zależy, które zdarzenie wysłać. Tutaj takiego rozstrzygnięcia
-nie ma: pierwszy krok jest ten sam bez względu na to, co stanie się dalej. Czekanie
-kosztowałoby więc opóźnienie, nie kupując niczego.
-
-Przy `HoldEnabled = 0` przytrzymanie daje **dokładnie jeden krok**, choćby trwało pięć
-sekund.
-
-Przytrzymanie przy `Wrap = 1` trwałoby bez końca, więc obowiązuje ten sam bezpiecznik co
-w [`KeyInput`](0x0010-key-input.md) §5.6: **po 60 sekundach trzymania węzeł przestaje
-wysyłać zdarzenia** i czeka na zwolnienie. Zaklinowany klawisz nie ma prawa zająć
-magistrali.
+Ruch gałką albo przewijanie to ciąg zdarzeń; ile ich wychodzi na sekundę ruchu, dobiera
+autor urządzenia, tak jak dobiera krok.
 
 ### 5.4 Zgubione zdarzenie samo się naprawia
 
@@ -226,41 +234,58 @@ Typowe użycie: ktoś ściemnia światło z telefonu, hub zapisuje ten sam pozio
 i następne naciśnięcie klawisza rusza **z miejsca, w którym światło naprawdę jest**,
 a nie z liczby sprzed godziny.
 
+**Wejście bezwzględne przyjmuje zapis tak samo**, choć gałki nie przekręci. Zapis ustawia
+`Value`; **następny ruch gałki ustawia ją z położenia**, więc wartość skacze tam, gdzie gałka
+stoi. Jest to cena za jeden typ dla wszystkich wykonań i jest świadoma: odmowa zapisu
+wymagałaby cechy, z której hub i tak nie miałby jak skorzystać — a skok przy pierwszym
+ruchu jest dokładnie tym, czego człowiek spodziewa się po pokrętle z kreską.
+
 ### 5.6 Trwałość i restart
 
 `Value` przeżywa restart węzła. Zapis do pamięci nieulotnej następuje jednak **dopiero
 po ustaniu zmian** — pięć sekund bez ruchu — a nie po każdym kroku. Bez tego jedno
-przytrzymanie trwające cztery sekundy kosztowałoby dwadzieścia cykli kasowania.
+przewijanie trwające cztery sekundy kosztowałoby dwadzieścia cykli kasowania.
 
 Po `FactoryReset` wartość wynosi `MinValue`.
 
 Węzeł, który stracił zasilanie w trakcie regulacji, wstaje z wartością sprzed ostatniego
 zrzutu. Rozbieżność kasuje pierwszy zapis z huba albo pierwsze naciśnięcie.
 
+Wejście bezwzględne może zamiast tego wstać z wartością z położenia gałki — położenie jest
+wtedy pamięcią lepszą niż zapis.
+
 ### 5.7 Koszt na magistrali
 
 | Sytuacja | Ramki |
 |---|---|
-| jedno kliknięcie | 1 zdarzenie |
-| przytrzymanie 4 s przy ustawieniach domyślnych | 20 zdarzeń, pełny przejazd zakresu |
+| jedno kliknięcie albo impuls | 1 zdarzenie |
+| przewijanie przez cały zakres krokiem 50 ‰ | 20 zdarzeń |
 | raport cykliczny | 1 ramka na `ReportInterval`, domyślnie 300 s |
 
 Raport ze zmiany dokłada się do zdarzeń i **nie jest tłumiony** — ogranicza go wyłącznie
-`ReportMinGap`, dla tego typu domyślnie **1000 ms**. Przytrzymanie kosztuje więc pięć
-zdarzeń i jeden raport na sekundę, a nie dziesięć wiadomości.
+`ReportMinGap`, dla tego typu domyślnie **1000 ms**. Przewijanie kosztuje więc tyle
+zdarzeń, ile kroków, i jeden raport na sekundę.
+
+### 5.8 Drgania styków i polaryzacja wejścia
+
+Odfiltrowanie drgań styku, martwa strefa potencjometru i to, czy klawisz zwiera do masy,
+czy do zasilania, są **sprawą budowy urządzenia** i typ nie ma na nie atrybutów — tak samo
+jak [`KeyInput`](0x0010-key-input.md) §5.7. Typ wymaga tylko, żeby jedno działanie
+człowieka było **jedną** zmianą (§5.3).
 
 ---
 
 ## 6. Konfiguracje typowe
 
-| Urządzenie | `Step` | `HoldStep` | `Wrap` | Uwagi |
-|---|---|---|---|---|
-| Para klawiszy „jaśniej / ciemniej" | 50 ‰ | 50 ‰ | `0` | pełny przejazd w 4 s |
-| Enkoder obrotowy | 20 ‰ | — | `0` | `HoldEnabled = 0`, krok na impuls |
-| Enkoder bez ograniczników, wybór barwy | 20 ‰ | — | `1` | zawijanie ma tu sens |
-| Regulacja głośności | 25 ‰ | 25 ‰ | `0` | `MinValue = 0` — cisza osiągalna |
-| Ściemniacz z minimum technicznym | 50 ‰ | 50 ‰ | `0` | `MinValue = 100` — świetlówka nie gaśnie |
-| **Ścienne pokrętło zadające °C** | — | — | — | **nie tym typem** — §5.1 |
+| Urządzenie | `Step` | `Wrap` | Uwagi |
+|---|---|---|---|
+| Para klawiszy „jaśniej / ciemniej" | 50 ‰ | `0` | przytrzymanie przewija — jak szybko, ustala autor |
+| Enkoder obrotowy | 20 ‰ | `0` | krok na impuls |
+| Enkoder bez ograniczników, wybór barwy | 20 ‰ | `1` | zawijanie ma tu sens |
+| Potencjometr, suwak | — | — | wejście bezwzględne; zapis z huba przesuwa wartość do pierwszego ruchu |
+| Regulacja głośności | 25 ‰ | `0` | `MinValue = 0` — cisza osiągalna |
+| Ściemniacz z minimum technicznym | 50 ‰ | `0` | `MinValue = 100` — świetlówka nie gaśnie |
+| **Ścienne pokrętło zadające °C** | — | — | **nie tym typem** — §5.1 |
 
 Klawisze `ValueInput` mogą jednocześnie służyć do czegoś innego: węzeł deklaruje wtedy
 dodatkowo endpointy [`KeyInput`](0x0010-key-input.md) na **tym samym kanale**

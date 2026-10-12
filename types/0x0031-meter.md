@@ -34,8 +34,8 @@ ciepło. Wartość rośnie przez całe życie instalacji i nigdy nie maleje.
 
 | Bit | Cecha | Dokłada |
 |---|---|---|
-| — | *(rdzeń typu, zawsze)* | `Imported`, `ImportedOffset` |
-| 0 | `EXPORT` | `Exported`, `ExportedOffset` |
+| — | *(rdzeń typu, zawsze)* | `Imported`, opcjonalnie `ImportedOffset` |
+| 0 | `EXPORT` | `Exported`, opcjonalnie `ExportedOffset` |
 | 1–15 | — | zarezerwowane, nadawaj `0` |
 
 `EXPORT` deklaruje licznik dwukierunkowy. Wodomierz i gazomierz jej nie mają — woda nie
@@ -65,7 +65,7 @@ licznikiem.
 | ID | Nazwa | Typ | Dostęp | Trw. | Rap. | Konf. | Zakres | Domyśl. |
 |---|---|---|---|---|---|---|---|---|
 | `0x10` | `ImportedOffset` | `u32` | RW | P | nie | O | — | `0` |
-| `0x11` | `ExportedOffset` | `u32` | RW | P | nie | `[EXPORT]` | — | `0` |
+| `0x11` | `ExportedOffset` | `u32` | RW | P | nie | `O [EXPORT]` | — | `0` |
 | `0x12` | `Purpose` | `enum8` | RW | P | nie | M | §2.4 | `0` |
 
 ### 2.3 `Quantity`
@@ -162,6 +162,10 @@ każdy odczyt wymagałby dodawania po stronie huba, a wartość w węźle nie zn
 
 Ten sam mechanizm służy po wymianie modułu: nowy zaczyna od zera, a offset przywraca
 ciągłość.
+
+Oba przesunięcia są **opcjonalne**, każde na swoim liczniku. Wyrównanie z tarczą jest
+sprawą instalacji — licznik impulsowy podłączony do starego wodomierza go potrzebuje,
+licznik energii z własnym pomiarem od nowości nie ma czego wyrównywać.
 
 **Zapis `Offset` nie jest zerowaniem.** Licznik biegnie dalej od swojej wartości; zmienia
 się tylko to, co jest do niej dodawane.

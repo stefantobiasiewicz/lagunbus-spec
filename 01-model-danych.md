@@ -581,3 +581,28 @@ Notacja używana w tabelach całej specyfikacji:
 Urządzenie, które deklaruje typ, musi zaimplementować **wszystkie** jego atrybuty
 i komendy oznaczone `M`. Brak choćby jednego oznacza, że nie wolno deklarować tego
 typu — trzeba użyć innego albo zdefiniować nowy.
+
+### 8.1 Ustawienie, którego urządzenie nie wystawia
+
+Ustawienie oznaczone `O` albo `O [CECHA]`, którego endpoint nie ma, **nie znaczy, że
+ustawienia nie ma** — znaczy, że wartość ustala autor urządzenia i hub nie może jej
+zmienić. Obowiązują wtedy trzy zasady:
+
+1. Wartość stosowana przez urządzenie **mieści się w kolumnie „Zakres"** typu. Zakres jest
+   wymaganiem wobec zachowania, nie wobec atrybutu.
+2. Kolumna „Domyśl." jest dla takiego urządzenia **zaleceniem**, nie obowiązkiem.
+3. Wartość jest **stała w czasie pracy**. Czego nie da się ustawić z magistrali, tego
+   urządzenie nie zmienia samo.
+
+Które ustawienie typ czyni obowiązkowym, a które opcjonalnym, rozstrzyga pytanie,
+**kto zna właściwą wartość**:
+
+| Wartość wynika z… | Kto ją zna | W typie |
+|---|---|---|
+| **budowy** — czegoś, co autor urządzenia sam zbudował: drgania wbudowanego styku, polaryzacja pinu, szum własnego przetwornika | autor urządzenia | **nie ma atrybutu** albo atrybut `O` |
+| **instalacji** — tego, co instalator podłączył do zacisków: kontaktron zwierny czy rozwierny, krańcówka drgająca sekundami, odbiornik na styku rozwiernym | instalator, przez hub | atrybut `O`; urządzenie z czujnikiem wbudowanym ustala wartość samo, moduł z zaciskami **powinien** ją wystawić |
+| **użycia** — tego, do czego mieszkaniec chce rzeczy używać: nastawa, krok, czy przytrzymanie ma działać | mieszkaniec, przez hub | atrybut `M` albo `[CECHA]` |
+
+Rozróżnienie budowy od instalacji bywa subtelne, bo to samo pojęcie trafia do obu: drgania
+styku klawisza wbudowanego w panel zna jego autor, a drgań kontaktronu przykręconego do
+bramy — tylko instalator.

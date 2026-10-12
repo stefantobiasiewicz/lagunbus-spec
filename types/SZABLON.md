@@ -46,9 +46,12 @@ najprostsze urządzenie tego typu: czy naprawdę potrzebuje wszystkiego, co typ 
 każe mu mieć? Jeśli nie — to, czego nie potrzebuje, jest cechą. Tak `KeyInput` przestał
 wymagać wielokliku od dzwonka.
 
-Strojenie wynikające z **budowy** urządzenia (drgania styku, polaryzacja wejścia) nie jest
-atrybutem — rozwiązuje je autor urządzenia. Atrybutem jest to, co opisuje **użycie**
-i o czym ma decydować hub.
+Przy każdym ustawieniu zapytaj, **kto zna właściwą wartość**
+([`../01-model-danych.md`](../01-model-danych.md) §8.1). Strojenie wynikające z **budowy**
+urządzenia (drgania wbudowanego styku, polaryzacja pinu) nie jest atrybutem albo jest
+opcjonalne — rozwiązuje je autor urządzenia. To, co zależy od **instalacji** (co
+podłączono do zacisków), jest atrybutem opcjonalnym. Obowiązkowe jest to, co opisuje
+**użycie** i o czym ma decydować hub.
 
 ---
 

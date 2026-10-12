@@ -1,7 +1,7 @@
 # Typ endpointu `0x0013` · ToggleInput
 
-> **Szkic.** Podział względem `Contact` i `KeyInput` rozstrzygnięty. Typ czeka na pierwsze
-> zbudowane urządzenie.
+> **Szkic.** Podział względem `Contact` i `KeyInput` rozstrzygnięty; od 2026-10-13 odbicie
+> styku należy do autora urządzenia. Typ czeka na pierwsze zbudowane urządzenie.
 
 **Rewizja 1** · wejście dwustanowe, którego stan tworzy węzeł
 
@@ -43,13 +43,17 @@ Dla wyłącznika naściennego rozgraniczenie jest praktyczne i warto je mieć po
 
 | Bit | Cecha | Dokłada |
 |---|---|---|
-| — | *(zawsze)* | `State`, `ChangeCount`, `DebounceTime`, zdarzenie `Changed` |
+| — | *(zawsze)* | `State`, zdarzenie `Changed` |
 | 0 | `INDICATOR` | `IndicatorMode` |
 | 1–15 | — | zarezerwowane, nadawaj `0` |
 
 Obecność diody jest **właściwością sprzętu**, a nie ustawieniem — klawisza bez diody nie da
 się przekonfigurować tak, żeby ją miał. Dlatego jest cechą, a `IndicatorMode`, który mówi
 tylko, jak ta dioda ma się zachować, jest atrybutem.
+
+Odbicie styku nie jest atrybutem w ogóle: klawisz jest wbudowany w urządzenie, więc jego
+drgania zna autor i on je odfiltrowuje (§5.7). Typ wymaga tylko, żeby jedno naciśnięcie
+przełączało **raz**.
 
 ---
 
@@ -69,7 +73,6 @@ tylko, jak ta dioda ma się zachować, jest atrybutem.
 
 | ID | Nazwa | Typ | Dostęp | Trw. | Rap. | Konf. | Zakres | Domyśl. |
 |---|---|---|---|---|---|---|---|---|
-| `0x10` | `DebounceTime` | `u16` | RW | P | nie | M | 5–100 ms | `15` |
 | `0x11` | `IndicatorMode` | `enum8` | RW | P | nie | `[INDICATOR]` | §2.3 | `1` — `FOLLOW` |
 
 ### 2.3 `IndicatorMode`
@@ -137,11 +140,11 @@ Kliknięcie zmienia `State` na przeciwny. To całe zachowanie i **nie bierze w n
 nikt poza węzłem** — ani hub, ani powiązanie, ani system nadrzędny.
 
 ```
-State = 0 ──kliknięcie, po DebounceTime──► State = 1
+State = 0 ──kliknięcie, po odbiciu styku──► State = 1
                                              emituj Changed(1)
                                              dioda zgodnie z IndicatorMode
 
-State = 1 ──kliknięcie, po DebounceTime──► State = 0
+State = 1 ──kliknięcie, po odbiciu styku──► State = 0
                                              emituj Changed(0)
                                              dioda zgodnie z IndicatorMode
 ```
@@ -219,6 +222,12 @@ Raport ze zmiany nie jest tu tłumiony ani histerezą — `bool` jej nie podlega
 `ReportMinGap`, bo klawisza nie da się klikać wystarczająco szybko. Dwie ramki na
 kliknięcie są ceną akceptowalną, bo kliknięć jest kilkadziesiąt dziennie, a nie kilkaset
 na sekundę.
+
+### 5.7 Drgania styków i polaryzacja wejścia
+
+Odfiltrowanie drgań styku i to, czy klawisz zwiera do masy, czy do zasilania, są
+**sprawą budowy urządzenia** i typ nie ma na nie atrybutów — tak samo jak
+[`KeyInput`](0x0010-key-input.md) §5.7. Drganie nie może przełączyć stanu dwa razy.
 
 ---
 

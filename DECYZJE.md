@@ -806,7 +806,7 @@ rozmawiają ze sobą").
 - **Świadomie poza zakresem:** atrybuty wspólne (raportowanie, `Enabled`, `QueryEnabled`)
   — to zmiana modelu danych, nie typu. `Scenes` i `Groups` nie były przeglądane.
 - **Rewizje zostają 1** — v1 nie było wydane.
-- **Ślad:** `zadania/CR-04.md` w katalogu projektu.
+- **Ślad:** `zadania/zrobione/CR-04.md` w katalogu projektu.
 
 ### Wejścia: Contact, ToggleInput, ValueInput
 

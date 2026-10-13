@@ -866,6 +866,27 @@ rozmawiają ze sobą").
   i tak nie jedzie. `Unit` odpada: to inne pojęcie i nazwa zajęta w rejestrze przez
   jednostkę. Ślad: `zadania/zrobione/CR-02.md` w katalogu projektu.
 
+### Sense: histereza światła względna, `ReportHysteresis` jako dolna granica
+
+**Obowiązuje** · [`types/0x0030-sense.md`](types/0x0030-sense.md) §5.3, §5.7 · 2026-10-13
+
+- **Problem:** typ każe dla `ILLUMINANCE` raportować przy zmianie o „50 lx lub 10 %
+  wartości, co większe”, a `ReportHysteresis` to jedno `u16` w jednostkach wielkości —
+  przy skali 0,01 lx najwyżej 655 lx i bez miejsca na regułę względną.
+- **Wybrano:** część względna (10 % ostatnio raportowanej wartości) jest **zachowaniem
+  typu** dla `ILLUMINANCE`; `ReportHysteresis` pozostaje progiem bezwzględnym i działa
+  jako dolna granica, domyślnie `5000` (50 lx). `ReportHysteresis = 0` znaczy „każda
+  zmiana” także dla światła — ogólna reguła histerezy nie dostaje wyjątku.
+- **Odrzucono:** histerezę światła w całych luksach (atrybut zmieniałby jednostkę zależnie
+  od wielkości — dokładnie to, czego skala przypisana wielkości ma unikać);
+  `ReportHysteresis` jako `u32` (zmiana atrybutu wspólnego dla wszystkich typów, a reguły
+  względnej i tak by nie wyraził); osobny atrybut procentowy (nowy element kontraktu dla
+  jednej wielkości, której nikt nie potrzebuje stroić).
+- **Przy okazji:** `MinMeasured`/`MaxMeasured` zapisywane do pamięci najwyżej raz na
+  10 minut i od razu po `ResetMinMax` — ta sama cena co licznik `Meter`; zmiana `Offset`
+  obowiązuje od następnego pomiaru i nie przelicza ekstremów.
+- Ślad: `zadania/zrobione/DEVICE-01.md` (N2, N10, N11) w katalogu projektu.
+
 ### Meter: kierunek jako cecha, licznik trwały, bez komend
 
 **Obowiązuje** · [`types/0x0031-meter.md`](types/0x0031-meter.md) · 2026-09-15 (W12)

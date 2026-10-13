@@ -131,6 +131,11 @@ dla każdego, kto chce sprawdzić, dlaczego czujnik pokazuje o pół stopnia wi�
 pół stopnia w dół. Nie ma mnożników ani korekcji wielopunktowej — czujnik, który tego
 wymaga, powinien to załatwić wewnętrznie, zanim odda wynik.
 
+Zmieniony `Offset` obowiązuje **od następnego pomiaru**. `MinMeasured` i `MaxMeasured` nie
+są przeliczane — opisują wartości, które czujnik naprawdę wystawił — a progi (§5.4)
+porównuje się zawsze z `Value`, czyli z wartością po kalibracji. Kto po zmianie `Offset`
+chce minimum i maksimum w nowej skali, wywołuje `ResetMinMax`.
+
 ### 5.2 Awaria czujnika
 
 Gdy odczyt jest niemożliwy albo niewiarygodny, `Value` przyjmuje **wartość „brak"**
@@ -150,7 +155,7 @@ wiarygodnie wyglądające zero stopni i zacząłby grzać.
 
 | Wyzwalacz | Warunek |
 |---|---|
-| zmiana | `\|Value − ostatnio raportowana\|` ≥ `ReportHysteresis` (`0xFA`) |
+| zmiana | `\|Value − ostatnio raportowana\|` ≥ `ReportHysteresis` (`0xFA`); dla `ILLUMINANCE` — niżej |
 | cyklicznie | upływ `ReportInterval` (`0xF8`), nawet bez zmiany |
 | na żądanie | odczyt atrybutu |
 
@@ -171,7 +176,7 @@ Domyślne histerezy wynikają z wielkości:
 |---|---|---|
 | `TEMPERATURE` | 0,20 °C | 60 s |
 | `HUMIDITY` | 1,00 % | 60 s |
-| `ILLUMINANCE` | 50 lx **lub** 10% wartości, co większe | 60 s |
+| `ILLUMINANCE` | 50 lx **lub** 10% wartości, co większe — niżej | 60 s |
 | `CO2` | 30 ppm | 60 s |
 | `PRESSURE` | 0,5 hPa | 300 s |
 | `POWER` | 5 W | 30 s |
@@ -180,6 +185,18 @@ Domyślne histerezy wynikają z wielkości:
 Histereza `ILLUMINANCE` jest **względna**, bo natężenie światła zmienia się o rzędy
 wielkości. Bezwzględne 50 luksów jest sensowne w pokoju i bezużyteczne na zewnątrz,
 gdzie różnica między 40 000 a 40 050 luksów nikogo nie obchodzi.
+
+Dla `ILLUMINANCE` zmiana jest warta raportu, gdy
+
+```
+|Value − ostatnio raportowana|  ≥  max(ReportHysteresis, 10% ostatnio raportowanej)
+```
+
+`ReportHysteresis` jest tu **dolną granicą bezwzględną**, w jednostkach wielkości, jak
+wszędzie — domyślnie `5000`, czyli 50 lx. Część względna jest zachowaniem typu, nie
+atrybutem: nie da się jej ani zmienić, ani wyłączyć, poza jednym przypadkiem —
+`ReportHysteresis = 0` znaczy także tutaj **raportuj każdą zmianę**
+([`../01-model-danych.md`](../01-model-danych.md) §6.2), bez wyjątku dla jednej wielkości.
 
 ### 5.4 Progi
 
@@ -241,6 +258,20 @@ Rozstrzyga to atrybut wspólny `0xF5 Channel`
 Ostatni wiersz pokazuje, po co `0` brzmi „nie należę do pojedynczego kanału", a nie
 „mierzę otoczenie" — uzasadnienie jest w [`../01-model-danych.md`](../01-model-danych.md)
 §4.1.
+
+### 5.7 Zapis minimum i maksimum
+
+`MinMeasured` i `MaxMeasured` są trwałe, ale **nie wolno ich zapisywać przy każdej
+zmianie** — z tego samego powodu co licznika [`Meter`](0x0031-meter.md): po wyzerowaniu
+każdy pomiar w rosnącym ranku jest nowym maksimum, a pamięć nieulotna ma skończoną liczbę
+cykli.
+
+> Zapis **nie częściej niż raz na dziesięć minut**, tylko gdy coś się zmieniło, i od razu
+> po `ResetMinMax`.
+
+Ceną jest utrata co najwyżej dziesięciu minut ekstremów przy nagłym zaniku zasilania.
+`ResetMinMax` jest zapisywany od razu, bo jest decyzją człowieka, a nie pomiarem —
+wyzerowanie, które po restarcie wraca do starych wartości, wyglądałoby na zepsute.
 
 ---
 

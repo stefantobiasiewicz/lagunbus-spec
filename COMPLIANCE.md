@@ -206,6 +206,11 @@ reguły:
 | `LB-KEY-003` | `[HOLD]` | Zwolnienie po przytrzymaniu to **wyłącznie** `HoldEnd` — bez `Click` i bez `Up` | [`types/KeyInput`](types/0x0010-key-input.md) §5.5 |
 | `LB-KEY-004` | `[HOLD]` | `HoldTick` ustaje po 60 s trzymania; `HoldEnd` przy zwolnieniu przychodzi normalnie | [`types/KeyInput`](types/0x0010-key-input.md) §5.6 |
 | `LB-SCN-001` | `M` | `SceneCapacity` ≥ 8; pojemność liczona w **parach** `(grupa, numer)` | [`types/Scenes`](types/0x0003-scenes.md) §3 |
+| `LB-SNS-001` | `M` | Do pierwszego udanego pomiaru `Value` = brak i **nie jest raportowana**; progi śledzone dopiero od pierwszego poprawnego odczytu | [`types/Sense`](types/0x0030-sense.md) §5.5 |
+| `LB-SNS-002` | `M` | Awaria czujnika → `Value` = brak, raportowana; **nigdy zero**; min/max bez odczytów nieudanych | [`types/Sense`](types/0x0030-sense.md) §5.2 |
+| `LB-SNS-003` | `M` | `ILLUMINANCE`: raport przy zmianie ≥ `max(ReportHysteresis, 10%` ostatnio raportowanej`)`; `ReportHysteresis = 0` — każda zmiana | [`types/Sense`](types/0x0030-sense.md) §5.3 |
+| `LB-SNS-004` | `[THRESHOLD]` | `Threshold` tylko przy przejściu między strefami; powrót do `NORMAL` z histerezą | [`types/Sense`](types/0x0030-sense.md) §5.4 |
+| `LB-SNS-005` | `[MIN_MAX]` | Zapis `MinMeasured`/`MaxMeasured` do pamięci trwałej nie częściej niż raz na 10 minut; po `ResetMinMax` od razu | [`types/Sense`](types/0x0030-sense.md) §5.7 |
 | `LB-MTR-001` | `M` | Licznik **nigdy nie maleje** poza `FactoryReset` | [`types/Meter`](types/0x0031-meter.md) §5.2 |
 | `LB-MTR-002` | `M` | Zapis licznika do pamięci trwałej nie częściej niż raz na 10 minut | [`types/Meter`](types/0x0031-meter.md) §5.4 |
 | `LB-THR-001` | `M` | Bez temperatury regulator **wyłącza wyjście** i nie reguluje | [`types/Thermostat`](types/0x0040-thermostat.md) §5.3 |

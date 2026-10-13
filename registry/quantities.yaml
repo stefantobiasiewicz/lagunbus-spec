@@ -29,7 +29,7 @@ quantities:
     type: u32
     scale: 0.01
     unit: lx
-    default_hysteresis: wzgledna_10_procent_min_50lx
+    default_hysteresis: 5000    # 50 lx — dolna granica; ponad nią 10 % ostatnio raportowanej (types/0x0030-sense.md §5.3)
     default_interval_s: 60
   - quantity: 0x03
     name: CO2

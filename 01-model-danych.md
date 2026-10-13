@@ -345,6 +345,21 @@ z najkrótszego `ReportInterval` wśród jego endpointów
 klawiszowy nie ma ani jednego atrybutu raportowanego poza diagnostyką. Bez
 `ReportInterval` na `Diagnostics` taki węzeł nie miałby progu wcale.
 
+### 4.2 Endpoint wyłączony
+
+`Enabled = 0` wyłącza **funkcję** endpointu, nie jego obsługę. Endpoint wyłączony:
+
+| | Zachowanie |
+|---|---|
+| odczyt i zapis | działają jak zawsze — inaczej hub nie mógłby go z powrotem włączyć ani sprawdzić, że jest wyłączony |
+| komenda | odpowiedź `INVALID_STATE`; komenda nie jest wykonywana |
+| zdarzenia | nie są nadawane; licznik zdarzeń nie rośnie, bo nic nie wyszło |
+| raporty | nie są nadawane — ani przy zmianie, ani cyklicznie |
+
+Komenda dostaje odpowiedź, a nie ciszę, bo cisza jest nieodróżnialna od zgubionej ramki
+i hub powtórzyłby ją trzy razy ([`04-interakcje.md`](04-interakcje.md) §2). `INVALID_STATE`
+mówi dokładnie to, co trzeba: komenda jest poprawna, ale nie w tym stanie endpointu.
+
 ## 5. Kanał fizyczny
 
 Deskryptor jest płaską listą i sam z siebie nie niesie **żadnej relacji między endpointami**.
@@ -488,6 +503,15 @@ Atrybut oznaczony jako raportowany jest nadawany **rozgłoszeniowo** w trzech sy
 
 Odstęp między kolejnymi raportami z jednego endpointu nigdy nie jest mniejszy niż
 `ReportMinGap` — to chroni magistralę przed szumem przetwornika.
+
+Odstęp liczy się między **rundami**, nie między ramkami. Runda to wszystkie atrybuty
+endpointu, którym w danej chwili należy się raport, nadane razem: odświeżanie cykliczne
+wysyła w jednej rundzie każdy atrybut raportowany, a wyjście kończące przejście —
+`Transitioning = 0` razem z osiągniętym poziomem ([`types/0x0020-output.md`](types/0x0020-output.md)
+§5.3). Gdyby odstęp dotyczył pojedynczych ramek, raporty opisujące jeden stan
+rozjechałyby się o `ReportMinGap` i hub widziałby przez chwilę stan, którego nie było.
+Raport wstrzymany przez odstęp nie przepada: wychodzi, gdy odstęp minie, i niesie
+wartość **bieżącą**, nie tę sprzed chwili.
 
 ### 6.1 Wyzwalacze działają jednocześnie
 

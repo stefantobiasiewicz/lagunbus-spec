@@ -201,6 +201,33 @@ rozmawiają ze sobą").
 - **Dlaczego:** czujnik z odświeżaniem pięciominutowym zgłaszałby pożar średnio po dwóch
   i pół minuty.
 
+### `ReportMinGap` liczony między rundami
+
+**Obowiązuje** · [`01`](01-model-danych.md) §6 · 2026-10-13
+
+- **Wybrano:** odstęp między **rundami** raportów jednego endpointu; runda to wszystkie
+  atrybuty, którym w danej chwili należy się raport, nadane razem.
+- **Odrzucono:** odstęp między pojedynczymi ramkami — dosłowne czytanie dotychczasowego
+  zdania.
+- **Dlaczego:** `Output` każe nadać `Transitioning = 0` razem z poziomem docelowym, a raport
+  cykliczny obejmuje każdy atrybut raportowany. Przy odstępie między ramkami 200 ms
+  rozsunęłyby raporty jednego stanu i hub widziałby przez chwilę stan, którego nie było.
+  Sprzeczność wyszła przy budowie mechanizmu raportowania w bibliotece węzła
+  (`zadania/zrobione/TASK-01.md`, N3).
+
+### Endpoint wyłączony odpowiada, ale nie działa
+
+**Obowiązuje** · [`01`](01-model-danych.md) §4.2 · 2026-10-13
+
+- **Wybrano:** przy `Enabled = 0` odczyt i zapis działają, komenda dostaje
+  `INVALID_STATE`, zdarzeń i raportów nie ma.
+- **Odrzucono:** (a) endpoint wyłączony milczący na wszystko — hub nie mógłby go włączyć;
+  (b) komenda bez odpowiedzi — cisza wygląda jak zgubiona ramka i wywołuje trzy
+  powtórzenia; (c) `OK` bez wykonania — kłamstwo, którego hub nie odróżni od działania.
+- **Dlaczego:** „nie reaguje i nie raportuje" nie mówiło, czym odpowiada komenda;
+  rozstrzygnięte przy `zadania/zrobione/TASK-01.md` (N4). Zdarzenie wstrzymane nie zużywa numeru
+  w liczniku — nic nie wyszło, więc hub nie ma czego liczyć jako zgubione.
+
 ### Endpointy systemowe: ep0–ep3
 
 **Obowiązuje** · [`01`](01-model-danych.md) §1.2 · 2026-09-11, ep2 2026-09-13

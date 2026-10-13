@@ -109,6 +109,8 @@ reguły:
 | `LB-NODE-033` | `M` | Zdarzenia z jednego endpointu numerowane kolejno, licznik `u8` zawijający | [`01`](01-model-danych.md) §3.3 |
 | `LB-NODE-034` | `M` | Zdarzenia **nie są retransmitowane** ani nadrabiane | [`04`](04-interakcje.md) §7.1 |
 | `LB-NODE-035` | `M` | Kolejka pełna → porzucany **najstarszy raport**, nigdy zdarzenie ani odpowiedź | [`types/Diagnostics`](types/0x0002-diagnostics.md) §5.3 |
+| `LB-NODE-036` | `M` | `ReportMinGap` liczony między **rundami** raportów endpointu; raport wstrzymany wychodzi później z wartością bieżącą | [`01`](01-model-danych.md) §6 |
+| `LB-NODE-037` | `M` | Endpoint z `Enabled = 0`: odczyt i zapis działają, komenda → `INVALID_STATE`, żadnych zdarzeń ani raportów | [`01`](01-model-danych.md) §4.2 |
 
 ### Wartości
 

@@ -14,11 +14,15 @@ pola wielobajtowe są little-endian ([`02-typy-danych.md`](02-typy-danych.md) §
 HUB  0x7FE
  │
  ├─ magistrala 1 — parter
- │   └─ 0x012   Panel dwuklawiszowy z podświetleniem, salon
- │              ep4  KeyInput                 ch1    klawisz lewy
- │              ep5  KeyInput                 ch2    klawisz prawy
- │              ep6  Output  INDICATOR        ch1    podświetlenie lewego
- │              ep7  Output  INDICATOR        ch2    podświetlenie prawego
+ │   ├─ 0x012   Panel dwuklawiszowy z podświetleniem, salon
+ │   │          ep4  KeyInput                 ch1    klawisz lewy
+ │   │          ep5  KeyInput                 ch2    klawisz prawy
+ │   │          ep6  Output  INDICATOR        ch1    podświetlenie lewego
+ │   │          ep7  Output  INDICATOR        ch2    podświetlenie prawego
+ │   │
+ │   └─ 0x013   Wyświetlacz, kuchnia
+ │              ep4  Display [VALUE] TEMPERATURE    ch0    duża liczba
+ │              ep5  Display [TEXT]  TextLength 16  ch0    linia komunikatu
  │
  └─ magistrala 2 — rozdzielnica
      ├─ 0x020   Przekaźnik 4× z pomiarem prądu
@@ -292,3 +296,66 @@ spóźnione o sekundę już nie ([`04-interakcje.md`](04-interakcje.md) §7.2).
 a urządzenia wymagające reakcji — w `0x001`–`0x0FF`
 ([`03-adresacja.md`](03-adresacja.md) §2.3). Przekaźnik `0x020` wyprzedza czujnik `0x150`
 bez żadnego dodatkowego pola w ramce.
+
+---
+
+## 10. Wyświetlacz: liczba zapisem, tekst zapisem długim
+
+Hub pokazuje w kuchni temperaturę z rozdzielnicy i komunikat. Pole `Display` niczego nie
+mierzy i nie ma komend — treść przychodzi **zapisem atrybutu**
+([`types/0x0022-display.md`](types/0x0022-display.md) §5.1).
+
+**Liczba.** 21,37 °C to `2137` w setnych stopnia, `i16` — mieści się w zwykłym zapisie.
+
+| | ID | DLC | Ładunek |
+|---|---|---|---|
+| hub → `0x013` ep4, zapis `Value` | `0x0A04C402` | 3 | `02 59 08` |
+| `0x013` → hub, odpowiedź | `0x0E04C402` | 1 | `02` |
+| `0x013` → hub, raport `Content` | `0x1004C400` | 1 | `01` |
+
+```
+zapis
+  [0]    02      Tid = 2
+  [1..2] 59 08   2137 little-endian — 21,37 °C
+
+raport
+  [0]    01      Content = VALUE — pole pokazuje liczbę
+```
+
+Raport `Content` wychodzi tylko przy pierwszym zapisie, gdy pole przechodzi z `NONE`
+na `VALUE`. Kolejne zapisy temperatury niczego nie raportują, ale odnawiają treść —
+bez nich po `ContentTimeout` pole pokaże kreski.
+
+**Tekst.** „Pranie gotowe" to trzynaście bajtów, z prefiksem długości czternaście. Łańcuch
+jedzie **zawsze zapisem długim**, nawet gdyby zmieścił się w ramce
+([`02-typy-danych.md`](02-typy-danych.md) §2.2), więc ramki `ZAPIS` nie ma wcale.
+
+| | ID | DLC | Ładunek |
+|---|---|---|---|
+| segment 0 | `0x1404C504` | 8 | `03 00 0D 50 72 61 6E 69` |
+| segment 1 | `0x1404C504` | 8 | `03 01 65 20 67 6F 74 6F` |
+| segment 2 | `0x1404C504` | 4 | `83 02 77 65` |
+| `0x013` → hub, odpowiedź | `0x0E04C504` | 1 | `03` |
+
+```
+segment 0
+  [0] 03        LAST = 0, Tid = 3
+  [1] 00        numer segmentu
+  [2..7]        0D — prefiks długości, 13 bajtów
+                50 72 61 6E 69 — „Prani"
+
+segment ostatni
+  [0] 83        LAST = 1, Tid = 3
+  [1] 02        numer segmentu
+  [2..3]        77 65 — „we"
+```
+
+Segmenty idą od huba, więc `ADRES` to **odbiorca**, tak jak w zwykłym zapisie
+([`05-mapowanie-can.md`](05-mapowanie-can.md) §6.1). Węzeł odpowiada **raz, po ostatnim
+segmencie**, tym samym `Tid` — dla huba to wciąż jeden zapis. Odpowiedź ma identyfikator
+zwykłej `ODPOWIEDZI` i wyprzedza raporty, choć same segmenty jechały za nimi.
+
+`TextLength = 16` liczy **bajty**: „Pranie skończone" ma szesnaście liter, ale `ń` zajmuje
+dwa bajty, więc razem siedemnaście — taki zapis dostałby `INVALID_VALUE` i pole zostałoby
+bez zmian.
+

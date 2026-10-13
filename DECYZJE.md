@@ -897,6 +897,53 @@ rozmawiają ze sobą").
 - **Nowy blok 0x0040–0x004F — regulacja:** termostat nie jest ani wejściem, ani wyjściem,
   ani pomiarem.
 
+### Display: pole wyświetlacza, treść tylko zapisem
+
+**Obowiązuje** · [`types/0x0022-display.md`](types/0x0022-display.md) · 2026-10-13
+
+- **Problem:** urządzenie z ekranem ma pokazywać to, co przyjdzie z systemu — temperaturę
+  z innego pokoju, krótki komunikat. Wyświetlacze bywają dowolnie złożone, a wspólny kontrakt
+  da się utrzymać tylko dla tego, co mają wszystkie.
+- **Wybrano:** jeden endpoint to **jedno pole**, nie cały ekran. Dwie cechy: `VALUE` (liczba
+  z jednostką wielkości z [`registry/quantities.yaml`](registry/quantities.yaml)) i `TEXT`.
+  Treść przychodzi **wyłącznie zapisem atrybutu**; typ nie ma komend ani zdarzeń. Typ
+  świadomie nie opisuje grafiki, ikon, układu, kolorów ani czcionek.
+- **Odrzucono — cały ekran w endpoincie:** wymagałby numeru pola w każdym zapisie, czyli
+  adresowania wewnątrz endpointu, którego protokół nie ma.
+- **Odrzucono — komendy `ShowValue(quantity, value)` i `Clear`:** jedynym realnym „za" była
+  niepodzielność wielkości i wartości w jednej ramce, a ta znika przy stałej wielkości pola.
+  Komenda grupowa (jedna liczba na wielu ekranach naraz) nie uzasadnia osobnej ścieżki dla
+  kilku wyświetlaczy w instalacji. Długich argumentów komendy protokół i tak nie ma.
+- **`Quantity` stałe, tylko do odczytu.** Pierwsza propozycja miała maskę wielkości, które
+  pole umie pokazać, i zapisywalne `Quantity`. Odrzucone z powodu z `Sense`: od `Quantity`
+  zależy typ `Value`, więc jej zmiana unieważnia wszystko, co hub o polu wie. Pole segmentowe
+  ma jednostkę narysowaną na stałe; pole elastyczne bierze `TEXT`, a liczbę formatuje hub.
+- **Przeterminowanie obowiązkowe**, jak wejść `Thermostat`: pole pokazujące temperaturę
+  sprzed godziny wygląda jak aktualne. Atrybut `ContentTimeout` opcjonalny, domyślnie
+  600 s. W odróżnieniu od `SourceTimeout` wolno `0` = „nigdy", bo komunikat może nie mieć
+  terminu. Pierwsza propozycja (`StaleAfter`, domyślnie „nigdy") odwracała regułę
+  termostatu bez powodu.
+- **Wartość, której pole nie zmieści, jest przyjmowana** i pokazywana jako kreski; znak
+  spoza czcionki — jako `?`. Hub nie zna liczby cyfr ani czcionki i nie miałby jak uniknąć
+  odmowy. `INVALID_VALUE` tylko tam, gdzie hub wie, czego unikać: zakres typu i
+  `TextLength`.
+- **Po starcie pole jest puste**, także na e-papierze, który pamięta obraz: stara liczba
+  bez znaku „nieaktualne" jest gorsza niż kreski.
+- **`Value` jest wejściem, `Text` nie:** odpowiedź huba na zapytanie to jedna ramka, a
+  łańcuch nigdy się w niej nie mieści.
+- **Łańcuch zawsze w segmentach, także krótki.** Rozważano zapis tekstu do sześciu bajtów
+  zwykłą ramką (nagłówek + prefiks + 6 B = 8 z 8). Odrzucone: dwie ścieżki zamiast jednej,
+  a ta rzadsza — długi tekst — byłaby sprawdzana tylko czasem. O sposobie przesłania decyduje
+  typ atrybutu, nie długość wartości. `Text` jest pierwszym użytkownikiem `ZAPISU_DŁUGIEGO`.
+- **Wyjątek w regule o łańcuchach:** dotąd występowały wyłącznie w atrybutach opisujących
+  sprzęt. `Text` jest treścią chwili, ulotną i zapisywaną przez hub — powód reguły (nazwy od
+  użytkownika mieszkają w hubie, nie w węźle) dalej obowiązuje.
+- **Enumeracja czyta atrybuty deklaracji typu** (`Quantity`, `TextLength`) obok czterech
+  atrybutów opisu endpointu. Rozważano odczyt przy pierwszym użyciu — odrzucony: więcej
+  stanu w hubie i pierwsza operacja wolniejsza, a deklaracja nie zmienia się nigdy, więc
+  jej miejsce jest w opisie urządzenia czytanym raz.
+- Ślad: `zadania/zrobione/FEAT-12.md` w katalogu projektu.
+
 ---
 
 ## 7. Hub
@@ -910,9 +957,25 @@ rozmawiają ze sobą").
   się dopuścić z wykrywaniem cykli, ale byłby to mechanizm trudny do zdiagnozowania
   i niepotrzebny.
 - **Powiązanie na atrybut wyzwala się przy zmianie wartości**, nie przy każdym raporcie —
-  inaczej odświeżanie cykliczne generowałoby komendy w kółko.
+  inaczej odświeżanie cykliczne generowałoby komendy w kółko. Wyjątek z 2026-10-13 — wpis
+  „Zapis jako cel powiązania” niżej.
 - **Budżet czasu jest wiążący.** Jedyne wymaganie czasowe wobec huba, bo projekt istnieje po
   to, żeby światło zapalało się natychmiast. Liczba — wpis niżej.
+
+### Zapis jako cel powiązania: wartość źródła, przy każdym raporcie
+
+**Obowiązuje** · [`07`](07-hub.md) §3.1, §3.2 · 2026-10-13
+
+- **Zapis niesie wartość źródła, przepisaną bez przeliczania.** Źródłem jest raportowany
+  atrybut tego samego typu; zdarzenie źródłem zapisu być nie może, bo nie niesie wartości.
+  Odrzucone: skala, odwrócenie, przesunięcie — zamieniłyby powiązanie w program, a od tego
+  jest system nad hubem. Odrzucona też stała wartość zapisu w konfiguracji — nikt jej dziś
+  nie potrzebuje.
+- **Zapis wyzwala każdy raport, także cykliczny**; komenda dalej tylko zmiana. Cel
+  z przeterminowaniem (`Display.ContentTimeout`) zgasiłby treść przy stojącej wartości,
+  choć czujnik żyje. Zapis tej samej wartości nic nie psuje, a pętli nie ma, bo skutek
+  powiązania nie wyzwala kolejnego. Koszt: jeden zapis na `ReportInterval` źródła.
+- Zgodności wielkości (`Quantity`) źródła i celu specyfikacja na razie nie wymaga od huba.
 
 ### Budżet huba: 50 ms, z progu odczuwalności
 

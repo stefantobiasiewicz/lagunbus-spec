@@ -175,6 +175,19 @@ ep4 … ep(3 + EndpointCount):
 Cztery transakcje na endpoint. Urządzenie z ośmioma endpointami to 34 odczyty, około
 35 ms. Jednorazowo — bez znaczenia.
 
+Do tego **atrybuty deklaracji typu** — te, które urządzenie ustala raz na zawsze i bez
+których hub nie umie odczytać ani zapisać reszty endpointu. Hub czyta je, gdy z `TypeId`
+wie już, jakiego typu jest endpoint:
+
+| Typ | Atrybut | Po co |
+|---|---|---|
+| [`Sense`](types/0x0030-sense.md), [`Display`](types/0x0022-display.md) | `Quantity` | od niego zależy typ i skala każdego atrybutu `⟨Q⟩` |
+| [`Display`](types/0x0022-display.md) | `TextLength` | hub odmawia tekstu za długiego dla pola, zanim go wyśle |
+
+Pole bez cechy, do której należy atrybut, odpowiada `UNSUPPORTED_FEATURE` — to poprawna
+odpowiedź, nie błąd enumeracji. Koszt to jedna, najwyżej dwie transakcje na taki
+endpoint, raz w życiu urządzenia.
+
 `Channel` jest odczytywany zawsze, także z urządzeń jednokanałowych. Hub nie wie z góry,
 czy relacja wystąpi, a odczyt warunkowy oszczędziłby jedną transakcję kosztem gałęzi
 w procedurze, która wykonuje się raz w życiu urządzenia.

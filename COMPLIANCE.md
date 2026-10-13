@@ -58,6 +58,7 @@ reguły:
 | `LB-CAN-006` | `M` | Bity oznaczone jako zarezerwowane nadawane jako `0` i ignorowane przy odbiorze | [`02`](02-typy-danych.md) §4 |
 | `LB-CAN-007` | `M` | Segmenty jednej wartości numerowane od `0`; segment `0` unieważnia poprzednie | [`05`](05-mapowanie-can.md) §6.5 |
 | `LB-CAN-008` | `M` | Wartość porzucana w całości przy dziurze w numeracji albo ciszy dłuższej niż 100 ms | [`05`](05-mapowanie-can.md) §6.6 |
+| `LB-CAN-009` | `M` | Łańcuch znaków przesyłany **zawsze** w segmentach, także pusty i krótki | [`02`](02-typy-danych.md) §2.2 |
 
 ---
 
@@ -188,6 +189,8 @@ reguły:
 | `LB-HUB-046` | `M` | Węzeł zablokowany **nie dostaje adresu** przy przyłączaniu, także przy włączonym trybie przyjmowania | [`06`](06-cykl-zycia-urzadzenia.md) §8 |
 | `LB-HUB-047` | `M` | Zdarzenia i raporty węzła zablokowanego **nie wyzwalają powiązań**; żadne powiązanie nie ma go za cel | [`06`](06-cykl-zycia-urzadzenia.md) §8 |
 | `LB-HUB-048` | `M` | Blokada przeżywa restart huba | [`06`](06-cykl-zycia-urzadzenia.md) §8 |
+| `LB-HUB-049` | `M` | Przy enumeracji odczytane atrybuty deklaracji typu (`Quantity`, `TextLength`) | [`06`](06-cykl-zycia-urzadzenia.md) §3.1 |
+| `LB-HUB-050` | `M` | Łańcuch zapisywany **wyłącznie** jako `ZAPIS_DŁUGI`; powtarzana cała wartość, nie brakujący segment | [`05`](05-mapowanie-can.md) §6.6 |
 
 ---
 
@@ -207,6 +210,11 @@ reguły:
 | `LB-THR-001` | `M` | Bez temperatury regulator **wyłącza wyjście** i nie reguluje | [`types/Thermostat`](types/0x0040-thermostat.md) §5.3 |
 | `LB-THR-002` | `M` | `RemoteTemperature` starsza niż `SourceTimeout` (albo czas ustalony przez urządzenie) traktowana jak **brak** | [`types/Thermostat`](types/0x0040-thermostat.md) §5.2 |
 | `LB-THR-003` | `M` | Regulator **nie adresuje** wyjścia na innym węźle | [`types/Thermostat`](types/0x0040-thermostat.md) §5.4 |
+| `LB-DSP-001` | `M` | Po starcie pole puste (`Content = NONE`), **także** gdy ekran pamięta obraz bez zasilania | [`types/Display`](types/0x0022-display.md) §5.7 |
+| `LB-DSP-002` | `M` | Treść nieodnowiona przez `ContentTimeout` (albo czas ustalony przez urządzenie) znika: `Content = NONE` | [`types/Display`](types/0x0022-display.md) §5.5 |
+| `LB-DSP-003` | `M` | Zapis `Value` czyści `Text` i odwrotnie; odczyt zgadza się z ekranem | [`types/Display`](types/0x0022-display.md) §5.1 |
+| `LB-DSP-004` | `[VALUE]` | Wartość, której pole nie zmieści, **przyjęta** i pokazana jako brak; „brak" nigdy jako zero | [`types/Display`](types/0x0022-display.md) §5.4 |
+| `LB-DSP-005` | `[TEXT]` | Tekst dłuższy niż `TextLength` bajtów → `INVALID_VALUE`; znak spoza czcionki → `?`, zapis **nie** odrzucany | [`types/Display`](types/0x0022-display.md) §5.3 |
 
 ---
 

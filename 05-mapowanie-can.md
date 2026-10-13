@@ -434,16 +434,17 @@ Pozwala to trzymać w węźle jeden bufor zamiast tablicy i jest spójne z regu�
 obsłużyć co najmniej jedno żądanie naraz, a nie więcej
 ([`04-interakcje.md`](04-interakcje.md) §10).
 
-### 6.8 Kierunek do węzła nie ma dziś użytkownika
+### 6.8 Kierunek do węzła: pierwszy użytkownik
 
-`ZAPIS_DŁUGI` jest zdefiniowany, ale **żaden atrybut w tej wersji specyfikacji nie jest
-zarazem długi i zapisywalny**: `Uid`, `VendorName` i `ModelName` są `RO`, a nazwy nadawane
-przez człowieka nie mieszkają w węźle.
+Pierwszym atrybutem, który jest zarazem długi i zapisywalny, jest tekst pola wyświetlacza
+([`types/0x0022-display.md`](types/0x0022-display.md) §5.3). `Uid`, `VendorName`
+i `ModelName` są `RO`, a nazwy nadawane przez człowieka nie mieszkają w węźle.
 
-Jest to zdefiniowane mimo to, bo pierwszy użytkownik jest już widoczny — komenda definiująca
-scenę wartościami wprost ([`types/0x0003-scenes.md`](types/0x0003-scenes.md) §6.8) — a układ
-ładunku wspólny dla obu kierunków nie kosztuje nic poza jednym akapitem tutaj. Dokładanie go
-później oznaczałoby drugi format do zaimplementowania w każdym węźle.
+`ZAPIS_DŁUGI` był zdefiniowany, zanim ktokolwiek go potrzebował, bo układ ładunku wspólny dla
+obu kierunków nie kosztował nic poza jednym akapitem. Dokładanie go później oznaczałoby drugi
+format do zaimplementowania w każdym węźle. Następny widoczny użytkownik to komenda
+definiująca scenę wartościami wprost ([`types/0x0003-scenes.md`](types/0x0003-scenes.md)
+§6.8) — o ile kiedyś powstanie.
 
 ### 6.9 Czego segmenty nie obsłużą
 

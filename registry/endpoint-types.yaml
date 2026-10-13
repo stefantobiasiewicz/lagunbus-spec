@@ -6,7 +6,7 @@
 #        wolny    — numer nieprzypisany
 
 version: 1
-changed: 2026-09-16
+changed: 2026-10-13
 
 blocks:
   - range: "0x0000–0x000F"
@@ -117,6 +117,13 @@ types:
     name: Cover
     status: planned
     description: a blind, shutter or awning - position and slat angle
+
+  - id: 0x0022
+    name: Display
+    status: described
+    revision: 1
+    file: types/0x0022-display.md
+    description: one field of a display - a number with a unit, or text, written by the hub
 
   - id: 0x0030
     name: Sense

@@ -59,12 +59,27 @@ Kodowanie UTF-8, więc polskie znaki działają. Łańcuchy **nigdy nie mieszcz�
 w pojedynczej ramce** — przesyła się je w segmentach
 ([`05-mapowanie-can.md`](05-mapowanie-can.md) §6).
 
-Występują wyłącznie w atrybutach **opisujących sam sprzęt**: `VendorName` i `ModelName`
-([`types/0x0001-device.md`](types/0x0001-device.md) §2.7). Są to nazwy fabryczne, nadane
-przez autora urządzenia, których użytkownik nie zmienia.
+Jest to reguła, a nie rachunek: **łańcuch jedzie w segmentach zawsze, także pusty albo tak
+krótki, że zmieściłby się obok nagłówka.** O sposobie przesłania decyduje wtedy typ
+atrybutu, a nie długość wartości, więc obie strony mają jedną ścieżkę dla łańcuchów
+i sprawdzają ją przy każdym przesłaniu, a nie tylko przy długich tekstach.
+
+Działa to w obie strony: **wartość o stałej długości nigdy nie jedzie w segmentach.** Zapis
+długi atrybutu liczbowego węzeł odrzuca kodem `INVALID_VALUE` — tak samo jak zwykły zapis
+łańcucha.
+
+Występują w dwóch rodzajach atrybutów:
+
+- **opisujących sam sprzęt**: `VendorName` i `ModelName`
+  ([`types/0x0001-device.md`](types/0x0001-device.md) §2.7). Są to nazwy fabryczne, nadane
+  przez autora urządzenia, których użytkownik nie zmienia;
+- **niosących treść do pokazania**: `Text` pola wyświetlacza
+  ([`types/0x0022-display.md`](types/0x0022-display.md) §5.3). Jest ulotny, zapisuje go
+  hub i nie przeżywa restartu węzła — to treść chwili, a nie nazwa.
 
 Nazwy nadawane przez użytkownika („Salon, ściana wschodnia") **nie są przechowywane
-w węźle**. Mieszkają w bazie huba, kluczowane numerem `Uid`. Pamięć węzła jest zasobem
+w węźle** — także w polu wyświetlacza, które mogłoby je pokazywać: to hub zapisuje tam tekst
+ze swojej bazy, a węzeł go nie pamięta. Mieszkają w bazie huba, kluczowane numerem `Uid`. Pamięć węzła jest zasobem
 rzadkim, a tekst i tak trzeba backupować razem z resztą konfiguracji — przechowywanie go
 po obu stronach byłoby marnotrawstwem.
 

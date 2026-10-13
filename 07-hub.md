@@ -72,9 +72,16 @@ przy nadawaniu — i jest to jedyne tłumaczenie w całym systemie.
 | **Zdarzenie** | `Click` z klawisza, `DemandChanged` z termostatu |
 | **Zmiana raportowanego atrybutu** | `Contact.State`, `Output.OnOff` |
 
-Powiązanie na zmianę atrybutu wyzwala się **przy zmianie wartości**, nie przy każdym
-raporcie — raport cykliczny niosący tę samą wartość co poprzedni nie jest zdarzeniem
-i niczego nie uruchamia. Inaczej odświeżanie cykliczne generowałoby komendy w kółko.
+Powiązanie na zmianę atrybutu, którego celem jest komenda, wyzwala się **przy zmianie
+wartości**, nie przy każdym raporcie — raport cykliczny niosący tę samą wartość co poprzedni
+nie jest zdarzeniem i niczego nie uruchamia. Inaczej odświeżanie cykliczne generowałoby
+komendy w kółko, a powtórzony `Toggle` przełączałby wyjście bez powodu.
+
+Powiązanie, którego celem jest **zapis atrybutu**, wyzwala się **przy każdym raporcie**,
+także cyklicznym. Cel z przeterminowaniem — pole wyświetlacza z `ContentTimeout` — po
+czasie bez zapisu gasi treść, choć źródło żyje i raportuje tę samą wartość; raport cykliczny
+jest właśnie tym, co je odświeża. Zapis tej samej wartości jest nieszkodliwy, a pętli nie
+ma (§4.1). Koszt: jeden zapis na `ReportInterval` źródła.
 
 Źródłem **nie może być** komenda ani odpowiedź: te pochodzą od huba i wiązanie ich do
 siebie tworzyłoby pętlę z definicji.
@@ -106,6 +113,11 @@ rozstrzygania, gdy zdarzenie przepadło.
 
 Ostatni wiersz jest tym, co obsługuje zapytania: powiązanie „wejście ← źródło" ma jako cel
 zapis, a nie komendę ([`04-interakcje.md`](04-interakcje.md) §8).
+
+Zapis atrybutu niesie **wartość źródła**: źródłem musi być raportowany atrybut tego samego
+typu, a hub przepisuje jego wartość bez przeliczania — także „brak”. Zdarzenie nie może być
+źródłem zapisu, bo nie niesie wartości atrybutu. Skalowanie, odwracanie czy przesunięcie
+zamieniłyby powiązanie w program; to robota dla systemu nad hubem.
 
 ### 3.3 Trzy powiązania, które dziś istnieją
 

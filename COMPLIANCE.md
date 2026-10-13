@@ -157,7 +157,7 @@ reguły:
 | `LB-HUB-004` | `M` | Komenda grupowa nadawana osobno na każdej magistrali z członkami grupy | [`03`](03-adresacja.md) §3.1 |
 | `LB-HUB-005` | `M` | Od odebrania zdarzenia do przekazania komendy magistrali **najwyżej 50 ms**; bez kolejkowania i buforowania | [`07`](07-hub.md) §4.2 |
 | `LB-HUB-006` | `M` | Skutek powiązania **nie wyzwala** kolejnego powiązania | [`07`](07-hub.md) §4.1 |
-| `LB-HUB-007` | `M` | Powiązanie na atrybut wyzwalane **przy zmianie wartości**, nie przy każdym raporcie | [`07`](07-hub.md) §3.1 |
+| `LB-HUB-007` | `M` | Powiązanie na atrybut, którego celem jest komenda, wyzwalane **przy zmianie wartości**, nie przy każdym raporcie; cel będący zapisem — **przy każdym raporcie** | [`07`](07-hub.md) §3.1 |
 | `LB-HUB-008` | `M` | Brak powiązania **nie jest błędem** | [`07`](07-hub.md) §4 |
 | `LB-HUB-010` | `M` | Po restarcie: nasłuchiwanie, **nie** odpytywanie wszystkich węzłów | [`07`](07-hub.md) §5.1 |
 | `LB-HUB-011` | `M` | **Nie odtwarzać** zaległych zdarzeń po restarcie | [`07`](07-hub.md) §5.2 |
@@ -191,6 +191,7 @@ reguły:
 | `LB-HUB-048` | `M` | Blokada przeżywa restart huba | [`06`](06-cykl-zycia-urzadzenia.md) §8 |
 | `LB-HUB-049` | `M` | Przy enumeracji odczytane atrybuty deklaracji typu (`Quantity`, `TextLength`) | [`06`](06-cykl-zycia-urzadzenia.md) §3.1 |
 | `LB-HUB-050` | `M` | Łańcuch zapisywany **wyłącznie** jako `ZAPIS_DŁUGI`; powtarzana cała wartość, nie brakujący segment | [`05`](05-mapowanie-can.md) §6.6 |
+| `LB-HUB-051` | `M` | Zapis jako cel powiązania niesie **wartość źródła bez przeliczania**, także „brak”; źródłem jest raportowany atrybut tego samego typu, nigdy zdarzenie | [`07`](07-hub.md) §3.2 |
 
 ---
 

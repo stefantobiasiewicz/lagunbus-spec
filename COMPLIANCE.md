@@ -112,6 +112,7 @@ reguły:
 | `LB-NODE-035` | `M` | Kolejka pełna → porzucany **najstarszy raport**, nigdy zdarzenie ani odpowiedź | [`types/Diagnostics`](types/0x0002-diagnostics.md) §5.3 |
 | `LB-NODE-036` | `M` | `ReportMinGap` liczony między **rundami** raportów endpointu; raport wstrzymany wychodzi później z wartością bieżącą | [`01`](01-model-danych.md) §6 |
 | `LB-NODE-037` | `M` | Endpoint z `Enabled = 0`: odczyt i zapis działają, komenda → `INVALID_STATE`, żadnych zdarzeń ani raportów | [`01`](01-model-danych.md) §4.2 |
+| `LB-NODE-064` | `M` | Zapis atrybutu raportowanego wywołuje **raport** obok odpowiedzi, w granicach `ReportMinGap` | [`04`](04-interakcje.md) §4.2 |
 
 ### Wartości
 
@@ -192,6 +193,8 @@ reguły:
 | `LB-HUB-049` | `M` | Przy enumeracji odczytane atrybuty deklaracji typu (`Quantity`, `TextLength`) | [`06`](06-cykl-zycia-urzadzenia.md) §3.1 |
 | `LB-HUB-050` | `M` | Łańcuch zapisywany **wyłącznie** jako `ZAPIS_DŁUGI`; powtarzana cała wartość, nie brakujący segment | [`05`](05-mapowanie-can.md) §6.6 |
 | `LB-HUB-051` | `M` | Zapis jako cel powiązania niesie **wartość źródła bez przeliczania**, także „brak”; źródłem jest raportowany atrybut tego samego typu, nigdy zdarzenie | [`07`](07-hub.md) §3.2 |
+| `LB-HUB-052` | `M` | Argument komendy z pola zdarzenia źródła przepisany **bez przeliczania**; pole i argument tego samego typu | [`07`](07-hub.md) §3.2 |
+| `LB-HUB-053` | `M` | Nowsza komenda powiązania z argumentem ze zdarzenia **kończy powtarzanie** poprzedniej tego samego powiązania; komenda ze stałymi argumentami powtarzana jak zawsze | [`07`](07-hub.md) §3.2 |
 
 ---
 
@@ -205,6 +208,10 @@ reguły:
 | `LB-KEY-001` | `M` | `Down`/`Up` wyłącznie w trybie `RAW`; w `CLICK` i `MULTICLICK` naciśnięcie nie emituje niczego przed kliknięciem albo przytrzymaniem | [`types/KeyInput`](types/0x0010-key-input.md) §5.5 |
 | `LB-KEY-003` | `[HOLD]` | Zwolnienie po przytrzymaniu to **wyłącznie** `HoldEnd` — bez `Click` i bez `Up` | [`types/KeyInput`](types/0x0010-key-input.md) §5.5 |
 | `LB-KEY-004` | `[HOLD]` | `HoldTick` ustaje po 60 s trzymania; `HoldEnd` przy zwolnieniu przychodzi normalnie | [`types/KeyInput`](types/0x0010-key-input.md) §5.6 |
+| `LB-VIN-001` | `M` | Krok nasycony na granicy **nie emituje** `Changed`; zapis `Value` z huba **nie emituje** `Changed` | [`types/ValueInput`](types/0x0011-value-input.md) §5.2, §5.5 |
+| `LB-VIN-002` | `M` | Zawężenie zakresu przycina `Value` bez `Changed`; `Value` spoza zakresu → `INVALID_VALUE` | [`types/ValueInput`](types/0x0011-value-input.md) §2.2 |
+| `LB-VIN-003` | `M` | `delta` = `value` po − `value` przed, także przy zawinięciu; zawija tylko krok z granicy | [`types/ValueInput`](types/0x0011-value-input.md) §4, §5.2 |
+| `LB-VIN-004` | `M` | Zapis `Value` do pamięci trwałej dopiero po 5 s bez zmian; po `FactoryReset` `Value = MinValue` | [`types/ValueInput`](types/0x0011-value-input.md) §5.6 |
 | `LB-SCN-001` | `M` | `SceneCapacity` ≥ 8; pojemność liczona w **parach** `(grupa, numer)` | [`types/Scenes`](types/0x0003-scenes.md) §3 |
 | `LB-SNS-001` | `M` | Do pierwszego udanego pomiaru `Value` = brak i **nie jest raportowana**; progi śledzone dopiero od pierwszego poprawnego odczytu | [`types/Sense`](types/0x0030-sense.md) §5.5 |
 | `LB-SNS-002` | `M` | Awaria czujnika → `Value` = brak, raportowana; **nigdy zero**; min/max bez odczytów nieudanych | [`types/Sense`](types/0x0030-sense.md) §5.2 |

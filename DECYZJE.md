@@ -850,6 +850,23 @@ rozmawiają ze sobą").
   na trwałe. Para klawiszy „jaśniej/ciemniej" to **jeden** endpoint — katalog nazywa funkcję,
   nie sprzęt.
 
+### ValueInput: przycięcie przy zmianie zakresu, zawijanie z granicy
+
+**Obowiązuje** · [`types/0x0011-value-input.md`](types/0x0011-value-input.md) §2.2, §4, §5.2 · 2026-10-15
+
+- **Zawężenie zakresu przycina `Value`**, zamiast odrzucić zapis; bez `Changed`, z raportem.
+  Odrzucenie wymagałoby od huba pisania w ustalonej kolejności. Zapis samej `Value` spoza
+  zakresu → `INVALID_VALUE`.
+- **Przy `Wrap = 1` zawija dopiero krok z granicy** (`990 → 1000 → MinValue`); inaczej
+  granica przy kroku niedzielącym zakresu byłaby nieosiągalna.
+- **Zapis `Value` z huba raportowany od razu**, jak każdy zapis atrybutu raportowanego —
+  nie dopiero przy raporcie cyklicznym, jak mówiła pierwsza wersja typu. Wyjątek od ogólnej
+  reguły nie miał uzasadnienia, a drugi panel czekałby na zmianę do pięciu minut. `Changed`
+  dalej nie powstaje.
+- **`delta` arytmetyczna**, także przy zawinięciu (`1000 → 0` daje `−1000`): cel związany
+  przez `Step` idzie za wartością. Kilka kroków jednym zdarzeniem — `delta` to suma.
+- **Ślad:** `zadania/devices/DEVICE-02.md` (S1, S2) w katalogu projektu.
+
 ### Sense: wielkość jest parametrem
 
 **Obowiązuje** · [`types/0x0030-sense.md`](types/0x0030-sense.md) · 2026-09-09
@@ -997,6 +1014,25 @@ rozmawiają ze sobą").
   choć czujnik żyje. Zapis tej samej wartości nic nie psuje, a pętli nie ma, bo skutek
   powiązania nie wyzwala kolejnego. Koszt: jeden zapis na `ReportInterval` źródła.
 - Zgodności wielkości (`Quantity`) źródła i celu specyfikacja na razie nie wymaga od huba.
+
+### Argument komendy z pola zdarzenia; nowsza komenda zastępuje starszą
+
+**Obowiązuje** · [`07`](07-hub.md) §3.2 · 2026-10-15
+
+- **Komenda celu może wziąć argument z pola zdarzenia źródła**, przepisany bez przeliczania,
+  przy równych typach pola i argumentu (`ValueInput.Changed.value` → `Output.SetLevel.level`).
+  Bez tego pokrętło nie ściemnia: `Output.Level` jest tylko do odczytu, więc zapis
+  z wartością źródła nie ma tu celu. Źródłem jest tylko zdarzenie; raport jako źródło komendy
+  z wartością — odłożone, nikt go nie potrzebuje. Odrzucone jak przy zapisie: skala,
+  przesunięcie.
+- **Nowsza komenda takiego powiązania zastępuje starszą** — hub przestaje powtarzać
+  poprzednią, która nie dostała odpowiedzi. Powtórzenie wartości bezwzględnej dochodzące po
+  nowszej cofa światło. Tylko dla powiązań z argumentem ze zdarzenia: przy stałych
+  argumentach dwa kliknięcia to dwa `Toggle` i zgubiony pierwszy ma zostać powtórzony.
+  Odrzucone: zastępowanie w każdym powiązaniu (psuje `Toggle`) i brak reguły (rzadkie,
+  ale widoczne cofnięcie światła). Koszt: `delta` → `Step` traci powtórzenie zgubionego
+  kroku — dlatego `ValueInput` zaleca `value`.
+- **Ślad:** `zadania/devices/DEVICE-02.md` (N1, B2) w katalogu projektu.
 
 ### Budżet huba: 50 ms, z progu odczuwalności
 

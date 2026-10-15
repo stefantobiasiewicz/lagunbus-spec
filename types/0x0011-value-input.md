@@ -82,7 +82,15 @@ z telefonu (§5.5).
 
 `MinValue` większe od `MaxValue` jest błędem konfiguracji — zapis, który by do tego
 doprowadził, kończy się `INVALID_VALUE`
-([`../04-interakcje.md`](../04-interakcje.md) §9).
+([`../04-interakcje.md`](../04-interakcje.md) §9). Tak samo kończy się zapis `Value` spoza
+`MinValue`–`MaxValue`.
+
+Zapis `MinValue` albo `MaxValue`, po którym bieżąca `Value` wypada poza nowy zakres,
+jest przyjmowany, a węzeł **przycina** `Value` do najbliższej granicy. Zmiana idzie
+raportem; `Changed` nie powstaje, bo nie ruszył jej człowiek (§5.5). Odrzucenie zapisu
+zmuszałoby hub do pisania w ustalonej kolejności — najpierw wartość, potem zakres — żeby
+w ogóle zawęzić zakres pokrętła, a wartość spoza zakresu byłaby stanem, którego typ nie
+dopuszcza nigdzie indziej.
 
 `StepSize` jest zmianą wartości na **jedno działanie** — kliknięcie, impuls enkodera.
 Urządzenie, które go nie wystawia, stosuje własny, stały krok z zakresu 1–1000 ‰
@@ -107,7 +115,9 @@ utrzymania i dwa zestawy kodów błędów.
 |---|---|---|---|---|
 | `0x01` | `Changed` | `value: u16` [‰], `delta: i16` [‰] | `INFO` | M |
 
-`value` to wartość **po** zmianie, `delta` — o ile się zmieniła i w którą stronę.
+`value` to wartość **po** zmianie, `delta` — o ile się zmieniła i w którą stronę:
+zawsze `value` po zmianie minus `value` przed nią, także przy zawinięciu (§5.2). Kilka
+kroków ogłoszonych jednym zdarzeniem (§5.3) daje jedną `delta`, ich sumę.
 
 `delta` nie jest powtórzeniem tego, co hub sam by policzył. Pozwala związać to wejście
 wprost z komendą `Step` typu [`Output`](0x0020-output.md), bez pamiętania po stronie huba,
@@ -174,7 +184,14 @@ sens dla enkodera bez ograniczników — dla pary klawiszy jest pułapką, bo pr
 przy maksimum nagle gasi światło.
 
 Krok, który wyprowadziłby wartość poza zakres, **dochodzi do granicy**, a nie jest
-odrzucany: z `990` przy `StepSize = 50` robi się `1000`, nie `990`.
+odrzucany: z `990` przy `StepSize = 50` robi się `1000`, nie `990`. Przy `Wrap = 1` tak
+samo — zawija dopiero krok **z granicy**: `990 → 1000 → MinValue`. Inaczej granica przy
+kroku, który nie dzieli zakresu, byłaby nieosiągalna, a pokrętło przeskakiwałoby pełną
+jasność.
+
+`delta` zawiniętego kroku liczy się arytmetycznie: z `1000` na `0` to `−1000`, nie `+50`.
+Odbiorca związany przez `Step` idzie wtedy za wartością, zamiast nasycić się na górze,
+gdy pokrętło pokazuje zero.
 
 ### 5.3 Jak urządzenie dochodzi do wartości
 
@@ -202,7 +219,9 @@ Wymagania wspólne:
   Zaklinowany klawisz przy `Wrap = 1` nie ma prawa zająć magistrali.
 
 Ruch gałką albo przewijanie to ciąg zdarzeń; ile ich wychodzi na sekundę ruchu, dobiera
-autor urządzenia, tak jak dobiera krok.
+autor urządzenia, tak jak dobiera krok. Wolno mu ogłosić kilka kroków, które przyszły
+naraz — szybki obrót enkodera — jednym `Changed`: `value` jest bezwzględna, więc odbiorca
+nic nie traci, a magistrala niesie mniej.
 
 ### 5.4 Zgubione zdarzenie samo się naprawia
 
@@ -227,8 +246,9 @@ hubowi napisać znowu. Reguła „skutek powiązania nie wyzwala kolejnego powi�
 ([`../07-hub.md`](../07-hub.md)) broni przed tym po stronie huba — ta broni po stronie
 węzła, czyli także wtedy, gdy zapis przyszedł skądinąd.
 
-Zapis **jest** natomiast raportowany zwyczajnie, przy najbliższym raporcie cyklicznym —
-bo to jest zmiana stanu i nowi słuchacze mają ją zobaczyć.
+Zapis **jest** natomiast raportowany zwyczajnie, jak każdy zapis atrybutu raportowanego
+([`../04-interakcje.md`](../04-interakcje.md) §4.2) — od razu, w granicach `ReportMinGap` —
+bo to jest zmiana stanu i pozostali słuchacze mają ją zobaczyć.
 
 Typowe użycie: ktoś ściemnia światło z telefonu, hub zapisuje ten sam poziom do panelu,
 i następne naciśnięcie klawisza rusza **z miejsca, w którym światło naprawdę jest**,

@@ -119,6 +119,34 @@ typu, a hub przepisuje jego wartość bez przeliczania — także „brak”. Zd
 źródłem zapisu, bo nie niesie wartości atrybutu. Skalowanie, odwracanie czy przesunięcie
 zamieniłyby powiązanie w program; to robota dla systemu nad hubem.
 
+**Argument komendy może pochodzić z pola zdarzenia źródła.** Pokrętło ściemnia światło
+tylko wtedy, gdy liczba, którą ogłosiło, trafi do komendy wyjścia — `Changed.value`
+z [`ValueInput`](types/0x0011-value-input.md) jako `level` w `SetLevel` typu
+[`Output`](types/0x0020-output.md), a `Changed.delta` jako `delta` w `Step`. Reguły są te
+same co przy zapisie: pole i argument mają **ten sam typ**, hub przepisuje bajty bez
+przeliczania, pozostałe argumenty są stałe z konfiguracji. Źródłem jest wyłącznie
+zdarzenie — raport jako źródło komendy z wartością nie jest dziś potrzebny, a zmiana
+atrybutu ma już swój cel: zapis.
+
+Kopia kilku bajtów nie zmienia drogi powiązania: nadal jest to jedno dopasowanie i jedna
+ramka, w budżecie z §4.2.
+
+> **Nowsza komenda takiego powiązania zastępuje starszą.** Gdy powiązanie z argumentem ze
+> zdarzenia nadaje komendę do celu, któremu poprzednia komenda **tego samego powiązania**
+> jeszcze nie odpowiedziała, hub przestaje ją powtarzać
+> ([`04-interakcje.md`](04-interakcje.md) §2.1).
+
+Przy kręceniu pokrętłem komendy idą co kilkadziesiąt milisekund, a powtórzenie przychodzi
+po 100 ms. Powtórzone `SetLevel(300)` doszłoby wtedy **po** `SetLevel(500)` i światło
+cofnęłoby się do wartości, której człowiek już nie chce. Liczy się najświeższa liczba;
+zgubioną naprawi następny ruch gałką albo raport.
+
+Reguła dotyczy tylko powiązań z argumentem ze zdarzenia. Komenda ze stałymi argumentami
+nie ma czego zastępować: dwa szybkie kliknięcia to dwa `Toggle`, i zgubiony pierwszy ma
+zostać powtórzony. Powiązanie `delta` → `Step` traci przez tę regułę powtórzenie
+zgubionego kroku — to ta sama wada, przez którą powiązanie oparte na `value` jest
+odporniejsze ([`types/0x0011-value-input.md`](types/0x0011-value-input.md) §5.4).
+
 ### 3.3 Trzy powiązania, które dziś istnieją
 
 ```

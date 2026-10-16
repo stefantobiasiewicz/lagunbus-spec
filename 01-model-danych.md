@@ -147,7 +147,7 @@ Przykład — typ [`Output`](types/0x0020-output.md):
 | Bit | Cecha | Co obejmuje |
 |---|---|---|
 | — | *(rdzeń typu, zawsze obecny)* | atrybut `OnOff`, komendy `On`/`Off`/`Toggle` |
-| 0 | `LEVEL` | atrybut `Level`, komendy `SetLevel`/`Step`/`Fade`/`Stop` |
+| 0 | `LEVEL` | atrybut `Level`, komendy `SetLevel`/`Step`/`Stop` |
 | 1 | `COLOR_RGB` | atrybuty `Red`/`Green`/`Blue`/`White`, komenda `SetColor` |
 | 2 | `COLOR_CCT` | atrybut `ColorTemperature`, komenda `SetColorTemperature` |
 
@@ -552,7 +552,7 @@ ostatnim bitem bez przerwy ([`types/0x0030-sense.md`](types/0x0030-sense.md) §5
 
 **Typ raportujący więcej niż jeden atrybut liczbowy musi powiedzieć, którego z nich
 histereza dotyczy.** Jedna wartość nie stosuje się sensownie do kilku różnych skal naraz —
-poziom w promilach i składowa barwy w zakresie 0–255 nie mają wspólnej miary. Typy,
+poziom w promilach i składowa barwy w zakresie 0–254 nie mają wspólnej miary. Typy,
 w których zmiana stanu jest zdarzeniem sterującym, a nie pomiarem — jak
 [`Output`](types/0x0020-output.md) — raportują każdą zmianę niezależnie od histerezy.
 

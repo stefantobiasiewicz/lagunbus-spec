@@ -133,7 +133,7 @@ ośmiuset latach zużycia typowego domu. To nie wymaga obsługi przepełnienia.
 |---|---|---|---|
 | **Poziom** | `u16` | 0 … 1000 ‰ | jasność, moc, otwarcie zaworu |
 | **Pozycja** | `u16` | 0 … 1000 ‰ | 0 = zamknięte, 1000 = otwarte |
-| **Składowa barwy** | `u8` | 0 … 255 | składowe R, G, B, W |
+| **Składowa barwy** | `u8` | 0 … 254 | składowe R, G, B, W; `0xFF` to „brak”, jak w każdym `u8` |
 | **Temperatura barwowa** | `u16` | 1 … 65534 mired | 153 ≈ 6500 K, 500 ≈ 2000 K |
 
 Poziom w promilach, a nie w procentach, bo tysiąc kroków to sensowna rozdzielczość

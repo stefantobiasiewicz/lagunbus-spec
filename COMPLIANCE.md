@@ -205,6 +205,8 @@ reguły:
 | `LB-OUT-001` | `[LEVEL]` | `Level` jest jedynym stanem prawdziwym; `OnOff = (Level > 0)` | [`types/Output`](types/0x0020-output.md) §5.1 |
 | `LB-OUT-002` | `[LEVEL]` | `Step` nasyca się na `MinLevel`/`MaxLevel`, **nigdy nie przechodzi przez zero** | [`types/Output`](types/0x0020-output.md) §5.2 |
 | `LB-OUT-003` | `[LEVEL]` | `Level` **nie jest raportowany w trakcie przejścia** — tylko na początku i końcu | [`types/Output`](types/0x0020-output.md) §5.3 |
+| `LB-OUT-004` | `[COLOR_RGB]` | Barwa i jasność niezależne: komendy poziomu nie ruszają barwy, `SetColor` nie rusza `Level` i nie zapala; `SetColor(0,0,0,0)` → `INVALID_VALUE` | [`types/Output`](types/0x0020-output.md) §5.8 |
+| `LB-OUT-005` | `[COLOR_RGB]` | Barwa trwała (zapis po 5 s bez zmian), po `FactoryReset` `254, 254, 254, 0`; jedno przejście dla poziomu i barwy | [`types/Output`](types/0x0020-output.md) §5.8 |
 | `LB-KEY-001` | `M` | `Down`/`Up` wyłącznie w trybie `RAW`; w `CLICK` i `MULTICLICK` naciśnięcie nie emituje niczego przed kliknięciem albo przytrzymaniem | [`types/KeyInput`](types/0x0010-key-input.md) §5.5 |
 | `LB-KEY-003` | `[HOLD]` | Zwolnienie po przytrzymaniu to **wyłącznie** `HoldEnd` — bez `Click` i bez `Up` | [`types/KeyInput`](types/0x0010-key-input.md) §5.5 |
 | `LB-KEY-004` | `[HOLD]` | `HoldTick` ustaje po 60 s trzymania; `HoldEnd` przy zwolnieniu przychodzi normalnie | [`types/KeyInput`](types/0x0010-key-input.md) §5.6 |

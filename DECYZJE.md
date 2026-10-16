@@ -870,6 +870,41 @@ rozmawiają ze sobą").
   z pisania biblioteki i huba, przed płytką.
 - **Ślad:** `zadania/zrobione/DEVICE-02.md` (S1, S2, N7) w katalogu projektu.
 
+### Output: barwa niezależna od jasności, trwała, domyślnie biała
+
+**Obowiązuje** · [`types/0x0020-output.md`](types/0x0020-output.md) §1, §2.1, §5.8 · 2026-10-16
+
+- **Problem:** cecha `COLOR_RGB` miała atrybuty i komendę, ale nie zachowanie. Nie było
+  powiedziane, jak `Level` łączy się z barwą, co z `White` na diodzie RGB, czy `SetColor`
+  zapala ani jak przechodzi barwa. Barwa była tylko w RAM z domyślnym zerem, więc `ON` po
+  zaniku zasilania zapalałby na czarno. W tabeli cech stała komenda `Fade`, której tabela
+  komend nie zna.
+- **Wybrano:** barwa to składowe **przy pełnej jasności**, świeci barwa × `Level` / 1000.
+  Komendy poziomu nie ruszają barwy, `SetColor` nie rusza poziomu i nie zapala.
+  `SetColor(0,0,0,0)` → `INVALID_VALUE`. Jedno przejście dla poziomu i barwy, liniowe na
+  składowych. Barwa trwała (zapis po 5 s), po `FactoryReset` biała `254, 254, 254, 0`.
+  Bez białego kanału `White` jest dodawany do RGB. `Fade` wypadło z tabeli cech.
+- **Składowa barwy 0–254, nie 0–255.** Tabela typu i rozdział typów danych podawały
+  0–255, a `u8` rezerwuje `0xFF` na „brak” — hub czytał pełną czerwień jako brak odczytu.
+  Wyszło przy pierwszym hubie, który tę barwę odebrał. Odrzucono wyjątek „barwa bez
+  braku” — kodek musiałby znać go per atrybut w każdej implementacji, a krok 1/255 jest
+  niewidoczny.
+- **`Step` przy `Level = 0`** w górę zapala na wartości kroku (co najmniej `MinLevel`),
+  w dół nic nie robi — tekst mówił tylko, że `Step` nie przechodzi przez zero.
+  Odrzucono „`Step` tylko na zapalonym” — przytrzymanie „jaśniej” nie zapalałoby lampy.
+- **`On`, `Off`, `Toggle` przechodzą w `DefaultFadeTime`** — nie mają `transition`,
+  a nazwa ustawienia mówi, że to czas wygaszania komend, które go nie podają.
+- **Odrzucono:** barwę niosącą jasność (`Level` jako jedyna jasność odpada albo staje się
+  drugą kopią tej samej informacji — pokrętło ściemniające zmieniałoby kolor); `SetColor`
+  zapalające wyjście (barwa i jasność przestają być niezależne, a „ustaw kolor na jutro"
+  zapala lampę); czarną barwę jako sposób gaszenia (stan „włączone, a ciemne", zakazany
+  przy `Level`); osobną cechę `COLOR_RGBW` (różnica dotyczy tylko wykonania, nie
+  intencji); komendę `Fade` (wygaszanie to argument `transition` każdej komendy poziomu —
+  druga droga do tego samego).
+- **Rewizja 1 bez zmian.** Żadne urządzenie nie implementowało jeszcze `COLOR_RGB`, więc
+  zmiana nie psuje niczego, co istnieje (`08-wersjonowanie.md` §3).
+- **Ślad:** `zadania/devices/DEVICE-03.md` (K1–K8, N1) w katalogu projektu.
+
 ### Sense: wielkość jest parametrem
 
 **Obowiązuje** · [`types/0x0030-sense.md`](types/0x0030-sense.md) · 2026-09-09

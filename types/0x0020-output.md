@@ -35,7 +35,7 @@ z czterema cechami.
 | Bit | Cecha | Dokłada |
 |---|---|---|
 | — | *(zawsze)* | `OnOff`, komendy `On` / `Off` / `Toggle` |
-| 0 | `LEVEL` | `Level`, `LastLevel`, `MinLevel`, `MaxLevel`, `DefaultFadeTime`, komendy `SetLevel` / `Step` / `Fade` / `Stop` |
+| 0 | `LEVEL` | `Level`, `LastLevel`, `MinLevel`, `MaxLevel`, `DefaultFadeTime`, komendy `SetLevel` / `Step` / `Stop` |
 | 1 | `COLOR_RGB` | `Red`, `Green`, `Blue`, `White`, komenda `SetColor` |
 | 2 | `COLOR_CCT` | `ColorTemperature`, komenda `SetColorTemperature` |
 | 3 | `PULSE` | `PulseDuration`, komenda `Pulse` |
@@ -54,10 +54,10 @@ błędem konfiguracji urządzenia.
 |---|---|---|---|---|---|---|---|---|
 | `0x00` | `OnOff` | `bool` | RO | V | tak | M | — | `0` |
 | `0x01` | `Level` | `u16` | RO | V | tak | `[LEVEL]` | 0–1000 ‰ | `0` |
-| `0x02` | `Red` | `u8` | RO | V | tak | `[COLOR_RGB]` | 0–255 | `0` |
-| `0x03` | `Green` | `u8` | RO | V | tak | `[COLOR_RGB]` | 0–255 | `0` |
-| `0x04` | `Blue` | `u8` | RO | V | tak | `[COLOR_RGB]` | 0–255 | `0` |
-| `0x05` | `White` | `u8` | RO | V | tak | `[COLOR_RGB]` | 0–255 | `0` |
+| `0x02` | `Red` | `u8` | RO | P | tak | `[COLOR_RGB]` | 0–254 | `254` |
+| `0x03` | `Green` | `u8` | RO | P | tak | `[COLOR_RGB]` | 0–254 | `254` |
+| `0x04` | `Blue` | `u8` | RO | P | tak | `[COLOR_RGB]` | 0–254 | `254` |
+| `0x05` | `White` | `u8` | RO | P | tak | `[COLOR_RGB]` | 0–254 | `0` |
 | `0x06` | `ColorTemperature` | `u16` | RO | V | tak | `[COLOR_CCT]` | 153–500 mired | `370` |
 | `0x07` | `Transitioning` | `bool` | RO | V | tak | `[LEVEL]` | — | `0` |
 | `0x08` | `LastLevel` | `u16` | RO | P | nie | `[LEVEL]` | 1–1000 ‰ | `1000` |
@@ -137,6 +137,13 @@ wyniku; zmiana stanu wywołuje dodatkowo raport zmienionego atrybutu (§5.4).
 Argument `transition` równy `0` oznacza zmianę natychmiastową; wartość `0xFFFF`
 oznacza „użyj `DefaultFadeTime`".
 
+`SetColor` ze wszystkimi czterema składowymi równymi zero dostaje `INVALID_VALUE` (§5.8),
+tak samo jak składowa `0xFF` — to wartość „brak” typu `u8`
+([`02-typy-danych.md`](../02-typy-danych.md) §2), nie pełna jasność kanału.
+
+`On`, `Off` i `Toggle` nie mają argumentu `transition`: przy cesze `LEVEL` przechodzą
+w czasie `DefaultFadeTime`.
+
 ---
 
 ## 4. Zdarzenia
@@ -180,6 +187,8 @@ lampę i zaczyna migotać, a taśma LED gaśnie nierówno.
 - `SetLevel(v)` dla `v > MaxLevel` ustawia `MaxLevel`.
 - `Step` nasyca się na `MinLevel` i `MaxLevel`; **nigdy nie przechodzi przez zero**,
   więc przytrzymanie klawisza ściemniania nie zgasi lampy.
+- `Step` przy `Level = 0`: krok w górę zapala na wartości kroku, co najmniej `MinLevel`;
+  krok w dół nic nie robi i nie jest błędem. Przytrzymanie „jaśniej” zapala lampę.
 
 Zgasić można wyłącznie jawnie: `Off`, `Toggle` albo `SetLevel(0)`.
 
@@ -251,6 +260,35 @@ a atrybuty mają wartość „brak". Węzeł nie raportuje ich, dopóki nie zako
 konfiguracji i nie wyemituje `Booted`
 ([`06-cykl-zycia-urzadzenia.md`](../06-cykl-zycia-urzadzenia.md) §1.1).
 
+### 5.8 Barwa
+
+Przy cesze `COLOR_RGB` stan wyjścia ma dwie niezależne części: **jasność** (`Level`)
+i **barwę** (`Red`, `Green`, `Blue`, `White`). Barwa to składowe **przy pełnej jasności**;
+to, co świeci, to każda składowa przemnożona przez `Level` / 1000.
+
+> Barwa nie niesie jasności, a jasność nie niesie barwy. `On`, `Off`, `Toggle`,
+> `SetLevel` i `Step` działają dokładnie tak jak bez koloru (§5.1, §5.2) i barwy nie
+> ruszają; `SetColor` zmienia barwę i jasności nie rusza.
+
+Dzięki temu ściemnianie pokrętłem nie zmienia koloru, a `On` po `Off` zapala w tym samym
+kolorze, w którym zgasło.
+
+- **`SetColor` przy zgaszonym wyjściu** zmienia samą barwę i niczego nie zapala. Zapala
+  `On` albo `SetLevel`.
+- **`SetColor(0, 0, 0, 0)` dostaje `INVALID_VALUE`.** Czarna barwa przy `Level > 0`
+  byłaby stanem „włączone, a ciemne", którego §5.1 nie dopuszcza. Gasi się poziomem.
+- **Przejście barwy** jest liniowe na każdej składowej osobno. Barwa i poziom mają
+  **jedno** przejście: nowa komenda — poziomu albo barwy — przerywa trwające i zaczyna od
+  wartości bieżących, `Stop` zatrzymuje oba. Raporty jak w §5.3: `Transitioning = 1` na
+  początku, barwa docelowa i `Transitioning = 0` na końcu, bez składowych w trakcie.
+- **Barwa jest trwała**, niezależnie od `PowerOnBehaviour`: zapis opóźniony o 5 s od
+  ostatniej zmiany, jak przy `RESTORE` (§2.3). `ON` zapala na `LastLevel` w zapamiętanej
+  barwie. Po `FactoryReset` barwa jest biała: `254, 254, 254, 0`. Składowa kończy się na
+  254, bo `0xFF` to „brak” typu `u8`; różnicy jednego kroku na 255 oko nie widzi.
+- **Urządzenie bez białego kanału** — dioda RGB — raportuje w `White` to, co zadano,
+  a wykonuje to, dodając `White` równo do czerwonej, zielonej i niebieskiej, z nasyceniem. Atrybuty opisują intencję; jak urządzenie przekłada ją na prąd diod —
+  korekcja jasności, kolejność kanałów, ograniczenie prądu — należy do urządzenia.
+
 ---
 
 ## 6. Konfiguracje typowe
@@ -262,6 +300,7 @@ konfiguracji i nie wyemituje `Booted`
 | Ściemniacz triakowy | `LEVEL` | `LIGHT` | `MinLevel` ≈ 100 ‰ |
 | Wyjście 0–10 V | `LEVEL` | `LIGHT` | `MinLevel` = 1 ‰ |
 | Taśma LED RGBW | `LEVEL \| COLOR_RGB` | `LIGHT` | |
+| Diody WS2812 w linii, jedna barwa | `LEVEL \| COLOR_RGB` | `LIGHT` | bez białego kanału — `White` dodawany do RGB (§5.8) |
 | Taśma LED CCT | `LEVEL \| COLOR_CCT` | `LIGHT` | |
 | Zawór ogrzewania | — | `VALVE` | `PowerOnBehaviour` = `OFF` |
 | Zawór proporcjonalny | `LEVEL` | `VALVE` | |
@@ -285,7 +324,7 @@ Typ dostarcza hubowi cztery informacje, które do tego wystarczają:
 | `Purpose` | atrybut `0x17` | czym to jest dla mieszkańca |
 | `Channel` | atrybut wspólny `0xF5` | którą rzeczą fizyczną urządzenia to jest |
 | `Features` | atrybut wspólny `0xF2` | co da się z tym zrobić |
-| stan | `OnOff`, `Level`, barwa | jak jest teraz |
+| stan | `OnOff`, `Level`, barwa (§5.8) | jak jest teraz |
 
 Para `(Purpose, Features)` jednoznacznie określa charakter wyjścia: `LIGHT` bez cech to
 zwykły włącznik światła, `LIGHT | LEVEL | COLOR_RGB` to sterownik taśmy, `GATE | PULSE`

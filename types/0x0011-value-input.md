@@ -1,8 +1,8 @@
 # Typ endpointu `0x0011` · ValueInput
 
-> **Szkic.** Zakres i krok rozstrzygnięte; od 2026-10-13 typ opisuje wartość, a nie palec —
-> jak urządzenie dochodzi do liczby (krok, przytrzymanie, położenie gałki), należy do jego
-> autora. Typ czeka na pierwsze zbudowane urządzenie.
+> **Stabilne.** Sprawdzone 2026-10-16 na pierwszym zbudowanym urządzeniu — pokrętle
+> z enkoderem i klawiszem w osi. Typ opisuje wartość, a nie palec: jak urządzenie dochodzi
+> do liczby (krok, przytrzymanie, położenie gałki), należy do jego autora.
 
 **Rewizja 1** · wejście z własną wartością
 

@@ -865,7 +865,10 @@ rozmawiają ze sobą").
   dalej nie powstaje.
 - **`delta` arytmetyczna**, także przy zawinięciu (`1000 → 0` daje `−1000`): cel związany
   przez `Step` idzie za wartością. Kilka kroków jednym zdarzeniem — `delta` to suma.
-- **Ślad:** `zadania/devices/DEVICE-02.md` (S1, S2) w katalogu projektu.
+- **Typ stabilny od 2026-10-16** — po pierwszym zbudowanym urządzeniu (pokrętło EC11
+  z klawiszem w osi). Płytka nie zmieniła niczego w kontrakcie; zmiany z tego wpisu przyszły
+  z pisania biblioteki i huba, przed płytką.
+- **Ślad:** `zadania/zrobione/DEVICE-02.md` (S1, S2, N7) w katalogu projektu.
 
 ### Sense: wielkość jest parametrem
 
@@ -1032,7 +1035,7 @@ rozmawiają ze sobą").
   Odrzucone: zastępowanie w każdym powiązaniu (psuje `Toggle`) i brak reguły (rzadkie,
   ale widoczne cofnięcie światła). Koszt: `delta` → `Step` traci powtórzenie zgubionego
   kroku — dlatego `ValueInput` zaleca `value`.
-- **Ślad:** `zadania/devices/DEVICE-02.md` (N1, B2) w katalogu projektu.
+- **Ślad:** `zadania/zrobione/DEVICE-02.md` (N1, B2) w katalogu projektu.
 
 ### Budżet huba: 50 ms, z progu odczuwalności
 

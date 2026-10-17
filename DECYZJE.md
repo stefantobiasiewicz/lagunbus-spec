@@ -903,7 +903,7 @@ rozmawiają ze sobą").
   druga droga do tego samego).
 - **Rewizja 1 bez zmian.** Żadne urządzenie nie implementowało jeszcze `COLOR_RGB`, więc
   zmiana nie psuje niczego, co istnieje (`08-wersjonowanie.md` §3).
-- **Ślad:** `zadania/devices/DEVICE-03.md` (K1–K8, N1) w katalogu projektu.
+- **Ślad:** `zadania/zrobione/DEVICE-03.md` (K1–K8, N1) w katalogu projektu.
 
 ### Sense: wielkość jest parametrem
 

@@ -68,6 +68,14 @@ Tryb **wygasa samoczynnie** po piętnastu minutach. Otwarty na stałe nie chroni
 Węzeł `OCZEKUJĄCY` nie wymaga ponownego uruchomienia: zgłasza się bez końca, więc po
 włączeniu trybu zostanie przyjęty w ciągu najwyżej minuty.
 
+**Przyjęcie jednego wskazanego.** Obok trybu operator może wskazać hubowi **jeden**
+oczekujący węzeł bez adresu, po jego `ShortId`. Hub przydziela adres tylko temu węzłowi,
+przy jego najbliższym `ZGŁOSZENIU` — inne oczekujące zostają oczekującymi. Wskazanie
+wygasa po piętnastu minutach, tak jak tryb. Ramki są te same co przy trybie: hub odpowiada
+na zgłoszenie, a nie nadaje przydziału bez niego, bo węzeł czeka na `PRZYDZIAŁ` tylko
+chwilę po zgłoszeniu ([`03-adresacja.md`](03-adresacja.md) §5). Który moduł dostał adres,
+pokazuje potem `Identify` na jego diodzie stanu.
+
 ### 2.2 Przebieg
 
 ```
@@ -145,7 +153,8 @@ zostaje `ZABLOKOWANY` (§8).
 
 Działa to tylko dla węzła **z adresem**. Węzeł bez adresu zgłasza się samym `ShortId`,
 a `ShortId` hub czyta, nie wylicza (wyżej) — więc z konfiguracji go nie rozpozna, dopóki
-nie zna jego `ShortId`. Taki węzeł wraca przez tryb przyjmowania. Przyjęcie
+nie zna jego `ShortId`. Taki węzeł wraca przez tryb przyjmowania albo wskazany przez
+operatora (§2.1). Przyjęcie
 pod adresem, który w bazie huba należy do innego urządzenia, nie jest możliwe — wtedy
 zostaje reset fabryczny.
 
@@ -355,7 +364,7 @@ i są w każdym węźle. Czwarty byłby drugim tętnem obok pierwszego.
 
 Usunięcie jest **operacją po stronie huba** — węzeł nie zna takiego pojęcia. Hub
 **zapomina** urządzenie: nie zostaje po nim żaden stan, także pod jego `ShortId`. Wraca
-tylko przez tryb przyjmowania, jak każde nieznane.
+tylko tak jak każde nieznane: przez tryb przyjmowania albo wskazany przez operatora (§2.1).
 
 Operator wybiera jeden z dwóch trybów.
 

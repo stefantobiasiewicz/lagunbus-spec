@@ -186,7 +186,7 @@ reguły:
 | `LB-HUB-042` | `M` | Po przekroczeniu progu: odczyt `Device.Uptime`; **trzy nieudane próby co 10 s** → `NIEOBECNY` | [`06`](06-cykl-zycia-urzadzenia.md) §5.2 |
 | `LB-HUB-043` | `M` | Spadek `Uptime` względem poprzedniego odczytu rozpoznany jako **przeoczony restart** | [`06`](06-cykl-zycia-urzadzenia.md) §5.2 |
 | `LB-HUB-044` | `M` | Usunięcie zwykłe: hub zapomina węzeł **dopiero po potwierdzeniu** `FactoryReset`; bez potwierdzenia nic się nie zmienia | [`06`](06-cykl-zycia-urzadzenia.md) §6.1 |
-| `LB-HUB-045` | `M` | Po usunięciu `ShortId` traktowany jak nieznany — wraca **tylko** przez tryb przyjmowania | [`06`](06-cykl-zycia-urzadzenia.md) §6 |
+| `LB-HUB-045` | `M` | Po usunięciu `ShortId` traktowany jak nieznany — wraca **tylko** tak jak nieznany: przez tryb przyjmowania albo wskazanie operatora | [`06`](06-cykl-zycia-urzadzenia.md) §6 |
 | `LB-HUB-046` | `M` | Węzeł zablokowany **nie dostaje adresu** przy przyłączaniu, także przy włączonym trybie przyjmowania | [`06`](06-cykl-zycia-urzadzenia.md) §8 |
 | `LB-HUB-047` | `M` | Zdarzenia i raporty węzła zablokowanego **nie wyzwalają powiązań**; żadne powiązanie nie ma go za cel | [`06`](06-cykl-zycia-urzadzenia.md) §8 |
 | `LB-HUB-048` | `M` | Blokada przeżywa restart huba | [`06`](06-cykl-zycia-urzadzenia.md) §8 |
@@ -195,6 +195,7 @@ reguły:
 | `LB-HUB-051` | `M` | Zapis jako cel powiązania niesie **wartość źródła bez przeliczania**, także „brak”; źródłem jest raportowany atrybut tego samego typu, nigdy zdarzenie | [`07`](07-hub.md) §3.2 |
 | `LB-HUB-052` | `M` | Argument komendy z pola zdarzenia źródła przepisany **bez przeliczania**; pole i argument tego samego typu | [`07`](07-hub.md) §3.2 |
 | `LB-HUB-053` | `M` | Nowsza komenda powiązania z argumentem ze zdarzenia **kończy powtarzanie** poprzedniej tego samego powiązania; komenda ze stałymi argumentami powtarzana jak zawsze | [`07`](07-hub.md) §3.2 |
+| `LB-HUB-054` | `O` | Przyjęcie jednego wskazanego oczekującego węzła bez adresu: adres **tylko dla niego**, przy jego najbliższym `ZGŁOSZENIU`, inne oczekujące zostają; wskazanie wygasa po 15 minutach | [`06`](06-cykl-zycia-urzadzenia.md) §2.1 |
 
 ---
 

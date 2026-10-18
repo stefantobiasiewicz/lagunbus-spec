@@ -464,8 +464,21 @@ rozmawiają ze sobą").
   - koszt w każdej implementacji (specyfikacja, węzeł, hub, symulator, wektory) i wymóg dla
     każdego urządzenia, za zysk, którego instalacja przewodowa nie potrzebuje.
 - **Zamiast tego:** wybór jednego oczekującego węzła należy do huba — operator wskazuje
-  `ShortId`, ramki zostają bez zmian (zadania/FEAT-15). Który to moduł fizycznie, pokazuje
+  `ShortId`, ramki zostają bez zmian (zadania/zrobione/FEAT-15). Który to moduł fizycznie, pokazuje
   potem `Identify` na diodzie stanu.
+
+### Przyjęcie jednego wskazanego węzła, przy jego zgłoszeniu
+
+**Obowiązuje** · [`06`](06-cykl-zycia-urzadzenia.md) §2.1 · 2026-10-19
+
+- **Problem:** oczekujący węzeł bez adresu wchodził tylko przez tryb przyjmowania, a tryb
+  przyjmuje wszystkich oczekujących naraz (zadania/zrobione/FEAT-15).
+- **Wybrano:** operator wskazuje jeden `ShortId`; hub przydziela mu adres **przy jego
+  najbliższym `ZGŁOSZENIU`**, najwyżej po minucie (§5.6 rozdziału o adresacji). Wskazanie
+  wygasa po 15 minutach, jak tryb.
+- **Odrzucono:** `PRZYDZIAŁ` od razu, bez czekania na zgłoszenie — szybszy, ale węzeł czeka
+  na przydział tylko chwilę po zgłoszeniu; przyjęcie go poza tym oknem byłoby nowym
+  wymaganiem wobec każdego węzła, a zysk to najwyżej minuta.
 
 ### Węzeł z adresem, którego hub nie zna
 

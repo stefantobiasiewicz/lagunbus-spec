@@ -223,7 +223,7 @@ reguły:
 | `LB-MTR-001` | `M` | Licznik **nigdy nie maleje** poza `FactoryReset` | [`types/Meter`](types/0x0031-meter.md) §5.2 |
 | `LB-MTR-002` | `M` | Zapis licznika do pamięci trwałej nie częściej niż raz na 10 minut | [`types/Meter`](types/0x0031-meter.md) §5.4 |
 | `LB-THR-001` | `M` | Bez temperatury regulator **wyłącza wyjście** i nie reguluje | [`types/Thermostat`](types/0x0040-thermostat.md) §5.3 |
-| `LB-THR-002` | `M` | `RemoteTemperature` starsza niż `SourceTimeout` (albo czas ustalony przez urządzenie) traktowana jak **brak** | [`types/Thermostat`](types/0x0040-thermostat.md) §5.2 |
+| `LB-THR-002` | `M` | `RemoteTemperature` i `OutdoorTemperature` starsze niż `SourceTimeout` (albo czas ustalony przez urządzenie) traktowane jak **brak** — jeden czas dla obu wejść | [`types/Thermostat`](types/0x0040-thermostat.md) §5.2, §5.6 |
 | `LB-THR-003` | `M` | Regulator **nie adresuje** wyjścia na innym węźle | [`types/Thermostat`](types/0x0040-thermostat.md) §5.4 |
 | `LB-DSP-001` | `M` | Po starcie pole puste (`Content = NONE`), **także** gdy ekran pamięta obraz bez zasilania | [`types/Display`](types/0x0022-display.md) §5.7 |
 | `LB-DSP-002` | `M` | Treść nieodnowiona przez `ContentTimeout` (albo czas ustalony przez urządzenie) znika: `Content = NONE` | [`types/Display`](types/0x0022-display.md) §5.5 |

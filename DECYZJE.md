@@ -449,6 +449,24 @@ rozmawiają ze sobą").
 - **Dlaczego:** wymiana bezpiecznika ani reset fabryczny nie mają wymagać ceremonii, a tryb
   zostawiony otwarty na stałe przed niczym nie chroni.
 
+### Bez przyjmowania przyciskiem serwisowym
+
+**Obowiązuje** · [`06`](06-cykl-zycia-urzadzenia.md) §2.1 · 2026-10-19
+
+- **Rozważone:** hub przyjmuje nowy węzeł dopiero po wciśnięciu przycisku serwisowego na tym
+  module, jak parowanie w Zigbee albo WPS. Bit „wciśnięto mnie" zmieściłby się w rezerwie
+  `ZGŁOSZENIA`, bez nowego identyfikatora (zadania/zrobione/SPIKE-01).
+- **Odrzucono**, bo:
+  - nie zamyka żadnego zagrożenia, którego dziś brakuje: tryb przyjmowania chroni przed
+    bałaganem, nie przed napastnikiem, a dostęp do kabla w ścianie ma i tak tylko właściciel;
+  - węzeł po resecie fabrycznym wraca dziś z adresem sam, bo hub zna jego `ShortId` —
+    przycisk musiałby mieć tu wyjątek, czyli druga droga przyłączania;
+  - koszt w każdej implementacji (specyfikacja, węzeł, hub, symulator, wektory) i wymóg dla
+    każdego urządzenia, za zysk, którego instalacja przewodowa nie potrzebuje.
+- **Zamiast tego:** wybór jednego oczekującego węzła należy do huba — operator wskazuje
+  `ShortId`, ramki zostają bez zmian (zadania/FEAT-15). Który to moduł fizycznie, pokazuje
+  potem `Identify` na diodzie stanu.
+
 ### Węzeł z adresem, którego hub nie zna
 
 **Obowiązuje** · [`06`](06-cykl-zycia-urzadzenia.md) §2.3 · 2026-09-25, wdrożone 2026-09-29

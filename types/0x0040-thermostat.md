@@ -88,6 +88,9 @@ w pokoju, na innym węźle. Bez huba te dwie rzeczy nie mają jak się spotkać.
 Wszystkie temperatury w setnych stopnia, jak wszędzie
 ([`../02-typy-danych.md`](../02-typy-danych.md) §3). `Hysteresis` = `50` to pół stopnia.
 
+`SourceTimeout` obejmuje **oba** wejścia z §2.2 — `RemoteTemperature` (§5.2)
+i `OutdoorTemperature` (§5.6).
+
 ### 2.4 `Source`
 
 | Wartość | Nazwa | Znaczy |
@@ -312,7 +315,10 @@ Przy `WeatherSlope = 300` i −10 °C na dworze nastawa rośnie o 9,00 °C ponad
 Wynik jest zawsze przycinany do `MinSetpoint`…`MaxSetpoint`.
 
 Gdy `OutdoorTemperature` ma wartość „brak" albo jest przeterminowana, **kompensacja nie
-działa** i `EffectiveSetpoint` równa się `Setpoint`. Regulator pracuje dalej — kompensacja
+działa** i `EffectiveSetpoint` równa się `Setpoint`. Przeterminowuje się **tak samo jak
+`RemoteTemperature`** (§5.2): po `SourceTimeout` od ostatniego zapisu, a u regulatora bez
+`SourceTimeout` — po jego stałym czasie. Jeden czas dla obu wejść, bo hub wypełnia je tym
+samym mechanizmem i oba znikają z tych samych przyczyn. Regulator pracuje dalej — kompensacja
 jest ulepszeniem, nie warunkiem.
 
 ### 5.7 Co działa bez huba
